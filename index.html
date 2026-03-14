@@ -25,19 +25,24 @@
       font-family: 'Nunito', 'M PLUS Rounded 1c', sans-serif; 
       background-color: #FFF0F5; 
       color: #5D4037; 
-      /* 讓背景不可選取，避免干擾 iOS 判斷 */
       -webkit-user-select: none;
       user-select: none;
       -webkit-touch-callout: none;
     }
     
-    /* 🌟 iOS 終極解鎖：強制將輸入框設為「文字可選取」並移除 iOS 預設渲染干擾 */
-    input, textarea, select {
+    /* 🌟 iOS 解鎖：針對輸入框，但放過 checkbox 和 radio 讓它們正常顯示 */
+    input:not([type="checkbox"]):not([type="radio"]), textarea, select {
       -webkit-user-select: text !important;
       user-select: text !important;
       -webkit-appearance: none !important;
       appearance: none !important;
       cursor: text !important;
+    }
+    
+    /* 確保 checkbox 顯示正常並可以自訂顏色 */
+    input[type="checkbox"] {
+      -webkit-appearance: checkbox !important;
+      appearance: auto !important;
     }
 
     .card { background-color: #FFFFFF; border-radius: 20px; box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3); padding: 16px 20px; margin-bottom: 20px; }
@@ -157,40 +162,54 @@
           </div>
           
           <div class="p-4 flex flex-col gap-3">
+            
             <div v-if="getEventsByType(day.events, 'glucose').length > 0" class="bg-[#FFF9FA] border border-[#FFB6C1] rounded-xl p-3">
               <h4 class="font-bold text-[#D87093] mb-2 text-sm">🩸 血糖</h4>
-              <div v-for="rec in getEventsByType(day.events, 'glucose')" :key="rec.id" class="flex justify-between border-b border-pink-50 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
-                <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
-                <span :class="rec.glucose < 80 ? 'text-red-500 font-bold' : 'text-[#5D4037] font-bold'">{{ rec.glucose }}</span>
+              <div v-for="rec in getEventsByType(day.events, 'glucose')" :key="rec.id" class="flex justify-between items-center border-b border-pink-50 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
+                  <span :class="rec.glucose < 80 ? 'text-red-500 font-bold' : 'text-[#5D4037] font-bold'">{{ rec.glucose }} mg/dL</span>
+                </div>
+                <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
               </div>
             </div>
 
             <div v-if="getEventsByType(day.events, 'insulin').length > 0" class="bg-blue-50 border border-blue-200 rounded-xl p-3">
               <h4 class="font-bold text-blue-500 mb-2 text-sm">💉 胰島素</h4>
-              <div v-for="rec in getEventsByType(day.events, 'insulin')" :key="rec.id" class="flex justify-between border-b border-blue-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
-                <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
-                <span class="text-[#5D4037] text-sm">{{ rec.insulinTime }} ({{ rec.insulinDose }})</span>
+              <div v-for="rec in getEventsByType(day.events, 'insulin')" :key="rec.id" class="flex justify-between items-center border-b border-blue-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
+                  <span class="text-[#5D4037] text-sm">{{ rec.insulinTime }} ({{ rec.insulinDose }})</span>
+                </div>
+                <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
               </div>
             </div>
 
             <div v-if="getEventsByType(day.events, 'food').length > 0" class="bg-orange-50 border border-orange-200 rounded-xl p-3">
               <h4 class="font-bold text-orange-500 mb-2 text-sm">🐟 飲食</h4>
-              <div v-for="rec in getEventsByType(day.events, 'food')" :key="rec.id" class="flex justify-between border-b border-orange-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0 text-sm">
-                <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
-                <span>{{ rec.foodType }} {{ rec.foodAmount }}</span>
+              <div v-for="rec in getEventsByType(day.events, 'food')" :key="rec.id" class="flex justify-between items-center border-b border-orange-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0 text-sm">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
+                  <span>{{ rec.foodType }} {{ formatFoodAmount(rec.foodType, rec.foodAmount) }}</span>
+                </div>
+                <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
               </div>
             </div>
 
             <div v-if="getEventsByType(day.events, 'other').length > 0" class="bg-gray-50 border border-gray-200 rounded-xl p-3">
               <h4 class="font-bold text-gray-500 mb-2 text-sm">🩺 其他</h4>
-              <div v-for="rec in getEventsByType(day.events, 'other')" :key="rec.id" class="border-b border-gray-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0 text-sm">
-                <div class="flex justify-between mb-1">
-                  <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
-                  <span v-if="rec.weight">⚖️ {{ rec.weight }} kg</span>
+              <div v-for="rec in getEventsByType(day.events, 'other')" :key="rec.id" class="flex justify-between items-center border-b border-gray-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0 text-sm">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
+                    <span v-if="rec.weight">⚖️ {{ rec.weight }} kg</span>
+                  </div>
+                  <div v-if="rec.notes" class="text-gray-500 text-xs bg-white p-2 rounded border border-gray-100 inline-block">📝 {{ rec.notes }}</div>
                 </div>
-                <div v-if="rec.notes" class="text-gray-500 text-xs bg-white p-2 rounded border border-gray-100">📝 {{ rec.notes }}</div>
+                <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1 ml-2">🗑️</button>
               </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -274,11 +293,19 @@
       watch: {
         currentTab(newVal) {
           if (newVal === 'chart') {
-            this.$nextTick(() => { if (this.records.filter(r => r.type === 'glucose').length > 0) this.renderChart(); });
+            this.$nextTick(() => { this.renderChart(); });
           }
         }
       },
       methods: {
+        // 🌟 智慧單位轉換
+        formatFoodAmount(type, amount) {
+          if (!amount) return '';
+          if (amount === '一單位') return type === '皇家濕糧' ? '一包' : '一罐';
+          if (amount === '半單位') return type === '皇家濕糧' ? '半包' : '半罐';
+          if (amount === '三分之一單位') return '1/3罐';
+          return amount; 
+        },
         getEventsByType(events, type) {
           return events.filter(e => e.type === type).sort((a, b) => a.time.localeCompare(b.time));
         },
@@ -286,6 +313,17 @@
           this.form.time = getLocalTimeString();
         },
         saveToLocal() { localStorage.setItem('pupu_records', JSON.stringify(this.records)); },
+        
+        deleteRecord(id) {
+          if(confirm('確定要刪除這筆紀錄嗎？')) {
+            this.records = this.records.filter(r => r.id !== id);
+            this.saveToLocal();
+            if(this.currentTab === 'chart') {
+              this.$nextTick(() => { this.renderChart(); });
+            }
+          }
+        },
+
         saveGlucose() {
           if (!this.form.glucose) return alert('請先輸入血糖數值喔！');
           this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose });
@@ -320,7 +358,10 @@
           recordsToExport.forEach(r => {
             let notesSafe = r.notes ? r.notes.replace(/"/g, '""') : ''; 
             let typeMap = { glucose: '血糖', insulin: '胰島素', food: '飲食', other: '其他' };
-            csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${r.insulinTime||''},${r.insulinDose||''},${r.foodType||''},${r.foodAmount||''},${r.weight||''},"${notesSafe}"\n`;
+            // 🌟 匯出的 CSV 裡也會套用智慧轉換，顯示「包」或「罐」
+            let formattedAmount = r.foodAmount ? this.formatFoodAmount(r.foodType, r.foodAmount) : '';
+            
+            csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${r.insulinTime||''},${r.insulinDose||''},${r.foodType||''},${formattedAmount},${r.weight||''},"${notesSafe}"\n`;
           });
           
           const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -332,12 +373,18 @@
         renderChart() {
           const ctx = document.getElementById('glucoseChart');
           if(!ctx) return;
-          if(chartInstance) chartInstance.destroy();
+          
           let filtered = [...this.records].filter(r => r.type === 'glucose').sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time));
+          
           if(this.chartRange !== 'all') {
             const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(this.chartRange));
             filtered = filtered.filter(r => new Date(r.date) >= cutoff);
           }
+
+          if(chartInstance) chartInstance.destroy();
+
+          if(filtered.length === 0) return;
+          
           chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
