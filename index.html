@@ -4,76 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>普普的健康日記</title>
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#FFB6C1">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1864/1864514.png"> <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%E6%99%AE%E6%99%AE%E7%9A%84%E5%81%A5%E5%BA%B7%E6%97%A5%E8%A8%98%22%2C%22short_name%22%3A%22%E6%99%AE%E6%99%AE%E6%97%A5%E8%A8%98%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFF0F5%22%2C%22theme_color%22%3A%22%23FFB6C1%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F1864%2F1864514.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D'>
+
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    body {
-      font-family: 'Nunito', 'M PLUS Rounded 1c', sans-serif;
-      background-color: #FFF0F5;
-      color: #5D4037;
-    }
-    .card {
-      background-color: #FFFFFF;
-      border-radius: 20px;
-      box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3);
-      padding: 16px 20px;
-      margin-bottom: 20px;
-    }
-    .btn-save {
-      background-color: #FFB6C1;
-      color: white;
-      border-radius: 12px;
-      padding: 8px 16px;
-      font-weight: bold;
-      width: 100%;
-      margin-top: 12px;
-      transition: all 0.2s;
-    }
+    body { font-family: 'Nunito', 'M PLUS Rounded 1c', sans-serif; background-color: #FFF0F5; color: #5D4037; }
+    .card { background-color: #FFFFFF; border-radius: 20px; box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3); padding: 16px 20px; margin-bottom: 20px; }
+    .btn-save { background-color: #FFB6C1; color: white; border-radius: 12px; padding: 8px 16px; font-weight: bold; width: 100%; margin-top: 12px; transition: all 0.2s; }
     .btn-save:active { background-color: #FF9AA2; transform: scale(0.98); }
-    .btn-outline {
-      background-color: white;
-      color: #D87093;
-      border: 2px solid #FFB6C1;
-      border-radius: 9999px;
-      padding: 10px 20px;
-      font-weight: bold;
-      transition: all 0.2s;
-      width: 100%;
-    }
+    .btn-outline { background-color: white; color: #D87093; border: 2px solid #FFB6C1; border-radius: 9999px; padding: 10px 20px; font-weight: bold; transition: all 0.2s; width: 100%; }
     .btn-outline:active { background-color: #FFF0F5; transform: scale(0.98); }
-    .input-field {
-      width: 100%;
-      background-color: #FFF9FA;
-      border: 2px solid #FFE4E1;
-      border-radius: 12px;
-      padding: 10px;
-      outline: none;
-    }
+    .input-field { width: 100%; background-color: #FFF9FA; border: 2px solid #FFE4E1; border-radius: 12px; padding: 10px; outline: none; }
     .input-field:focus { border-color: #FFB6C1; }
-    .radio-pill {
-      display: inline-block; padding: 6px 12px; border-radius: 20px; background: #f3f4f6; color: #6b7280; font-size: 0.875rem; margin: 4px; border: 2px solid transparent;
-      cursor: pointer;
-    }
-    input[type="radio"]:checked + .radio-pill {
-      background: #FFE4E1; color: #D87093; border-color: #FFB6C1; font-weight: bold;
-    }
-    /* 自訂 Checkbox 顏色 */
-    .chk-glucose { accent-color: #D87093; }
-    .chk-insulin { accent-color: #3B82F6; }
-    .chk-food { accent-color: #F97316; }
-    .chk-other { accent-color: #6B7280; }
+    .radio-pill { display: inline-block; padding: 6px 12px; border-radius: 20px; background: #f3f4f6; color: #6b7280; font-size: 0.875rem; margin: 4px; border: 2px solid transparent; cursor: pointer; }
+    input[type="radio"]:checked + .radio-pill { background: #FFE4E1; color: #D87093; border-color: #FFB6C1; font-weight: bold; }
+    .chk-glucose { accent-color: #D87093; } .chk-insulin { accent-color: #3B82F6; } .chk-food { accent-color: #F97316; } .chk-other { accent-color: #6B7280; }
   </style>
 </head>
 <body class="pb-20">
   <div id="app" class="max-w-md mx-auto p-4">
     
     <div class="text-center my-6">
-      <h1 class="text-2xl font-bold flex items-center justify-center gap-2 text-[#D87093]">
-        🐾 普普的健康日記
-      </h1>
+      <h1 class="text-2xl font-bold flex items-center justify-center gap-2 text-[#D87093]">🐾 普普的健康日記</h1>
       <p class="text-sm mt-1 text-gray-500">分項紀錄更輕鬆！</p>
     </div>
 
@@ -90,25 +51,18 @@
           <input type="date" v-model="form.date" class="input-field !bg-white">
           <input type="time" v-model="form.time" class="input-field !bg-white">
         </div>
-        <p class="text-xs text-gray-400 mt-2">＊點擊下方各項目的「儲存」時，皆會使用此時間</p>
       </div>
 
       <div class="card">
         <h2 class="font-bold mb-3 flex items-center gap-2">🩸 血糖紀錄</h2>
         <div class="flex flex-col gap-2">
           <input type="number" v-model="form.glucose" placeholder="輸入血糖值 (mg/dL)" class="input-field text-lg text-center font-bold">
-          
           <div v-if="form.glucose !== '' && form.glucose < 60" class="mt-2 p-3 bg-red-50 border-2 border-red-300 rounded-xl text-red-700 text-sm shadow-sm animate-pulse">
-            <p class="font-bold text-base mb-1">🚨 緊急：血糖低於 60！</p>
-            <p class="font-bold">請立刻觀察普普精神狀況：</p>
-            <ul class="list-disc pl-5 mt-1">
-              <li class="mb-1"><b>精神穩定：</b>先灌少量食物，每半小時追蹤。</li>
-              <li><b>精神不好/暈厥：</b>立刻在牙齦抹糖，<b>馬上送醫！</b></li>
-            </ul>
+            <p class="font-bold mb-1">🚨 血糖低於 60！立刻觀察精神狀況：</p>
+            <ul class="list-disc pl-5"><li><b>精神穩定：</b>灌少量食物。</li><li><b>精神不好：</b>牙齦抹糖，送醫！</li></ul>
           </div>
           <div v-else-if="form.glucose !== '' && form.glucose < 80" class="mt-2 p-3 bg-orange-50 border-2 border-orange-300 rounded-xl text-orange-700 text-sm shadow-sm">
-            <p class="font-bold text-base mb-1">⚠️ 注意：血糖偏低 (< 80)</p>
-            <p>如果普普不主動吃東西，請務必<b>「進行灌食」</b>喔！</p>
+            <p class="font-bold mb-1">⚠️ 血糖偏低 (< 80)</p><p>若不吃東西，請務必進行灌食！</p>
           </div>
         </div>
         <button @click="saveGlucose" class="btn-save">儲存血糖紀錄</button>
@@ -117,11 +71,8 @@
       <div class="card">
         <div class="flex justify-between items-center mb-3">
           <h2 class="font-bold flex items-center gap-2">💉 胰島素紀錄</h2>
-          <div class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">
-            參考血糖: {{ referenceGlucose }}
-          </div>
+          <div class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">參考血糖: {{ referenceGlucose }}</div>
         </div>
-        
         <div class="mb-3 p-3 bg-[#FFF9FA] rounded-xl text-center border-2 border-[#FFE4E1]">
           <span class="text-sm text-gray-500 block">建議劑量</span>
           <span class="text-2xl font-bold text-[#D87093]">{{ suggestedInsulin }}</span>
@@ -136,13 +87,11 @@
       <div class="card">
         <h2 class="font-bold mb-3 flex items-center gap-2">🐟 飲食紀錄</h2>
         <div class="mb-2">
-          <p class="text-sm text-gray-500 mb-1">主食選擇：</p>
           <label><input type="radio" v-model="form.foodType" value="汪喵罐頭" class="hidden"><span class="radio-pill">汪喵罐頭</span></label>
           <label><input type="radio" v-model="form.foodType" value="小怪獸罐頭" class="hidden"><span class="radio-pill">小怪獸罐頭</span></label>
           <label><input type="radio" v-model="form.foodType" value="皇家濕糧" class="hidden"><span class="radio-pill">皇家濕糧</span></label>
         </div>
         <div class="mb-2" v-if="form.foodType">
-          <p class="text-sm text-gray-500 mb-1">份量：</p>
           <label><input type="radio" v-model="form.foodAmount" value="一單位" class="hidden"><span class="radio-pill">{{ form.foodType === '皇家濕糧' ? '一包' : '一罐' }}</span></label>
           <label><input type="radio" v-model="form.foodAmount" value="半單位" class="hidden"><span class="radio-pill">{{ form.foodType === '皇家濕糧' ? '半包' : '半罐' }}</span></label>
           <label v-if="form.foodType !== '皇家濕糧'"><input type="radio" v-model="form.foodAmount" value="三分之一單位" class="hidden"><span class="radio-pill">1/3罐</span></label>
@@ -151,18 +100,15 @@
       </div>
 
       <div class="card">
-        <h2 class="font-bold mb-3 flex items-center gap-2">🩺 其他數據 (體重與備註)</h2>
+        <h2 class="font-bold mb-3 flex items-center gap-2">🩺 其他數據</h2>
         <div class="mb-3">
-          <label class="text-sm text-gray-500 block mb-1">體重 (kg)</label>
-          <input type="number" step="0.1" v-model="form.weight" placeholder="如: 4.5" class="input-field">
+          <input type="number" step="0.1" v-model="form.weight" placeholder="體重 (kg)" class="input-field">
         </div>
         <div>
-          <label class="text-sm text-gray-500 block mb-1">備註 (精神、嘔吐、尿量等)</label>
-          <textarea v-model="form.notes" class="input-field" rows="2" placeholder="普普今天的狀況..."></textarea>
+          <textarea v-model="form.notes" class="input-field" rows="2" placeholder="備註 (精神、嘔吐、尿量等)"></textarea>
         </div>
         <button @click="saveOther" class="btn-save">儲存其他紀錄</button>
       </div>
-
     </div>
 
     <div v-show="currentTab === 'chart'">
@@ -180,64 +126,49 @@
       
       <div class="mt-4 mb-4">
         <h3 class="font-bold text-gray-600 mb-3 pl-2">📅 每日健康日記</h3>
-        
-        <div v-if="groupedRecordsByDate.length === 0" class="text-center text-gray-400 py-4">
-          目前還沒有紀錄喔！
-        </div>
+        <div v-if="groupedRecordsByDate.length === 0" class="text-center text-gray-400 py-4">目前還沒有紀錄喔！</div>
         
         <div v-for="day in groupedRecordsByDate" :key="day.date" class="card !p-0 overflow-hidden border border-[#FFE4E1]">
           <div class="bg-[#FFF0F5] px-4 py-2 font-bold text-[#D87093] flex justify-between items-center">
             <span>{{ day.date }}</span>
-            <span class="text-xs text-gray-500">{{ day.events.length }} 筆紀錄</span>
+            <span class="text-xs text-gray-500">{{ day.events.length }} 筆</span>
           </div>
           
           <div class="p-4 flex flex-col gap-3">
-            
             <div v-if="getEventsByType(day.events, 'glucose').length > 0" class="bg-[#FFF9FA] border border-[#FFB6C1] rounded-xl p-3">
-              <h4 class="font-bold text-[#D87093] mb-2 flex items-center gap-1 text-sm">🩸 血糖紀錄</h4>
-              <div class="flex flex-col gap-1">
-                <div v-for="rec in getEventsByType(day.events, 'glucose')" :key="rec.id" class="flex justify-between items-center border-b border-pink-50 last:border-0 pb-1 last:pb-0">
-                  <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold shadow-sm border border-gray-100">🕒 {{ rec.time }}</span>
-                  <span :class="rec.glucose < 80 ? 'text-red-500 font-bold' : 'text-[#5D4037] font-bold'">
-                    {{ rec.glucose }} <span class="text-xs font-normal text-gray-400">mg/dL</span>
-                  </span>
-                </div>
+              <h4 class="font-bold text-[#D87093] mb-2 text-sm">🩸 血糖</h4>
+              <div v-for="rec in getEventsByType(day.events, 'glucose')" :key="rec.id" class="flex justify-between border-b border-pink-50 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
+                <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
+                <span :class="rec.glucose < 80 ? 'text-red-500 font-bold' : 'text-[#5D4037] font-bold'">{{ rec.glucose }}</span>
               </div>
             </div>
 
             <div v-if="getEventsByType(day.events, 'insulin').length > 0" class="bg-blue-50 border border-blue-200 rounded-xl p-3">
-              <h4 class="font-bold text-blue-500 mb-2 flex items-center gap-1 text-sm">💉 胰島素</h4>
-              <div class="flex flex-col gap-1">
-                <div v-for="rec in getEventsByType(day.events, 'insulin')" :key="rec.id" class="flex justify-between items-center border-b border-blue-100 last:border-0 pb-1 last:pb-0">
-                  <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold shadow-sm border border-gray-100">🕒 {{ rec.time }}</span>
-                  <span class="text-[#5D4037] text-sm">{{ rec.insulinTime }} ({{ rec.insulinDose }})</span>
-                </div>
+              <h4 class="font-bold text-blue-500 mb-2 text-sm">💉 胰島素</h4>
+              <div v-for="rec in getEventsByType(day.events, 'insulin')" :key="rec.id" class="flex justify-between border-b border-blue-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
+                <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
+                <span class="text-[#5D4037] text-sm">{{ rec.insulinTime }} ({{ rec.insulinDose }})</span>
               </div>
             </div>
 
             <div v-if="getEventsByType(day.events, 'food').length > 0" class="bg-orange-50 border border-orange-200 rounded-xl p-3">
-              <h4 class="font-bold text-orange-500 mb-2 flex items-center gap-1 text-sm">🐟 飲食紀錄</h4>
-              <div class="flex flex-col gap-1">
-                <div v-for="rec in getEventsByType(day.events, 'food')" :key="rec.id" class="flex justify-between items-center border-b border-orange-100 last:border-0 pb-1 last:pb-0 text-sm text-[#5D4037]">
-                  <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold shadow-sm border border-gray-100">🕒 {{ rec.time }}</span>
-                  <span>{{ rec.foodType }} {{ rec.foodAmount }}</span>
-                </div>
+              <h4 class="font-bold text-orange-500 mb-2 text-sm">🐟 飲食</h4>
+              <div v-for="rec in getEventsByType(day.events, 'food')" :key="rec.id" class="flex justify-between border-b border-orange-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0 text-sm">
+                <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
+                <span>{{ rec.foodType }} {{ rec.foodAmount }}</span>
               </div>
             </div>
 
             <div v-if="getEventsByType(day.events, 'other').length > 0" class="bg-gray-50 border border-gray-200 rounded-xl p-3">
-              <h4 class="font-bold text-gray-500 mb-2 flex items-center gap-1 text-sm">🩺 其他數據</h4>
-              <div class="flex flex-col gap-2">
-                <div v-for="rec in getEventsByType(day.events, 'other')" :key="rec.id" class="border-b border-gray-100 last:border-0 pb-1 last:pb-0 text-sm text-[#5D4037]">
-                  <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold shadow-sm border border-gray-100">🕒 {{ rec.time }}</span>
-                    <span v-if="rec.weight">⚖️ {{ rec.weight }} kg</span>
-                  </div>
-                  <div v-if="rec.notes" class="text-gray-500 text-xs bg-white p-2 rounded border border-gray-100">📝 {{ rec.notes }}</div>
+              <h4 class="font-bold text-gray-500 mb-2 text-sm">🩺 其他</h4>
+              <div v-for="rec in getEventsByType(day.events, 'other')" :key="rec.id" class="border-b border-gray-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0 text-sm">
+                <div class="flex justify-between mb-1">
+                  <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
+                  <span v-if="rec.weight">⚖️ {{ rec.weight }} kg</span>
                 </div>
+                <div v-if="rec.notes" class="text-gray-500 text-xs bg-white p-2 rounded border border-gray-100">📝 {{ rec.notes }}</div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -245,75 +176,47 @@
       <div class="card !bg-white border-2 border-[#FFE4E1] mb-8">
         <h3 class="font-bold mb-3 text-[#D87093]">📥 選擇匯出項目</h3>
         <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
-          <label class="flex items-center gap-2 bg-pink-50 p-2 rounded-lg border border-pink-100 cursor-pointer">
-            <input type="checkbox" v-model="exportOptions.glucose" class="w-4 h-4 chk-glucose"> 🩸 血糖
-          </label>
-          <label class="flex items-center gap-2 bg-blue-50 p-2 rounded-lg border border-blue-100 cursor-pointer">
-            <input type="checkbox" v-model="exportOptions.insulin" class="w-4 h-4 chk-insulin"> 💉 胰島素
-          </label>
-          <label class="flex items-center gap-2 bg-orange-50 p-2 rounded-lg border border-orange-100 cursor-pointer">
-            <input type="checkbox" v-model="exportOptions.food" class="w-4 h-4 chk-food"> 🐟 飲食
-          </label>
-          <label class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200 cursor-pointer">
-            <input type="checkbox" v-model="exportOptions.other" class="w-4 h-4 chk-other"> 🩺 其他
-          </label>
+          <label class="flex items-center gap-2 bg-pink-50 p-2 rounded-lg border border-pink-100"><input type="checkbox" v-model="exportOptions.glucose" class="w-4 h-4 chk-glucose"> 🩸 血糖</label>
+          <label class="flex items-center gap-2 bg-blue-50 p-2 rounded-lg border border-blue-100"><input type="checkbox" v-model="exportOptions.insulin" class="w-4 h-4 chk-insulin"> 💉 胰島素</label>
+          <label class="flex items-center gap-2 bg-orange-50 p-2 rounded-lg border border-orange-100"><input type="checkbox" v-model="exportOptions.food" class="w-4 h-4 chk-food"> 🐟 飲食</label>
+          <label class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200"><input type="checkbox" v-model="exportOptions.other" class="w-4 h-4 chk-other"> 🩺 其他</label>
         </div>
-        <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center items-center gap-2 text-lg shadow-sm">
-          下載勾選的紀錄檔
-        </button>
+        <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center gap-2 text-lg shadow-sm">下載勾選的紀錄檔</button>
       </div>
-
     </div>
-
   </div>
 
   <script>
     const { createApp } = Vue;
     let chartInstance = null;
 
-    // 資料遷移
-    function migrateRecords(oldRecords) {
-      let newRecords = [];
-      oldRecords.forEach(r => {
-        if (r.type) {
-          newRecords.push(r);
-        } else {
-          if (r.glucose) newRecords.push({ ...r, type: 'glucose' });
-          if (r.insulinGiven) newRecords.push({ ...r, type: 'insulin' });
-          if (r.foodType) newRecords.push({ ...r, type: 'food' });
-          if (r.weight || r.notes) newRecords.push({ ...r, type: 'other' });
-        }
-      });
-      return newRecords;
+    // 校正台灣本地時間的函數
+    function getLocalDateString() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    function getLocalTimeString() {
+      const now = new Date();
+      return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
     }
 
     createApp({
       data() {
-        const now = new Date();
-        const hour = String(now.getHours()).padStart(2, '0');
-        const minute = String(now.getMinutes()).padStart(2, '0');
-        
         return {
           currentTab: 'record',
           chartRange: '7',
-          records: migrateRecords(JSON.parse(localStorage.getItem('pupu_records')) || []),
+          records: JSON.parse(localStorage.getItem('pupu_records')) || [],
           form: {
-            date: now.toISOString().split('T')[0],
-            time: `${hour}:${minute}`,
+            date: getLocalDateString(),
+            time: getLocalTimeString(),
             glucose: '',
-            insulinTime: now.getHours() < 15 ? '早' : '晚',
-            foodType: '',
-            foodAmount: '',
-            weight: '',
-            notes: ''
+            insulinTime: new Date().getHours() < 15 ? '早' : '晚',
+            foodType: '', foodAmount: '', weight: '', notes: ''
           },
-          // 新增：紀錄哪些項目要匯出（預設全勾）
-          exportOptions: {
-            glucose: true,
-            insulin: true,
-            food: true,
-            other: true
-          }
+          exportOptions: { glucose: true, insulin: true, food: true, other: true }
         }
       },
       computed: {
@@ -341,189 +244,89 @@
         groupedRecordsByDate() {
           const groups = {};
           this.records.forEach(rec => {
-            if (!groups[rec.date]) {
-              groups[rec.date] = [];
-            }
+            if (!groups[rec.date]) groups[rec.date] = [];
             groups[rec.date].push(rec);
           });
-
-          return Object.keys(groups)
-            .sort((a, b) => b.localeCompare(a))
-            .map(date => ({
-              date: date,
-              events: groups[date]
-            }));
+          return Object.keys(groups).sort((a, b) => b.localeCompare(a)).map(date => ({ date: date, events: groups[date] }));
         }
       },
       watch: {
         currentTab(newVal) {
           if (newVal === 'chart') {
-            this.$nextTick(() => {
-              if (this.records.filter(r => r.type === 'glucose').length > 0) this.renderChart();
-            });
+            this.$nextTick(() => { if (this.records.filter(r => r.type === 'glucose').length > 0) this.renderChart(); });
           }
         }
       },
       methods: {
         getEventsByType(events, type) {
-          return events
-            .filter(e => e.type === type)
-            .sort((a, b) => a.time.localeCompare(b.time));
+          return events.filter(e => e.type === type).sort((a, b) => a.time.localeCompare(b.time));
         },
         updateTime() {
-          const now = new Date();
-          const hour = String(now.getHours()).padStart(2, '0');
-          const minute = String(now.getMinutes()).padStart(2, '0');
-          this.form.time = `${hour}:${minute}`;
+          this.form.time = getLocalTimeString();
         },
-        saveToLocal() {
-          localStorage.setItem('pupu_records', JSON.stringify(this.records));
-        },
+        saveToLocal() { localStorage.setItem('pupu_records', JSON.stringify(this.records)); },
         saveGlucose() {
           if (!this.form.glucose) return alert('請先輸入血糖數值喔！');
-          this.records.push({
-            id: Date.now(),
-            type: 'glucose',
-            date: this.form.date,
-            time: this.form.time,
-            glucose: this.form.glucose
-          });
-          this.saveToLocal();
-          alert('🩸 血糖已成功紀錄！');
-          this.form.glucose = ''; 
-          this.updateTime();
+          this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose });
+          this.saveToLocal(); alert('🩸 血糖已紀錄！'); this.form.glucose = ''; this.updateTime();
         },
         saveInsulin() {
-          if (this.suggestedInsulin.includes('請先')) return alert('無法計算劑量，請先紀錄或在上方輸入血糖！');
-          this.records.push({
-            id: Date.now(),
-            type: 'insulin',
-            date: this.form.date,
-            time: this.form.time,
-            insulinTime: this.form.insulinTime,
-            insulinDose: this.suggestedInsulin
-          });
-          this.saveToLocal();
-          alert('💉 胰島素施打已紀錄！普普辛苦了！');
-          this.updateTime();
+          if (this.suggestedInsulin.includes('請先')) return alert('無法計算劑量！');
+          this.records.push({ id: Date.now(), type: 'insulin', date: this.form.date, time: this.form.time, insulinTime: this.form.insulinTime, insulinDose: this.suggestedInsulin });
+          this.saveToLocal(); alert('💉 胰島素已紀錄！'); this.updateTime();
         },
         saveFood() {
-          if (!this.form.foodType || !this.form.foodAmount) return alert('請選擇主食與份量喔！');
-          this.records.push({
-            id: Date.now(),
-            type: 'food',
-            date: this.form.date,
-            time: this.form.time,
-            foodType: this.form.foodType,
-            foodAmount: this.form.foodAmount
-          });
-          this.saveToLocal();
-          alert('🐟 飲食已成功紀錄！');
-          this.form.foodType = '';
-          this.form.foodAmount = '';
-          this.updateTime();
+          if (!this.form.foodType || !this.form.foodAmount) return alert('請選擇主食與份量！');
+          this.records.push({ id: Date.now(), type: 'food', date: this.form.date, time: this.form.time, foodType: this.form.foodType, foodAmount: this.form.foodAmount });
+          this.saveToLocal(); alert('🐟 飲食已紀錄！'); this.form.foodType = ''; this.form.foodAmount = ''; this.updateTime();
         },
         saveOther() {
-          if (!this.form.weight && !this.form.notes) return alert('請輸入體重或備註喔！');
-          this.records.push({
-            id: Date.now(),
-            type: 'other',
-            date: this.form.date,
-            time: this.form.time,
-            weight: this.form.weight,
-            notes: this.form.notes
-          });
-          this.saveToLocal();
-          alert('🩺 其他數據已儲存！');
-          this.form.weight = '';
-          this.form.notes = '';
-          this.updateTime();
+          if (!this.form.weight && !this.form.notes) return alert('請輸入體重或備註！');
+          this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
+          this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = ''; this.updateTime();
         },
-        // 更新匯出邏輯：根據勾選的項目過濾
         exportCSV() {
-          // 確認是否有勾選項目
-          if (!this.exportOptions.glucose && !this.exportOptions.insulin && !this.exportOptions.food && !this.exportOptions.other) {
-            return alert('請至少勾選一個要匯出的項目喔！');
-          }
-
-          // 整理被勾選的 type 陣列
           const selectedTypes = [];
           if (this.exportOptions.glucose) selectedTypes.push('glucose');
           if (this.exportOptions.insulin) selectedTypes.push('insulin');
           if (this.exportOptions.food) selectedTypes.push('food');
           if (this.exportOptions.other) selectedTypes.push('other');
 
-          // 過濾出符合勾選項目的紀錄
           const recordsToExport = this.sortedRecords.filter(r => selectedTypes.includes(r.type));
-
-          if (recordsToExport.length === 0) {
-            return alert('你勾選的項目目前還沒有任何紀錄喔！');
-          }
+          if (recordsToExport.length === 0) return alert('勾選的項目沒有紀錄喔！');
           
-          let csvContent = "\uFEFF";
-          csvContent += "日期,時間,類別,血糖值,施打時段,施打劑量,主食,份量,體重(kg),備註\n";
-          
+          let csvContent = "\uFEFF日期,時間,類別,血糖值,施打時段,施打劑量,主食,份量,體重(kg),備註\n";
           recordsToExport.forEach(r => {
             let notesSafe = r.notes ? r.notes.replace(/"/g, '""') : ''; 
             let typeMap = { glucose: '血糖', insulin: '胰島素', food: '飲食', other: '其他' };
-            let typeLabel = typeMap[r.type] || '紀錄';
-
-            let row = [
-              r.date, r.time, typeLabel,
-              r.glucose || '', r.insulinTime || '', r.insulinDose || '',
-              r.foodType || '', r.foodAmount || '', r.weight || '',
-              `"${notesSafe}"`
-            ];
-            csvContent += row.join(",") + "\n";
+            csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${r.insulinTime||''},${r.insulinDose||''},${r.foodType||''},${r.foodAmount||''},${r.weight||''},"${notesSafe}"\n`;
           });
           
           const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-          const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
-          link.setAttribute("href", url);
-          link.setAttribute("download", `普普的健康日記_${new Date().toISOString().split('T')[0]}.csv`);
-          document.body.appendChild(link);
+          link.href = URL.createObjectURL(blob);
+          link.download = `普普健康日記_${getLocalDateString()}.csv`;
           link.click();
-          document.body.removeChild(link);
         },
         renderChart() {
           const ctx = document.getElementById('glucoseChart');
           if(!ctx) return;
           if(chartInstance) chartInstance.destroy();
-
-          let filteredRecords = [...this.records].filter(r => r.type === 'glucose');
-          filteredRecords.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
-
+          let filtered = [...this.records].filter(r => r.type === 'glucose').sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time));
           if(this.chartRange !== 'all') {
-            const cutoff = new Date();
-            cutoff.setDate(cutoff.getDate() - parseInt(this.chartRange));
-            filteredRecords = filteredRecords.filter(r => new Date(r.date) >= cutoff);
+            const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(this.chartRange));
+            filtered = filtered.filter(r => new Date(r.date) >= cutoff);
           }
-
-          const labels = filteredRecords.map(r => `${r.date.slice(5)} ${r.time}`);
-          const data = filteredRecords.map(r => r.glucose);
-          const pointColors = data.map(val => val < 80 ? '#EF4444' : '#D87093');
-          const pointRadius = data.map(val => val < 80 ? 5 : 3);
-
           chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-              labels: labels,
+              labels: filtered.map(r => `${r.date.slice(5)} ${r.time}`),
               datasets: [{
-                label: '血糖值 (mg/dL)',
-                data: data,
-                borderColor: '#FFB6C1',
-                backgroundColor: 'rgba(255, 182, 193, 0.2)',
-                borderWidth: 2,
-                pointBackgroundColor: pointColors,
-                pointRadius: pointRadius,
-                tension: 0.3,
-                fill: true
+                label: '血糖 (mg/dL)', data: filtered.map(r => r.glucose),
+                borderColor: '#FFB6C1', backgroundColor: 'rgba(255, 182, 193, 0.2)', borderWidth: 2,
+                pointBackgroundColor: filtered.map(r => r.glucose < 80 ? '#EF4444' : '#D87093'),
+                pointRadius: filtered.map(r => r.glucose < 80 ? 5 : 3), fill: true, tension: 0.3
               }]
-            },
-            options: {
-              responsive: true,
-              scales: { y: { beginAtZero: false } }
             }
           });
         }
