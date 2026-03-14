@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-  <title>普普的健康日記</title>
+  <title>普普の健康日記</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -30,7 +30,6 @@
       -webkit-touch-callout: none;
     }
     
-    /* 🌟 iOS 解鎖：針對輸入框，但放過 checkbox 和 radio 讓它們正常顯示 */
     input:not([type="checkbox"]):not([type="radio"]), textarea, select {
       -webkit-user-select: text !important;
       user-select: text !important;
@@ -39,7 +38,6 @@
       cursor: text !important;
     }
     
-    /* 確保 checkbox 顯示正常並可以自訂顏色 */
     input[type="checkbox"] {
       -webkit-appearance: checkbox !important;
       appearance: auto !important;
@@ -140,14 +138,22 @@
 
     <div v-show="currentTab === 'chart'">
       <div class="card">
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-3">
           <h2 class="font-bold">📉 血糖趨勢圖</h2>
-          <select v-model="chartRange" @change="renderChart" class="bg-gray-50 border rounded p-1 text-sm outline-none">
+          <select v-model="chartRange" @change="renderChart" class="bg-gray-50 border border-gray-200 rounded p-1 text-sm outline-none text-[#5D4037]">
             <option value="7">近7天</option>
             <option value="30">近30天</option>
+            <option value="custom">自訂區間</option>
             <option value="all">全部</option>
           </select>
         </div>
+        
+        <div v-if="chartRange === 'custom'" class="flex items-center justify-between gap-2 mb-4 bg-pink-50 p-2 rounded-lg border border-pink-100">
+          <input type="date" v-model="customStartDate" @change="renderChart" class="bg-white border border-pink-200 rounded p-1 text-xs w-full outline-none text-[#5D4037]">
+          <span class="text-[#D87093] font-bold">~</span>
+          <input type="date" v-model="customEndDate" @change="renderChart" class="bg-white border border-pink-200 rounded p-1 text-xs w-full outline-none text-[#5D4037]">
+        </div>
+
         <canvas id="glucoseChart"></canvas>
       </div>
       
@@ -238,6 +244,14 @@
       const day = String(now.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     }
+    
+    // 取得過去的日期字串，當作自訂區間的預設起始日
+    function getPastDateString(days) {
+      const d = new Date();
+      d.setDate(d.getDate() - days);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
     function getLocalTimeString() {
       const now = new Date();
       return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
@@ -248,6 +262,8 @@
         return {
           currentTab: 'record',
           chartRange: '7',
+          customStartDate: getPastDateString(7), // 自訂區間預設起點：7天前
+          customEndDate: getLocalDateString(),   // 自訂區間預設終點：今天
           records: JSON.parse(localStorage.getItem('pupu_records')) || [],
           form: {
             date: getLocalDateString(),
@@ -298,7 +314,6 @@
         }
       },
       methods: {
-        // 🌟 智慧單位轉換
         formatFoodAmount(type, amount) {
           if (!amount) return '';
           if (amount === '一單位') return type === '皇家濕糧' ? '一包' : '一罐';
@@ -358,7 +373,6 @@
           recordsToExport.forEach(r => {
             let notesSafe = r.notes ? r.notes.replace(/"/g, '""') : ''; 
             let typeMap = { glucose: '血糖', insulin: '胰島素', food: '飲食', other: '其他' };
-            // 🌟 匯出的 CSV 裡也會套用智慧轉換，顯示「包」或「罐」
             let formattedAmount = r.foodAmount ? this.formatFoodAmount(r.foodType, r.foodAmount) : '';
             
             csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${r.insulinTime||''},${r.insulinDose||''},${r.foodType||''},${formattedAmount},${r.weight||''},"${notesSafe}"\n`;
@@ -376,7 +390,10 @@
           
           let filtered = [...this.records].filter(r => r.type === 'glucose').sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time));
           
-          if(this.chartRange !== 'all') {
+          // 🌟 圖表篩選邏輯：如果選「自訂區間」，就比對日期起迄；其他的套用原本邏輯
+          if (this.chartRange === 'custom') {
+            filtered = filtered.filter(r => r.date >= this.customStartDate && r.date <= this.customEndDate);
+          } else if (this.chartRange !== 'all') {
             const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(this.chartRange));
             filtered = filtered.filter(r => new Date(r.date) >= cutoff);
           }
