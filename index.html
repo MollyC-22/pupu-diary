@@ -9,7 +9,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#FFB6C1">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1864/1864514.png"> <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%E6%99%AE%E6%99%AE%E7%9A%84%E5%81%A5%E5%BA%B7%E6%97%A5%E8%A8%98%22%2C%22short_name%22%3A%22%E6%99%AE%E6%99%AE%E6%97%A5%E8%A8%98%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFF0F5%22%2C%22theme_color%22%3A%22%23FFB6C1%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F1864%2F1864514.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D'>
+  
+  <link rel="icon" href="icon.jpg">
+  <link rel="apple-touch-icon" href="icon.jpg">
+  
+  <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%E6%99%AE%E6%99%AE%E7%9A%84%E5%81%A5%E5%BA%B7%E6%97%A5%E8%A8%98%22%2C%22short_name%22%3A%22%E6%99%AE%E6%99%AE%E6%97%A5%E8%A8%98%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFF0F5%22%2C%22theme_color%22%3A%22%23FFB6C1%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon.jpg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D'>
 
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -190,7 +194,6 @@
     const { createApp } = Vue;
     let chartInstance = null;
 
-    // 校正台灣本地時間的函數
     function getLocalDateString() {
       const now = new Date();
       const year = now.getFullYear();
