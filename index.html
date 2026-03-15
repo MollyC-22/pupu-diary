@@ -13,7 +13,7 @@
   <link rel="icon" href="icon.png">
   <link rel="apple-touch-icon" href="icon.png">
   
-  <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%E6%99%AE%E6%99%AE%E7%9A%84%E5%81%A5%E5%BA%B7%E6%97%A5%E8%A8%98%22%2C%22short_name%22%3A%22%E6%99%AE%E6%99%AE%E6%97%A5%E8%A8%98%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFF0F5%22%2C%22theme_color%22%3A%22%23FFB6C1%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon.jpg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D'>
+  <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%E6%99%AE%E6%99%AE%E3%81%AE%E5%81%A5%E5%BA%B7%E6%97%A5%E8%A8%98%22%2C%22short_name%22%3A%22%E6%99%AE%E6%99%AE%E6%97%A5%E8%A8%98%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFF0F5%22%2C%22theme_color%22%3A%22%23FFB6C1%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D'>
 
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -81,12 +81,10 @@
       <div class="card">
         <h2 class="font-bold mb-3 flex items-center gap-2">🩸 血糖紀錄</h2>
         <div class="flex flex-col gap-2">
-          
           <div class="flex items-center gap-2">
             <input type="text" inputmode="decimal" v-model="form.glucose" placeholder="輸入數值" class="input-field text-lg text-center font-bold flex-1">
             <button @click="form.glucose = 'HI'" class="bg-purple-50 text-purple-600 border-2 border-purple-200 font-bold py-2.5 px-4 rounded-xl active:bg-purple-100 transition-all">HI</button>
           </div>
-
           <div v-if="form.glucose === 'HI'" class="mt-2 p-3 bg-purple-50 border-2 border-purple-300 rounded-xl text-purple-700 text-sm shadow-sm animate-pulse">
             <p class="font-bold mb-1">🚨 數值 HI (大於 500)！</p>
             <p>血糖極高，請多加留意普普的精神與飲水，並視情況聯繫醫師！</p>
@@ -297,7 +295,7 @@
         },
         suggestedInsulin() {
           const ref = this.referenceGlucose;
-          if (ref === 'HI') return '0.015'; // 🌟 HI 直接判定最高劑量
+          if (ref === 'HI') return '0.015'; 
           const g = parseFloat(ref);
           if (isNaN(g) || ref === null || ref === '') return '請先往上輸入血糖';
           if (g < 150) return '0 (不用打)';
@@ -413,7 +411,6 @@
 
           if(filtered.length === 0) return;
           
-          // 🌟 HI 數值處理：在圖表上用 500 的高度呈現
           const dataVals = filtered.map(r => r.glucose === 'HI' ? 500 : parseFloat(r.glucose));
           const pointColors = filtered.map(r => {
              if (r.glucose === 'HI') return '#9333EA'; // 紫色代表 HI
@@ -443,7 +440,6 @@
               plugins: {
                 tooltip: {
                   callbacks: {
-                    // 🌟 點擊圖表點點時，正確顯示 HI 而不是 500
                     label: function(context) {
                       let rawGlucose = filtered[context.dataIndex].glucose;
                       return '血糖: ' + rawGlucose + (rawGlucose === 'HI' ? ' (>500)' : ' mg/dL');
