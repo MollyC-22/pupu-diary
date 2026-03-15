@@ -71,13 +71,15 @@
     <div v-show="currentTab === 'record'">
       
       <div class="card !bg-[#FFF5EE] !border-2 !border-[#FFE4E1]">
-        <h2 class="font-bold mb-2 flex items-center gap-2 text-[#D87093]">🕒 欲紀錄的時間</h2>
-        <div class="grid grid-cols-2 gap-4">
-          <input type="date" v-model="form.date" class="input-field !bg-white">
-          <div class="flex gap-2">
-            <input type="time" v-model="form.time" class="input-field !bg-white w-full">
-            <button @click="setNow" class="bg-[#FFB6C1] text-white font-bold px-3 rounded-xl active:bg-[#FF9AA2] transition-all text-sm shrink-0 shadow-sm">現在</button>
+        <h2 class="font-bold mb-3 flex items-center gap-2 text-[#D87093]">🕒 欲紀錄的時間</h2>
+        <div class="flex flex-col gap-3">
+          <div class="grid grid-cols-2 gap-3">
+            <input type="date" v-model="form.date" class="input-field !bg-white">
+            <input type="time" v-model="form.time" class="input-field !bg-white">
           </div>
+          <button @click="setNow" class="bg-white text-[#D87093] border-2 border-[#FFB6C1] font-bold py-2 rounded-xl active:bg-pink-50 transition-all text-sm shadow-sm flex items-center justify-center gap-1">
+            ✨ 一鍵填入現在時間
+          </button>
         </div>
       </div>
 
@@ -355,7 +357,6 @@
             foodType: '', foodAmount: '', weight: '', notes: ''
           },
           exportOptions: { glucose: true, insulin: true, food: true, other: true },
-          // 🌟 編輯功能狀態
           editingRecord: null,
           editForm: {}
         }
@@ -401,34 +402,28 @@
         }
       },
       methods: {
-        // 🌟 新增：設定為當下時間
         setNow() {
           this.form.date = getLocalDateString();
           this.form.time = getLocalTimeString();
         },
-        // 🌟 新增：開啟編輯視窗並載入資料
         startEdit(rec) {
           this.editingRecord = rec;
-          this.editForm = JSON.parse(JSON.stringify(rec)); // 深度複製，避免改到一半污染原資料
+          this.editForm = JSON.parse(JSON.stringify(rec));
         },
-        // 🌟 新增：取消編輯
         cancelEdit() {
           this.editingRecord = null;
         },
-        // 🌟 新增：儲存編輯內容
         saveEdit() {
           const index = this.records.findIndex(r => r.id === this.editForm.id);
           if (index !== -1) {
             this.records[index] = this.editForm;
             this.saveToLocal();
-            // 如果改到的是血糖，馬上重新繪製圖表
             if (this.editForm.type === 'glucose') {
               this.$nextTick(() => { this.renderChart(); });
             }
           }
-          this.editingRecord = null; // 關閉視窗
+          this.editingRecord = null;
         },
-
         formatFoodAmount(type, amount) {
           if (!amount) return '';
           if (amount === '一單位') return type === '皇家濕糧' ? '一包' : '一罐';
@@ -440,7 +435,6 @@
           return events.filter(e => e.type === type).sort((a, b) => a.time.localeCompare(b.time));
         },
         updateTime() {
-          // 每次儲存後自動更新為最新時間
           this.form.time = getLocalTimeString();
         },
         saveToLocal() { localStorage.setItem('pupu_records', JSON.stringify(this.records)); },
