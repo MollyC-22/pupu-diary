@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-  <title>普普の健康日記</title>
+  <title>普普的健康日記</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -81,12 +81,21 @@
       <div class="card">
         <h2 class="font-bold mb-3 flex items-center gap-2">🩸 血糖紀錄</h2>
         <div class="flex flex-col gap-2">
-          <input type="number" inputmode="decimal" pattern="[0-9]*" v-model="form.glucose" placeholder="輸入血糖值 (mg/dL)" class="input-field text-lg text-center font-bold">
-          <div v-if="form.glucose !== '' && form.glucose < 60" class="mt-2 p-3 bg-red-50 border-2 border-red-300 rounded-xl text-red-700 text-sm shadow-sm animate-pulse">
+          
+          <div class="flex items-center gap-2">
+            <input type="text" inputmode="decimal" v-model="form.glucose" placeholder="輸入數值" class="input-field text-lg text-center font-bold flex-1">
+            <button @click="form.glucose = 'HI'" class="bg-purple-50 text-purple-600 border-2 border-purple-200 font-bold py-2.5 px-4 rounded-xl active:bg-purple-100 transition-all">HI</button>
+          </div>
+
+          <div v-if="form.glucose === 'HI'" class="mt-2 p-3 bg-purple-50 border-2 border-purple-300 rounded-xl text-purple-700 text-sm shadow-sm animate-pulse">
+            <p class="font-bold mb-1">🚨 數值 HI (大於 500)！</p>
+            <p>血糖極高，請多加留意普普的精神與飲水，並視情況聯繫醫師！</p>
+          </div>
+          <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 60" class="mt-2 p-3 bg-red-50 border-2 border-red-300 rounded-xl text-red-700 text-sm shadow-sm animate-pulse">
             <p class="font-bold mb-1">🚨 血糖低於 60！立刻觀察精神狀況：</p>
             <ul class="list-disc pl-5"><li><b>精神穩定：</b>灌少量食物。</li><li><b>精神不好：</b>牙齦抹糖，送醫！</li></ul>
           </div>
-          <div v-else-if="form.glucose !== '' && form.glucose < 80" class="mt-2 p-3 bg-orange-50 border-2 border-orange-300 rounded-xl text-orange-700 text-sm shadow-sm">
+          <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 80" class="mt-2 p-3 bg-orange-50 border-2 border-orange-300 rounded-xl text-orange-700 text-sm shadow-sm">
             <p class="font-bold mb-1">⚠️ 血糖偏低 (< 80)</p><p>若不吃東西，請務必進行灌食！</p>
           </div>
         </div>
@@ -174,7 +183,9 @@
               <div v-for="rec in getEventsByType(day.events, 'glucose')" :key="rec.id" class="flex justify-between items-center border-b border-pink-50 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
                 <div class="flex items-center gap-2">
                   <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
-                  <span :class="rec.glucose < 80 ? 'text-red-500 font-bold' : 'text-[#5D4037] font-bold'">{{ rec.glucose }} mg/dL</span>
+                  <span :class="rec.glucose === 'HI' ? 'text-purple-600 font-bold' : (rec.glucose < 80 ? 'text-red-500 font-bold' : 'text-[#5D4037] font-bold')">
+                    {{ rec.glucose }} <span v-if="rec.glucose !== 'HI'" class="text-xs font-normal text-gray-400">mg/dL</span>
+                  </span>
                 </div>
                 <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
               </div>
@@ -245,7 +256,6 @@
       return `${year}-${month}-${day}`;
     }
     
-    // 取得過去的日期字串，當作自訂區間的預設起始日
     function getPastDateString(days) {
       const d = new Date();
       d.setDate(d.getDate() - days);
@@ -262,8 +272,8 @@
         return {
           currentTab: 'record',
           chartRange: '7',
-          customStartDate: getPastDateString(7), // 自訂區間預設起點：7天前
-          customEndDate: getLocalDateString(),   // 自訂區間預設終點：今天
+          customStartDate: getPastDateString(7), 
+          customEndDate: getLocalDateString(),   
           records: JSON.parse(localStorage.getItem('pupu_records')) || [],
           form: {
             date: getLocalDateString(),
@@ -286,8 +296,10 @@
           return null;
         },
         suggestedInsulin() {
-          const g = parseFloat(this.referenceGlucose);
-          if (isNaN(g) || g === null) return '請先往上輸入血糖';
+          const ref = this.referenceGlucose;
+          if (ref === 'HI') return '0.015'; // 🌟 HI 直接判定最高劑量
+          const g = parseFloat(ref);
+          if (isNaN(g) || ref === null || ref === '') return '請先往上輸入血糖';
           if (g < 150) return '0 (不用打)';
           if (g >= 150 && g < 200) return '0.005';
           if (g >= 200 && g <= 300) return '0.01';
@@ -390,7 +402,6 @@
           
           let filtered = [...this.records].filter(r => r.type === 'glucose').sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time));
           
-          // 🌟 圖表篩選邏輯：如果選「自訂區間」，就比對日期起迄；其他的套用原本邏輯
           if (this.chartRange === 'custom') {
             filtered = filtered.filter(r => r.date >= this.customStartDate && r.date <= this.customEndDate);
           } else if (this.chartRange !== 'all') {
@@ -402,16 +413,44 @@
 
           if(filtered.length === 0) return;
           
+          // 🌟 HI 數值處理：在圖表上用 500 的高度呈現
+          const dataVals = filtered.map(r => r.glucose === 'HI' ? 500 : parseFloat(r.glucose));
+          const pointColors = filtered.map(r => {
+             if (r.glucose === 'HI') return '#9333EA'; // 紫色代表 HI
+             if (parseFloat(r.glucose) < 80) return '#EF4444'; // 紅色代表偏低
+             return '#D87093'; 
+          });
+          const pointRadius = filtered.map(r => (r.glucose === 'HI' || parseFloat(r.glucose) < 80) ? 5 : 3);
+
           chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
               labels: filtered.map(r => `${r.date.slice(5)} ${r.time}`),
               datasets: [{
-                label: '血糖 (mg/dL)', data: filtered.map(r => r.glucose),
-                borderColor: '#FFB6C1', backgroundColor: 'rgba(255, 182, 193, 0.2)', borderWidth: 2,
-                pointBackgroundColor: filtered.map(r => r.glucose < 80 ? '#EF4444' : '#D87093'),
-                pointRadius: filtered.map(r => r.glucose < 80 ? 5 : 3), fill: true, tension: 0.3
+                label: '血糖 (mg/dL)', 
+                data: dataVals,
+                borderColor: '#FFB6C1', 
+                backgroundColor: 'rgba(255, 182, 193, 0.2)', 
+                borderWidth: 2,
+                pointBackgroundColor: pointColors,
+                pointRadius: pointRadius, 
+                fill: true, 
+                tension: 0.3
               }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    // 🌟 點擊圖表點點時，正確顯示 HI 而不是 500
+                    label: function(context) {
+                      let rawGlucose = filtered[context.dataIndex].glucose;
+                      return '血糖: ' + rawGlucose + (rawGlucose === 'HI' ? ' (>500)' : ' mg/dL');
+                    }
+                  }
+                }
+              }
             }
           });
         }
