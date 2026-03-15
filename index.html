@@ -56,7 +56,7 @@
   </style>
 </head>
 <body class="pb-20">
-  <div id="app" class="max-w-md mx-auto p-4">
+  <div id="app" class="max-w-md mx-auto p-4 relative">
     
     <div class="text-center my-6">
       <h1 class="text-2xl font-bold flex items-center justify-center gap-2 text-[#D87093]">🐾 普普の健康日記</h1>
@@ -74,7 +74,10 @@
         <h2 class="font-bold mb-2 flex items-center gap-2 text-[#D87093]">🕒 欲紀錄的時間</h2>
         <div class="grid grid-cols-2 gap-4">
           <input type="date" v-model="form.date" class="input-field !bg-white">
-          <input type="time" v-model="form.time" class="input-field !bg-white">
+          <div class="flex gap-2">
+            <input type="time" v-model="form.time" class="input-field !bg-white w-full">
+            <button @click="setNow" class="bg-[#FFB6C1] text-white font-bold px-3 rounded-xl active:bg-[#FF9AA2] transition-all text-sm shrink-0 shadow-sm">現在</button>
+          </div>
         </div>
       </div>
 
@@ -123,10 +126,17 @@
           <label><input type="radio" v-model="form.foodType" value="小怪獸罐頭" class="hidden"><span class="radio-pill">小怪獸罐頭</span></label>
           <label><input type="radio" v-model="form.foodType" value="皇家濕糧" class="hidden"><span class="radio-pill">皇家濕糧</span></label>
         </div>
-        <div class="mb-2" v-if="form.foodType">
-          <label><input type="radio" v-model="form.foodAmount" value="一單位" class="hidden"><span class="radio-pill">{{ form.foodType === '皇家濕糧' ? '一包' : '一罐' }}</span></label>
-          <label><input type="radio" v-model="form.foodAmount" value="半單位" class="hidden"><span class="radio-pill">{{ form.foodType === '皇家濕糧' ? '半包' : '半罐' }}</span></label>
-          <label v-if="form.foodType !== '皇家濕糧'"><input type="radio" v-model="form.foodAmount" value="三分之一單位" class="hidden"><span class="radio-pill">1/3罐</span></label>
+        <div class="mb-2 mt-3" v-if="form.foodType">
+          <p class="text-sm text-gray-500 mb-2">實際吃進去的份量：</p>
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button @click="form.foodAmount = (form.foodType === '皇家濕糧' ? '一包' : '一罐')" class="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100">吃光光</button>
+            <button @click="form.foodAmount = (form.foodType === '皇家濕糧' ? '半包' : '半罐')" class="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100">吃一半</button>
+            <button @click="form.foodAmount = '1/3'" class="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100">1/3</button>
+            <button @click="form.foodAmount = '1/4'" class="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100">1/4</button>
+            <button @click="form.foodAmount = '只吃幾口'" class="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100">只吃幾口</button>
+            <button @click="form.foodAmount = '都沒吃'" class="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100">都沒吃</button>
+          </div>
+          <input type="text" v-model="form.foodAmount" placeholder="或自行輸入 (例: 剩兩口、吃了30g)" class="input-field text-sm font-bold text-[#5D4037]">
         </div>
         <button @click="saveFood" class="btn-save">儲存飲食紀錄</button>
       </div>
@@ -185,7 +195,10 @@
                     {{ rec.glucose }} <span v-if="rec.glucose !== 'HI'" class="text-xs font-normal text-gray-400">mg/dL</span>
                   </span>
                 </div>
-                <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
+                <div class="flex gap-2 shrink-0">
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg">🗑️</button>
+                </div>
               </div>
             </div>
 
@@ -196,18 +209,24 @@
                   <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
                   <span class="text-[#5D4037] text-sm">{{ rec.insulinTime }} ({{ rec.insulinDose }})</span>
                 </div>
-                <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
+                <div class="flex gap-2 shrink-0">
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg">🗑️</button>
+                </div>
               </div>
             </div>
 
             <div v-if="getEventsByType(day.events, 'food').length > 0" class="bg-orange-50 border border-orange-200 rounded-xl p-3">
               <h4 class="font-bold text-orange-500 mb-2 text-sm">🐟 飲食</h4>
               <div v-for="rec in getEventsByType(day.events, 'food')" :key="rec.id" class="flex justify-between items-center border-b border-orange-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0 text-sm">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
-                  <span>{{ rec.foodType }} {{ formatFoodAmount(rec.foodType, rec.foodAmount) }}</span>
+                  <span>{{ rec.foodType }} - {{ formatFoodAmount(rec.foodType, rec.foodAmount) }}</span>
                 </div>
-                <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
+                <div class="flex gap-2 shrink-0">
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg">🗑️</button>
+                </div>
               </div>
             </div>
 
@@ -221,7 +240,10 @@
                   </div>
                   <div v-if="rec.notes" class="text-gray-500 text-xs bg-white p-2 rounded border border-gray-100 inline-block">📝 {{ rec.notes }}</div>
                 </div>
-                <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1 ml-2">🗑️</button>
+                <div class="flex gap-2 shrink-0 ml-2">
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg">🗑️</button>
+                </div>
               </div>
             </div>
 
@@ -240,6 +262,58 @@
         <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center gap-2 text-lg shadow-sm">下載勾選的紀錄檔</button>
       </div>
     </div>
+
+    <div v-if="editingRecord" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl">
+        <h3 class="font-bold text-[#D87093] mb-4 flex items-center gap-2">✏️ 編輯紀錄</h3>
+        
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <label class="text-xs text-gray-500 mb-1 block">日期</label>
+            <input type="date" v-model="editForm.date" class="input-field !p-2 text-sm">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 mb-1 block">時間</label>
+            <input type="time" v-model="editForm.time" class="input-field !p-2 text-sm">
+          </div>
+        </div>
+
+        <div v-if="editForm.type === 'glucose'" class="mb-4">
+          <label class="text-sm text-gray-500 block mb-1">血糖值 (輸入 HI 代表大於500)</label>
+          <input type="text" inputmode="decimal" v-model="editForm.glucose" class="input-field font-bold">
+        </div>
+
+        <div v-if="editForm.type === 'insulin'" class="mb-4">
+          <label class="text-sm text-gray-500 block mb-1">施打時段</label>
+          <div class="flex gap-2 mb-3">
+            <label><input type="radio" v-model="editForm.insulinTime" value="早" class="hidden"> <span class="radio-pill !m-0 border border-gray-200">早</span></label>
+            <label><input type="radio" v-model="editForm.insulinTime" value="晚" class="hidden"> <span class="radio-pill !m-0 border border-gray-200">晚</span></label>
+          </div>
+          <label class="text-sm text-gray-500 block mb-1">施打劑量</label>
+          <input type="text" inputmode="decimal" v-model="editForm.insulinDose" class="input-field">
+        </div>
+
+        <div v-if="editForm.type === 'food'" class="mb-4">
+          <label class="text-sm text-gray-500 block mb-1">主食名稱</label>
+          <input type="text" v-model="editForm.foodType" class="input-field mb-3">
+          <label class="text-sm text-gray-500 block mb-1">份量 (例如：一罐、1/3、吃光光)</label>
+          <input type="text" v-model="editForm.foodAmount" class="input-field">
+        </div>
+
+        <div v-if="editForm.type === 'other'" class="mb-4">
+          <label class="text-sm text-gray-500 block mb-1">體重 (kg)</label>
+          <input type="number" inputmode="decimal" step="0.1" v-model="editForm.weight" class="input-field mb-3">
+          <label class="text-sm text-gray-500 block mb-1">備註</label>
+          <textarea v-model="editForm.notes" class="input-field" rows="2"></textarea>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button @click="cancelEdit" class="btn-outline flex-1 !py-2 text-sm">取消</button>
+          <button @click="saveEdit" class="btn-save flex-1 !mt-0 !py-2 shadow-md text-sm">儲存修改</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -280,7 +354,10 @@
             insulinTime: new Date().getHours() < 15 ? '早' : '晚',
             foodType: '', foodAmount: '', weight: '', notes: ''
           },
-          exportOptions: { glucose: true, insulin: true, food: true, other: true }
+          exportOptions: { glucose: true, insulin: true, food: true, other: true },
+          // 🌟 編輯功能狀態
+          editingRecord: null,
+          editForm: {}
         }
       },
       computed: {
@@ -324,6 +401,34 @@
         }
       },
       methods: {
+        // 🌟 新增：設定為當下時間
+        setNow() {
+          this.form.date = getLocalDateString();
+          this.form.time = getLocalTimeString();
+        },
+        // 🌟 新增：開啟編輯視窗並載入資料
+        startEdit(rec) {
+          this.editingRecord = rec;
+          this.editForm = JSON.parse(JSON.stringify(rec)); // 深度複製，避免改到一半污染原資料
+        },
+        // 🌟 新增：取消編輯
+        cancelEdit() {
+          this.editingRecord = null;
+        },
+        // 🌟 新增：儲存編輯內容
+        saveEdit() {
+          const index = this.records.findIndex(r => r.id === this.editForm.id);
+          if (index !== -1) {
+            this.records[index] = this.editForm;
+            this.saveToLocal();
+            // 如果改到的是血糖，馬上重新繪製圖表
+            if (this.editForm.type === 'glucose') {
+              this.$nextTick(() => { this.renderChart(); });
+            }
+          }
+          this.editingRecord = null; // 關閉視窗
+        },
+
         formatFoodAmount(type, amount) {
           if (!amount) return '';
           if (amount === '一單位') return type === '皇家濕糧' ? '一包' : '一罐';
@@ -335,6 +440,7 @@
           return events.filter(e => e.type === type).sort((a, b) => a.time.localeCompare(b.time));
         },
         updateTime() {
+          // 每次儲存後自動更新為最新時間
           this.form.time = getLocalTimeString();
         },
         saveToLocal() { localStorage.setItem('pupu_records', JSON.stringify(this.records)); },
