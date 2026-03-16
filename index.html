@@ -71,6 +71,17 @@
             <input type="text" inputmode="decimal" v-model="form.glucose" placeholder="輸入數值" class="input-field text-lg text-center font-bold flex-1">
             <button @click="form.glucose = 'HI'" class="bg-purple-50 text-purple-600 border-2 border-purple-200 font-bold py-2.5 px-4 rounded-xl active:bg-purple-100 transition-all">HI</button>
           </div>
+          <div v-if="form.glucose === 'HI'" class="mt-2 p-3 bg-purple-50 border-2 border-purple-300 rounded-xl text-purple-700 text-sm shadow-sm animate-pulse">
+            <p class="font-bold mb-1">🚨 數值 HI (大於設定最高值)！</p>
+            <p>血糖極高，請留意普普的精神與飲水，並視情況聯繫醫師！</p>
+          </div>
+          <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 60" class="mt-2 p-3 bg-red-50 border-2 border-red-300 rounded-xl text-red-700 text-sm shadow-sm animate-pulse">
+            <p class="font-bold mb-1">🚨 血糖低於 60！立刻觀察精神狀況：</p>
+            <ul class="list-disc pl-5"><li><b>精神穩定：</b>灌少量食物。</li><li><b>精神不好：</b>牙齦抹糖，送醫！</li></ul>
+          </div>
+          <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 80" class="mt-2 p-3 bg-orange-50 border-2 border-orange-300 rounded-xl text-orange-700 text-sm shadow-sm">
+            <p class="font-bold mb-1">⚠️ 血糖偏低 (< 80)</p><p>若不吃東西，請務必進行灌食！</p>
+          </div>
         </div>
         <button @click="saveGlucose" class="btn-save">儲存血糖紀錄</button>
       </div>
@@ -190,8 +201,8 @@
                   </span>
                 </div>
                 <div class="flex gap-2 shrink-0">
-                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg">✏️</button>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg">🗑️</button>
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
                 </div>
               </div>
             </div>
@@ -204,8 +215,8 @@
                   <span class="text-[#5D4037] text-sm">{{ rec.insulinTime }} ({{ rec.insulinDose }})</span>
                 </div>
                 <div class="flex gap-2 shrink-0">
-                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg">✏️</button>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg">🗑️</button>
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
                 </div>
               </div>
             </div>
@@ -224,8 +235,8 @@
                   </div>
                 </div>
                 <div class="flex gap-2 shrink-0">
-                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg">✏️</button>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg">🗑️</button>
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
                 </div>
               </div>
             </div>
@@ -241,8 +252,8 @@
                   <div v-if="rec.notes" class="text-gray-500 text-xs bg-white p-2 rounded border border-gray-100 inline-block">📝 {{ rec.notes }}</div>
                 </div>
                 <div class="flex gap-2 shrink-0 ml-2">
-                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg">✏️</button>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg">🗑️</button>
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
                 </div>
               </div>
             </div>
@@ -267,17 +278,17 @@
       
       <div class="card">
         <h2 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">💉 胰島素劑量對照表</h2>
-        <p class="text-xs text-gray-500 mb-3">請依照醫師指示設定。若輸入「HI」，系統會自動抓取清單中<strong class="text-purple-600">數值最大</strong>的級距對應劑量。</p>
+        <p class="text-xs text-gray-500 mb-3">若輸入「HI」，系統會自動抓取清單中<strong class="text-purple-600">數值最大</strong>的級距對應劑量。</p>
         
         <div class="flex flex-col gap-2 mb-3">
-          <div v-for="(rule, index) in insulinRules" :key="rule.id" class="flex items-center gap-1 bg-blue-50 p-2 rounded-lg border border-blue-100">
-            <span class="text-gray-500 text-xs shrink-0">血糖</span>
-            <input type="number" v-model="rule.min" @change="saveInsulinRules" class="input-field !p-1 !bg-white text-center text-sm flex-1 min-w-0 font-bold text-[#5D4037]">
-            <span class="text-gray-500 text-xs shrink-0">~</span>
-            <input type="number" v-model="rule.max" @change="saveInsulinRules" class="input-field !p-1 !bg-white text-center text-sm flex-1 min-w-0 font-bold text-[#5D4037]">
-            <span class="text-gray-500 text-xs shrink-0">➔打</span>
-            <input type="text" v-model="rule.dose" @change="saveInsulinRules" class="input-field !p-1 !bg-white text-center text-sm w-16 shrink-0 font-bold text-blue-600">
-            <button @click="deleteInsulinRule(rule.id)" class="text-gray-400 hover:text-red-500 p-1 shrink-0">🗑️</button>
+          <div v-for="rule in insulinRules" :key="rule.id" class="flex justify-between items-center bg-blue-50 p-3 rounded-lg border border-blue-100">
+            <div class="text-[#5D4037] text-sm">
+              血糖 <span class="font-bold">{{rule.min}}</span> ~ <span class="font-bold">{{rule.max}}</span> ➔ 打 <span class="text-blue-600 font-bold">{{rule.dose}}</span>
+            </div>
+            <div class="flex gap-2 shrink-0">
+              <button @click="startEditInsulin(rule)" class="text-gray-400 hover:text-blue-500 text-lg p-1">✏️</button>
+              <button @click="deleteInsulinRule(rule.id)" class="text-gray-400 hover:text-red-500 text-lg p-1">🗑️</button>
+            </div>
           </div>
         </div>
         <button @click="addInsulinRule" class="bg-blue-100 text-blue-600 font-bold py-2 px-4 rounded-lg w-full text-sm active:bg-blue-200 transition-all shadow-sm">➕ 新增一個級距</button>
@@ -307,12 +318,15 @@
         <p class="text-xs text-gray-500 mb-3">建立好清單後，填寫紀錄時就能自動計算熱量囉！</p>
         
         <div class="flex flex-col gap-2 mb-4">
-          <div v-for="f in foods" :key="f.id" class="flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
+          <div v-for="f in foods" :key="f.id" class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
             <div>
               <div class="font-bold text-sm text-[#5D4037]">{{ f.name }}</div>
-              <div class="text-xs text-gray-500">{{ f.kcal }} kcal / 每 1 {{ f.unit }}</div>
+              <div class="text-xs text-gray-500 mt-1">{{ f.kcal }} kcal / 每 1 {{ f.unit }}</div>
             </div>
-            <button @click="deleteFood(f.id)" class="text-gray-400 hover:text-red-500 p-2">🗑️</button>
+            <div class="flex gap-2 shrink-0">
+              <button @click="startEditFood(f)" class="text-gray-400 hover:text-blue-500 text-lg p-1">✏️</button>
+              <button @click="deleteFood(f.id)" class="text-gray-400 hover:text-red-500 text-lg p-1">🗑️</button>
+            </div>
           </div>
         </div>
 
@@ -329,9 +343,55 @@
 
     </div>
 
+    <div v-if="editingSettingFood" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl">
+        <h3 class="font-bold text-[#D87093] mb-4 flex items-center gap-2">✏️ 編輯食物資料</h3>
+        <label class="text-sm text-gray-500 block mb-1">食物名稱</label>
+        <input type="text" v-model="editSettingFoodForm.name" class="input-field mb-3">
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <label class="text-xs text-gray-500 block mb-1">單位</label>
+            <input type="text" v-model="editSettingFoodForm.unit" class="input-field !p-2 text-sm">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 block mb-1">單份熱量 (kcal)</label>
+            <input type="number" inputmode="decimal" v-model="editSettingFoodForm.kcal" class="input-field !p-2 text-sm">
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button @click="cancelEditFood" class="btn-outline flex-1 !py-2 text-sm">取消</button>
+          <button @click="saveEditFood" class="btn-save flex-1 !mt-0 !py-2 shadow-md text-sm">儲存</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="editingSettingInsulin" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl">
+        <h3 class="font-bold text-blue-600 mb-4 flex items-center gap-2">✏️ 編輯劑量級距</h3>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <label class="text-xs text-gray-500 block mb-1">血糖下限</label>
+            <input type="number" inputmode="decimal" v-model="editSettingInsulinForm.min" class="input-field !p-2 text-sm">
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 block mb-1">血糖上限</label>
+            <input type="number" inputmode="decimal" v-model="editSettingInsulinForm.max" class="input-field !p-2 text-sm">
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="text-sm text-gray-500 block mb-1">建議施打劑量</label>
+          <input type="text" v-model="editSettingInsulinForm.dose" class="input-field font-bold text-blue-600">
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button @click="cancelEditInsulin" class="bg-white text-gray-500 border-2 border-gray-200 rounded-full flex-1 !py-2 font-bold text-sm">取消</button>
+          <button @click="saveEditInsulin" class="bg-blue-500 text-white rounded-xl flex-1 !py-2 font-bold shadow-md text-sm">儲存</button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="editingRecord" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl">
-        <h3 class="font-bold text-[#D87093] mb-4 flex items-center gap-2">✏️ 編輯紀錄</h3>
+        <h3 class="font-bold text-[#D87093] mb-4 flex items-center gap-2">✏️ 編輯健康紀錄</h3>
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div><label class="text-xs text-gray-500 mb-1 block">日期</label><input type="date" v-model="editForm.date" class="input-field !p-2 text-sm"></div>
           <div><label class="text-xs text-gray-500 mb-1 block">時間</label><input type="time" v-model="editForm.time" class="input-field !p-2 text-sm"></div>
@@ -356,19 +416,10 @@
           <label class="text-sm text-gray-500 block mb-1">食物名稱</label>
           <input type="text" v-model="editForm.foodName" class="input-field mb-2" placeholder="如舊資料請編輯此欄">
           <div class="grid grid-cols-2 gap-2 mb-2">
-            <div>
-              <label class="text-xs text-gray-500 block mb-1">數量</label>
-              <input type="number" inputmode="decimal" step="0.01" v-model="editForm.foodAmount" class="input-field !p-2 text-sm">
-            </div>
-            <div>
-              <label class="text-xs text-gray-500 block mb-1">單位</label>
-              <input type="text" v-model="editForm.unit" class="input-field !p-2 text-sm">
-            </div>
+            <div><label class="text-xs text-gray-500 block mb-1">數量</label><input type="number" inputmode="decimal" step="0.01" v-model="editForm.foodAmount" class="input-field !p-2 text-sm"></div>
+            <div><label class="text-xs text-gray-500 block mb-1">單位</label><input type="text" v-model="editForm.unit" class="input-field !p-2 text-sm"></div>
           </div>
-          <div>
-            <label class="text-xs text-gray-500 block mb-1">總熱量 (kcal)</label>
-            <input type="number" inputmode="decimal" v-model="editForm.kcal" class="input-field !p-2 text-sm font-bold text-orange-500">
-          </div>
+          <div><label class="text-xs text-gray-500 block mb-1">總熱量 (kcal)</label><input type="number" inputmode="decimal" v-model="editForm.kcal" class="input-field !p-2 text-sm font-bold text-orange-500"></div>
         </div>
 
         <div v-if="editForm.type === 'other'" class="mb-4">
@@ -414,10 +465,7 @@
           
           records: JSON.parse(localStorage.getItem('pupu_records')) || [],
           
-          profile: JSON.parse(localStorage.getItem('pupu_profile')) || {
-            weight: '',
-            targetKcal: 200
-          },
+          profile: JSON.parse(localStorage.getItem('pupu_profile')) || { weight: '', targetKcal: 200 },
 
           foods: JSON.parse(localStorage.getItem('pupu_foods')) || [
             { id: 1, name: '汪喵罐頭', unit: '罐', kcal: 110 },
@@ -426,7 +474,6 @@
             { id: 4, name: '純肉泥', unit: '條', kcal: 15 }
           ],
           
-          // 🌟 胰島素對照表預設資料
           insulinRules: JSON.parse(localStorage.getItem('pupu_insulin_rules')) || [
             { id: 1, min: 0, max: 149, dose: '0 (不打)' },
             { id: 2, min: 150, max: 199, dose: '0.01' },
@@ -447,8 +494,11 @@
           },
           
           exportOptions: { glucose: true, insulin: true, food: true, other: true },
-          editingRecord: null,
-          editForm: {}
+          editingRecord: null, editForm: {},
+          
+          // 🌟 設定頁專屬的編輯視窗狀態
+          editingSettingFood: null, editSettingFoodForm: {},
+          editingSettingInsulin: null, editSettingInsulinForm: {}
         }
       },
       computed: {
@@ -471,20 +521,16 @@
           }
           return null;
         },
-        // 🌟 完全依靠自訂規則來計算建議劑量
         suggestedInsulin() {
           const ref = this.referenceGlucose;
           if (!this.insulinRules || this.insulinRules.length === 0) return '請先至設定新增對照表';
           
-          // 找出設定中 max 最大的那一組，當作 HI 的對應劑量
           let maxRule = this.insulinRules.reduce((prev, current) => (prev.max > current.max) ? prev : current, this.insulinRules[0]);
-          
           if (ref === 'HI') return maxRule.dose; 
           
           const g = parseFloat(ref);
           if (isNaN(g) || ref === null || ref === '') return '請先往上輸入血糖';
           
-          // 找出落在哪個區間
           let matchedRule = this.insulinRules.find(r => g >= r.min && g <= r.max);
           if (matchedRule) return matchedRule.dose;
           
@@ -515,32 +561,48 @@
         }
       },
       methods: {
-        // 🌟 胰島素規則的存檔、新增與刪除
-        saveInsulinRules() {
-          this.insulinRules.sort((a, b) => a.min - b.min); // 確保照數字大小排序
-          localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules));
+        // 🌟 設定頁：胰島素規則編輯功能
+        startEditInsulin(rule) {
+          this.editingSettingInsulin = rule;
+          this.editSettingInsulinForm = JSON.parse(JSON.stringify(rule));
+        },
+        cancelEditInsulin() { this.editingSettingInsulin = null; },
+        saveEditInsulin() {
+          const index = this.insulinRules.findIndex(r => r.id === this.editSettingInsulinForm.id);
+          if (index !== -1) {
+            this.insulinRules[index] = this.editSettingInsulinForm;
+            this.insulinRules.sort((a, b) => a.min - b.min);
+            localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules));
+          }
+          this.editingSettingInsulin = null;
         },
         addInsulinRule() {
           this.insulinRules.push({ id: Date.now(), min: 0, max: 0, dose: '0' });
-          this.saveInsulinRules();
+          this.insulinRules.sort((a, b) => a.min - b.min);
+          localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules));
+          // 新增後直接打開編輯視窗讓使用者輸入
+          this.startEditInsulin(this.insulinRules[this.insulinRules.length - 1]);
         },
         deleteInsulinRule(id) {
           if(confirm('確定要刪除這個級距嗎？')) {
             this.insulinRules = this.insulinRules.filter(r => r.id !== id);
-            this.saveInsulinRules();
+            localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules));
           }
         },
 
-        calculateTargetKcal() {
-          let w = parseFloat(this.profile.weight);
-          if (!isNaN(w) && w > 0) {
-            let rer = (30 * w) + 70;
-            this.profile.targetKcal = Math.round(rer * 1.2);
-            this.saveProfile();
-          }
+        // 🌟 設定頁：食物編輯功能
+        startEditFood(food) {
+          this.editingSettingFood = food;
+          this.editSettingFoodForm = JSON.parse(JSON.stringify(food));
         },
-        saveProfile() {
-          localStorage.setItem('pupu_profile', JSON.stringify(this.profile));
+        cancelEditFood() { this.editingSettingFood = null; },
+        saveEditFood() {
+          const index = this.foods.findIndex(f => f.id === this.editSettingFoodForm.id);
+          if (index !== -1) {
+            this.foods[index] = this.editSettingFoodForm;
+            localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
+          }
+          this.editingSettingFood = null;
         },
         addFood() {
           if (!this.newFood.name || !this.newFood.unit || !this.newFood.kcal) return alert('請填寫完整食物資料！');
@@ -559,6 +621,18 @@
             this.foods = this.foods.filter(f => f.id !== id);
             localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
           }
+        },
+
+        calculateTargetKcal() {
+          let w = parseFloat(this.profile.weight);
+          if (!isNaN(w) && w > 0) {
+            let rer = (30 * w) + 70;
+            this.profile.targetKcal = Math.round(rer * 1.2);
+            this.saveProfile();
+          }
+        },
+        saveProfile() {
+          localStorage.setItem('pupu_profile', JSON.stringify(this.profile));
         },
 
         setNow() {
