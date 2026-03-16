@@ -71,16 +71,28 @@
             <input type="text" inputmode="decimal" v-model="form.glucose" placeholder="輸入數值" class="input-field text-lg text-center font-bold flex-1">
             <button @click="form.glucose = 'HI'" class="bg-purple-50 text-purple-600 border-2 border-purple-200 font-bold py-2.5 px-4 rounded-xl active:bg-purple-100 transition-all">HI</button>
           </div>
+          
           <div v-if="form.glucose === 'HI'" class="mt-2 p-3 bg-purple-50 border-2 border-purple-300 rounded-xl text-purple-700 text-sm shadow-sm animate-pulse">
             <p class="font-bold mb-1">🚨 數值 HI (大於設定最高值)！</p>
             <p>血糖極高，請留意普普的精神與飲水，並視情況聯繫醫師！</p>
           </div>
+          <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 40" class="mt-2 p-3 bg-red-100 border-2 border-red-500 rounded-xl text-red-800 text-sm shadow-sm animate-pulse">
+            <p class="font-bold mb-1 text-lg">🆘 嚴重低血糖 (< 40)！極度危險！</p>
+            <ul class="list-disc pl-5 font-bold">
+              <li>立刻在牙齦塗抹糖水或蜂蜜！</li>
+              <li>請馬上準備送醫急診！</li>
+            </ul>
+          </div>
           <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 60" class="mt-2 p-3 bg-red-50 border-2 border-red-300 rounded-xl text-red-700 text-sm shadow-sm animate-pulse">
-            <p class="font-bold mb-1">🚨 血糖低於 60！立刻觀察精神狀況：</p>
-            <ul class="list-disc pl-5"><li><b>精神穩定：</b>灌少量食物。</li><li><b>精神不好：</b>牙齦抹糖，送醫！</li></ul>
+            <p class="font-bold mb-1">🚨 血糖危險 (< 60)！請立即處理：</p>
+            <ul class="list-disc pl-5">
+              <li><b>精神尚可：</b>立刻餵食高碳水食物/主食。</li>
+              <li><b>精神渙散：</b>牙齦抹糖，盡速就醫！</li>
+            </ul>
           </div>
           <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 80" class="mt-2 p-3 bg-orange-50 border-2 border-orange-300 rounded-xl text-orange-700 text-sm shadow-sm">
-            <p class="font-bold mb-1">⚠️ 血糖偏低 (< 80)</p><p>若不吃東西，請務必進行灌食！</p>
+            <p class="font-bold mb-1">⚠️ 血糖偏低 (< 80)</p>
+            <p>若不吃東西，請務必進行灌食或密切監測！</p>
           </div>
         </div>
         <button @click="saveGlucose" class="btn-save">儲存血糖紀錄</button>
@@ -146,7 +158,7 @@
       <div class="card">
         <h2 class="font-bold mb-3 flex items-center gap-2">🩺 其他數據</h2>
         <div class="mb-3">
-          <input type="number" inputmode="decimal" step="0.1" v-model="form.weight" placeholder="體重 (kg)" class="input-field">
+          <input type="number" inputmode="decimal" step="0.1" v-model="form.weight" placeholder="體重 (kg) (儲存會自動連動設定)" class="input-field">
         </div>
         <div>
           <textarea v-model="form.notes" class="input-field" rows="2" placeholder="備註 (精神、嘔吐、尿量等)"></textarea>
@@ -261,21 +273,29 @@
           </div>
         </div>
       </div>
-
-      <div class="card !bg-white border-2 border-[#FFE4E1] mb-8">
-        <h3 class="font-bold mb-3 text-[#D87093]">📥 選擇匯出項目</h3>
-        <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
-          <label class="flex items-center gap-2 bg-pink-50 p-2 rounded-lg border border-pink-100"><input type="checkbox" v-model="exportOptions.glucose" class="w-4 h-4 chk-glucose"> 🩸 血糖</label>
-          <label class="flex items-center gap-2 bg-blue-50 p-2 rounded-lg border border-blue-100"><input type="checkbox" v-model="exportOptions.insulin" class="w-4 h-4 chk-insulin"> 💉 胰島素</label>
-          <label class="flex items-center gap-2 bg-orange-50 p-2 rounded-lg border border-orange-100"><input type="checkbox" v-model="exportOptions.food" class="w-4 h-4 chk-food"> 🐟 飲食</label>
-          <label class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200"><input type="checkbox" v-model="exportOptions.other" class="w-4 h-4 chk-other"> 🩺 其他</label>
-        </div>
-        <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center gap-2 text-lg shadow-sm">下載勾選的紀錄檔</button>
-      </div>
     </div>
 
     <div v-show="currentTab === 'settings'" class="mb-10">
       
+      <div class="card">
+        <h2 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">🐈 貓咪基本資料</h2>
+        <div class="mb-4">
+          <label class="text-sm text-gray-500 block mb-1">普普的體重 (kg)</label>
+          <div class="flex gap-2">
+            <input type="number" inputmode="decimal" step="0.1" v-model="profile.weight" @input="calculateTargetKcal" class="input-field font-bold text-lg">
+          </div>
+          <p class="text-xs text-gray-400 mt-1">＊在「填寫紀錄」中輸入體重時，也可自動同步更新此處</p>
+        </div>
+        <div class="p-3 bg-orange-50 rounded-xl border border-orange-100">
+          <label class="text-sm text-orange-600 font-bold block mb-1">每日目標熱量 (kcal)</label>
+          <div class="flex items-center gap-2">
+            <input type="number" inputmode="decimal" v-model="profile.targetKcal" @change="saveProfile" class="input-field !bg-white text-orange-500 font-bold flex-1">
+            <span class="text-gray-500 text-sm">kcal/天</span>
+          </div>
+          <p class="text-xs text-gray-400 mt-2">公式：(30 × 體重 + 70) × 1.2 (可手動修改)</p>
+        </div>
+      </div>
+
       <div class="card">
         <h2 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">💉 胰島素劑量對照表</h2>
         <p class="text-xs text-gray-500 mb-3">若輸入「HI」，系統會自動抓取清單中<strong class="text-purple-600">數值最大</strong>的級距對應劑量。</p>
@@ -292,25 +312,6 @@
           </div>
         </div>
         <button @click="addInsulinRule" class="bg-blue-100 text-blue-600 font-bold py-2 px-4 rounded-lg w-full text-sm active:bg-blue-200 transition-all shadow-sm">➕ 新增一個級距</button>
-      </div>
-
-      <div class="card">
-        <h2 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">🐈 貓咪基本資料</h2>
-        <div class="mb-4">
-          <label class="text-sm text-gray-500 block mb-1">普普的體重 (kg)</label>
-          <div class="flex gap-2">
-            <input type="number" inputmode="decimal" step="0.1" v-model="profile.weight" @input="calculateTargetKcal" class="input-field font-bold text-lg">
-          </div>
-          <p class="text-xs text-gray-400 mt-1">＊輸入體重會自動幫您試算建議攝取熱量</p>
-        </div>
-        <div class="p-3 bg-orange-50 rounded-xl border border-orange-100">
-          <label class="text-sm text-orange-600 font-bold block mb-1">每日目標熱量 (kcal)</label>
-          <div class="flex items-center gap-2">
-            <input type="number" inputmode="decimal" v-model="profile.targetKcal" @change="saveProfile" class="input-field !bg-white text-orange-500 font-bold flex-1">
-            <span class="text-gray-500 text-sm">kcal/天</span>
-          </div>
-          <p class="text-xs text-gray-400 mt-2">公式：(30 × 體重 + 70) × 1.2 (可依醫師指示手動修改)</p>
-        </div>
       </div>
 
       <div class="card">
@@ -339,6 +340,18 @@
           </div>
           <button @click="addFood" class="bg-[#D87093] text-white font-bold py-2 px-4 rounded-lg w-full text-sm active:bg-pink-600 transition-all shadow-sm">儲存到資料庫</button>
         </div>
+      </div>
+
+      <div class="card !bg-white border-2 border-[#FFE4E1] mb-8">
+        <h3 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">📥 匯出資料給醫生</h3>
+        <p class="text-xs text-gray-500 mb-3">請選擇想要匯出的項目，會自動產生 CSV 報表檔。</p>
+        <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
+          <label class="flex items-center gap-2 bg-pink-50 p-2 rounded-lg border border-pink-100"><input type="checkbox" v-model="exportOptions.glucose" class="w-4 h-4 chk-glucose"> 🩸 血糖</label>
+          <label class="flex items-center gap-2 bg-blue-50 p-2 rounded-lg border border-blue-100"><input type="checkbox" v-model="exportOptions.insulin" class="w-4 h-4 chk-insulin"> 💉 胰島素</label>
+          <label class="flex items-center gap-2 bg-orange-50 p-2 rounded-lg border border-orange-100"><input type="checkbox" v-model="exportOptions.food" class="w-4 h-4 chk-food"> 🐟 飲食</label>
+          <label class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200"><input type="checkbox" v-model="exportOptions.other" class="w-4 h-4 chk-other"> 🩺 其他</label>
+        </div>
+        <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center gap-2 text-lg shadow-sm">📥 下載報表檔</button>
       </div>
 
     </div>
@@ -390,7 +403,7 @@
     </div>
 
     <div v-if="editingRecord" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl">
+      <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
         <h3 class="font-bold text-[#D87093] mb-4 flex items-center gap-2">✏️ 編輯健康紀錄</h3>
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div><label class="text-xs text-gray-500 mb-1 block">日期</label><input type="date" v-model="editForm.date" class="input-field !p-2 text-sm"></div>
@@ -400,6 +413,19 @@
         <div v-if="editForm.type === 'glucose'" class="mb-4">
           <label class="text-sm text-gray-500 block mb-1">血糖值 (輸入 HI 代表大於最高設定)</label>
           <input type="text" inputmode="decimal" v-model="editForm.glucose" class="input-field font-bold">
+          
+          <div v-if="editForm.glucose === 'HI'" class="mt-2 p-2 bg-purple-50 border border-purple-300 rounded text-purple-700 text-xs">
+            🚨 數值 HI！請留意普普狀況。
+          </div>
+          <div v-else-if="editForm.glucose !== '' && editForm.glucose !== 'HI' && editForm.glucose < 40" class="mt-2 p-2 bg-red-100 border border-red-500 rounded text-red-800 text-xs animate-pulse font-bold">
+            🆘 嚴重低血糖 (< 40)！立刻塗抹糖水並準備送醫！
+          </div>
+          <div v-else-if="editForm.glucose !== '' && editForm.glucose !== 'HI' && editForm.glucose < 60" class="mt-2 p-2 bg-red-50 border border-red-300 rounded text-red-700 text-xs animate-pulse">
+            🚨 血糖危險 (< 60)！請立即餵食或抹糖。
+          </div>
+          <div v-else-if="editForm.glucose !== '' && editForm.glucose !== 'HI' && editForm.glucose < 80" class="mt-2 p-2 bg-orange-50 border border-orange-300 rounded text-orange-700 text-xs">
+            ⚠️ 血糖偏低 (< 80)，請密切觀察。
+          </div>
         </div>
 
         <div v-if="editForm.type === 'insulin'" class="mb-4">
@@ -496,7 +522,6 @@
           exportOptions: { glucose: true, insulin: true, food: true, other: true },
           editingRecord: null, editForm: {},
           
-          // 🌟 設定頁專屬的編輯視窗狀態
           editingSettingFood: null, editSettingFoodForm: {},
           editingSettingInsulin: null, editSettingInsulinForm: {}
         }
@@ -561,7 +586,6 @@
         }
       },
       methods: {
-        // 🌟 設定頁：胰島素規則編輯功能
         startEditInsulin(rule) {
           this.editingSettingInsulin = rule;
           this.editSettingInsulinForm = JSON.parse(JSON.stringify(rule));
@@ -580,7 +604,6 @@
           this.insulinRules.push({ id: Date.now(), min: 0, max: 0, dose: '0' });
           this.insulinRules.sort((a, b) => a.min - b.min);
           localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules));
-          // 新增後直接打開編輯視窗讓使用者輸入
           this.startEditInsulin(this.insulinRules[this.insulinRules.length - 1]);
         },
         deleteInsulinRule(id) {
@@ -590,7 +613,6 @@
           }
         },
 
-        // 🌟 設定頁：食物編輯功能
         startEditFood(food) {
           this.editingSettingFood = food;
           this.editSettingFoodForm = JSON.parse(JSON.stringify(food));
@@ -694,8 +716,17 @@
           this.form.selectedFoodId = null; this.form.foodAmount = ''; this.updateTime();
         },
         
+        // 🌟 體重智能同步邏輯
         saveOther() {
           if (!this.form.weight && !this.form.notes) return alert('請輸入體重或備註！');
+          
+          if (this.form.weight) {
+            if (confirm(`是否要將普普的最新體重 (${this.form.weight} kg) 同步更新到「設定」，並自動重新計算每日目標熱量？`)) {
+              this.profile.weight = this.form.weight;
+              this.calculateTargetKcal();
+            }
+          }
+
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = ''; this.updateTime();
         },
