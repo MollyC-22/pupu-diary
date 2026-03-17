@@ -71,6 +71,7 @@
             <input type="text" inputmode="decimal" v-model="form.glucose" placeholder="輸入數值" class="input-field text-lg text-center font-bold flex-1">
             <button @click="form.glucose = 'HI'" class="bg-purple-50 text-purple-600 border-2 border-purple-200 font-bold py-2.5 px-4 rounded-xl active:bg-purple-100 transition-all">HI</button>
           </div>
+          
           <div v-if="form.glucose === 'HI'" class="mt-2 p-3 bg-purple-50 border-2 border-purple-300 rounded-xl text-purple-700 text-sm shadow-sm animate-pulse">
             <p class="font-bold mb-1">🚨 數值 HI (大於設定最高值)！</p>
             <p>血糖極高，請留意普普的精神與飲水，並視情況聯繫醫師！</p>
@@ -91,6 +92,9 @@
           </div>
           <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 80" class="mt-2 p-3 bg-orange-50 border-2 border-orange-300 rounded-xl text-orange-700 text-sm shadow-sm">
             <p class="font-bold mb-1">⚠️ 血糖偏低 (< 80)</p><p>若不吃東西，請務必進行灌食！</p>
+          </div>
+          <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose >= 80 && form.glucose <= 150" class="mt-2 p-3 bg-green-50 border-2 border-green-300 rounded-xl text-green-700 text-sm shadow-sm">
+            <p class="font-bold flex items-center gap-1">🌟 太棒了！血糖控制得非常漂亮！</p>
           </div>
         </div>
         <button @click="saveGlucose" class="btn-save">儲存血糖紀錄</button>
@@ -203,12 +207,17 @@
           <div class="p-4 flex flex-col gap-3">
             <div v-if="getEventsByType(day.events, 'glucose').length > 0" class="bg-[#FFF9FA] border border-[#FFB6C1] rounded-xl p-3">
               <h4 class="font-bold text-[#D87093] mb-2 text-sm">🩸 血糖</h4>
-              <div v-for="rec in getEventsByType(day.events, 'glucose')" :key="rec.id" class="flex justify-between items-center border-b border-pink-50 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
-                <div class="flex items-center gap-2">
+              <div v-for="rec in getEventsByType(day.events, 'glucose')" :key="rec.id" class="flex justify-between items-center border-b border-pink-50 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0">
+                <div class="flex items-center gap-2 flex-wrap">
                   <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
                   <span :class="rec.glucose === 'HI' ? 'text-purple-600 font-bold' : (rec.glucose < 80 ? 'text-red-500 font-bold' : 'text-[#5D4037] font-bold')">
                     {{ rec.glucose }} <span v-if="rec.glucose !== 'HI'" class="text-xs font-normal text-gray-400">mg/dL</span>
                   </span>
+                  
+                  <span v-if="rec.glucose !== 'HI' && parseFloat(rec.glucose) >= 80 && parseFloat(rec.glucose) <= 150" class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm inline-flex items-center">
+                    🌟 漂亮
+                  </span>
+
                 </div>
                 <div class="flex gap-2 shrink-0">
                   <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
@@ -520,7 +529,7 @@
             date: getLocalDateString(),
             time: getLocalTimeString(),
             glucose: '',
-            actualInsulinDose: '', // 🌟 新增手動劑量欄位
+            actualInsulinDose: '', 
             insulinTime: new Date().getHours() < 15 ? '早' : '晚',
             selectedFoodId: null, 
             foodAmount: '', 
@@ -592,7 +601,6 @@
         currentTab(newVal) {
           if (newVal === 'chart') this.$nextTick(() => { this.renderChart(); });
         },
-        // 🌟 當系統算出建議劑量時，自動填入手動框框 (省去打字的麻煩)
         suggestedInsulin(newVal) {
           if (newVal && !newVal.includes('請先') && !newVal.includes('無對應')) {
             this.form.actualInsulinDose = newVal;
@@ -679,7 +687,6 @@
           this.editingRecord = rec;
           this.editForm = JSON.parse(JSON.stringify(rec));
         },
-        // 🌟 編輯時即時重算熱量
         recalcEditFoodKcal() {
           const food = this.foods.find(f => f.name === this.editForm.foodName);
           if (food) {
@@ -723,12 +730,11 @@
           this.updateTime();
         },
         
-        // 🌟 使用者現在可以直接存手動劑量，不再被血糖卡住
         saveInsulin() {
           if (!this.form.actualInsulinDose) return alert('請輸入實際施打的劑量！');
           this.records.push({ id: Date.now(), type: 'insulin', date: this.form.date, time: this.form.time, insulinTime: this.form.insulinTime, insulinDose: this.form.actualInsulinDose });
           this.saveToLocal(); alert('💉 胰島素已紀錄！'); 
-          this.form.actualInsulinDose = ''; // 存完清空
+          this.form.actualInsulinDose = ''; 
           this.updateTime();
         },
         
