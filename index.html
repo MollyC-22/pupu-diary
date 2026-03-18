@@ -170,6 +170,35 @@
     </div>
 
     <div v-show="currentTab === 'chart'">
+      
+      <div class="mb-4">
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <div class="bg-pink-50 p-2 rounded-xl border border-pink-100 text-center shadow-sm">
+            <div class="text-xs text-gray-500 mb-1">平均血糖</div>
+            <div class="text-lg font-bold text-[#D87093]">{{ chartStats.avg }}</div>
+          </div>
+          <div class="bg-red-50 p-2 rounded-xl border border-red-100 text-center shadow-sm">
+            <div class="text-xs text-gray-500 mb-1">最高數值</div>
+            <div class="text-lg font-bold text-red-500">{{ chartStats.max }}</div>
+          </div>
+          <div class="bg-blue-50 p-2 rounded-xl border border-blue-100 text-center shadow-sm">
+            <div class="text-xs text-gray-500 mb-1">最低數值</div>
+            <div class="text-lg font-bold text-blue-500">{{ chartStats.min }}</div>
+          </div>
+        </div>
+        
+        <div class="bg-white p-3 rounded-xl border border-orange-100 shadow-sm">
+           <div class="flex justify-between items-end mb-2">
+             <span class="text-xs font-bold text-orange-600 flex items-center gap-1">🎯 今日熱量達成率</span>
+             <span class="text-sm font-bold text-orange-500">{{ todayStats.total }} / {{ profile.targetKcal }} <span class="text-xs">kcal</span></span>
+           </div>
+           <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+             <div class="bg-orange-400 h-3 rounded-full transition-all duration-500" :style="{ width: Math.min(todayStats.percent, 100) + '%' }"></div>
+           </div>
+           <p v-if="todayStats.percent >= 100" class="text-xs text-green-600 font-bold mt-2 text-center">🌟 今天有乖乖吃夠熱量！</p>
+        </div>
+      </div>
+
       <div class="card">
         <div class="flex justify-between items-center mb-3">
           <h2 class="font-bold">📉 血糖趨勢圖</h2>
@@ -188,15 +217,29 @@
         <canvas id="glucoseChart"></canvas>
       </div>
       
-      <div class="mt-4 mb-4">
-        <h3 class="font-bold text-gray-600 mb-3 pl-2">📅 每日健康日記</h3>
-        <div v-if="groupedRecordsByDate.length === 0" class="text-center text-gray-400 py-4">目前還沒有紀錄喔！</div>
+      <div class="mt-6 mb-4">
+        <div class="flex justify-between items-center mb-3 pl-2">
+          <h3 class="font-bold text-gray-600">📅 每日健康日記</h3>
+        </div>
         
-        <div v-for="day in groupedRecordsByDate" :key="day.date" class="card !p-0 overflow-hidden border border-[#FFE4E1]">
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-1 pl-1">
+          <button @click="logFilter = 'all'" :class="logFilter === 'all' ? 'bg-[#D87093] text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0">全部紀錄</button>
+          <button @click="logFilter = 'medical'" :class="logFilter === 'medical' ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0">🩸 醫療 (血糖/胰島素)</button>
+          <button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0">🐟 飲食紀錄</button>
+        </div>
+
+        <div v-if="filteredGroupedRecords.length === 0" class="text-center text-gray-400 py-8 bg-white rounded-2xl border border-dashed border-gray-200">
+          在這個分類下目前沒有紀錄喔！
+        </div>
+        
+        <div v-for="day in filteredGroupedRecords" :key="day.date" class="card !p-0 overflow-hidden border border-[#FFE4E1]">
           <div class="bg-[#FFF0F5] px-4 py-3 font-bold text-[#D87093] flex flex-col gap-1">
             <div class="flex justify-between items-center">
               <span class="text-lg">{{ day.date }}</span>
-              <span class="text-xs bg-white px-2 py-1 rounded-full shadow-sm text-gray-500">{{ day.events.length }} 筆紀錄</span>
+              
+              <span v-if="day.status === 'danger'" class="text-xs bg-red-500 text-white px-2 py-1 rounded-full shadow-sm">🚨 異常注意</span>
+              <span v-else-if="day.status === 'perfect'" class="text-xs bg-green-500 text-white px-2 py-1 rounded-full shadow-sm">🌟 完美控制</span>
+              <span v-else class="text-xs bg-white text-gray-500 px-2 py-1 rounded-full shadow-sm">{{ day.events.length }} 筆</span>
             </div>
             <div class="text-xs text-gray-600 mt-1 bg-white/50 p-2 rounded-lg flex justify-between items-center">
               <span>本日攝取熱量：<strong class="text-orange-500 text-sm">{{ day.totalKcal }}</strong> kcal</span>
@@ -289,7 +332,6 @@
           <div class="flex gap-2">
             <input type="number" inputmode="decimal" step="0.1" v-model="profile.weight" @input="calculateTargetKcal" class="input-field font-bold text-lg">
           </div>
-          <p class="text-xs text-gray-400 mt-1">＊在「填寫紀錄」中輸入體重時，也可自動同步更新此處</p>
         </div>
         <div class="p-3 bg-orange-50 rounded-xl border border-orange-100">
           <label class="text-sm text-orange-600 font-bold block mb-1">每日目標熱量 (kcal)</label>
@@ -297,14 +339,11 @@
             <input type="number" inputmode="decimal" v-model="profile.targetKcal" @change="saveProfile" class="input-field !bg-white text-orange-500 font-bold flex-1">
             <span class="text-gray-500 text-sm">kcal/天</span>
           </div>
-          <p class="text-xs text-gray-400 mt-2">公式：(30 × 體重 + 70) × 1.2 (可手動修改)</p>
         </div>
       </div>
 
       <div class="card">
         <h2 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">💉 胰島素劑量對照表</h2>
-        <p class="text-xs text-gray-500 mb-3">若輸入「HI」，系統會自動抓取清單中<strong class="text-purple-600">數值最大</strong>的級距對應劑量。</p>
-        
         <div class="flex flex-col gap-2 mb-3">
           <div v-for="rule in insulinRules" :key="rule.id" class="flex justify-between items-center bg-blue-50 p-3 rounded-lg border border-blue-100">
             <div class="text-[#5D4037] text-sm">
@@ -321,8 +360,6 @@
 
       <div class="card">
         <h2 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">🥫 自訂食物庫</h2>
-        <p class="text-xs text-gray-500 mb-3">建立好清單後，填寫紀錄時就能自動計算熱量囉！</p>
-        
         <div class="flex flex-col gap-2 mb-4">
           <div v-for="f in foods" :key="f.id" class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
             <div>
@@ -367,14 +404,8 @@
         <label class="text-sm text-gray-500 block mb-1">食物名稱</label>
         <input type="text" v-model="editSettingFoodForm.name" class="input-field mb-3">
         <div class="grid grid-cols-2 gap-3 mb-4">
-          <div>
-            <label class="text-xs text-gray-500 block mb-1">單位</label>
-            <input type="text" v-model="editSettingFoodForm.unit" class="input-field !p-2 text-sm">
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 block mb-1">單份熱量 (kcal)</label>
-            <input type="number" inputmode="decimal" v-model="editSettingFoodForm.kcal" class="input-field !p-2 text-sm">
-          </div>
+          <div><label class="text-xs text-gray-500 block mb-1">單位</label><input type="text" v-model="editSettingFoodForm.unit" class="input-field !p-2 text-sm"></div>
+          <div><label class="text-xs text-gray-500 block mb-1">單份熱量 (kcal)</label><input type="number" inputmode="decimal" v-model="editSettingFoodForm.kcal" class="input-field !p-2 text-sm"></div>
         </div>
         <div class="flex gap-3 mt-6">
           <button @click="cancelEditFood" class="btn-outline flex-1 !py-2 text-sm">取消</button>
@@ -387,14 +418,8 @@
       <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl">
         <h3 class="font-bold text-blue-600 mb-4 flex items-center gap-2">✏️ 編輯劑量級距</h3>
         <div class="grid grid-cols-2 gap-3 mb-4">
-          <div>
-            <label class="text-xs text-gray-500 block mb-1">血糖下限</label>
-            <input type="number" inputmode="decimal" v-model="editSettingInsulinForm.min" class="input-field !p-2 text-sm">
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 block mb-1">血糖上限</label>
-            <input type="number" inputmode="decimal" v-model="editSettingInsulinForm.max" class="input-field !p-2 text-sm">
-          </div>
+          <div><label class="text-xs text-gray-500 block mb-1">血糖下限</label><input type="number" inputmode="decimal" v-model="editSettingInsulinForm.min" class="input-field !p-2 text-sm"></div>
+          <div><label class="text-xs text-gray-500 block mb-1">血糖上限</label><input type="number" inputmode="decimal" v-model="editSettingInsulinForm.max" class="input-field !p-2 text-sm"></div>
         </div>
         <div class="mb-4">
           <label class="text-sm text-gray-500 block mb-1">建議施打劑量</label>
@@ -416,21 +441,8 @@
         </div>
 
         <div v-if="editForm.type === 'glucose'" class="mb-4">
-          <label class="text-sm text-gray-500 block mb-1">血糖值 (輸入 HI 代表大於最高設定)</label>
+          <label class="text-sm text-gray-500 block mb-1">血糖值</label>
           <input type="text" inputmode="decimal" v-model="editForm.glucose" class="input-field font-bold">
-          
-          <div v-if="editForm.glucose === 'HI'" class="mt-2 p-2 bg-purple-50 border border-purple-300 rounded text-purple-700 text-xs">
-            🚨 數值 HI！請留意普普狀況。
-          </div>
-          <div v-else-if="editForm.glucose !== '' && editForm.glucose !== 'HI' && editForm.glucose < 40" class="mt-2 p-2 bg-red-100 border border-red-500 rounded text-red-800 text-xs animate-pulse font-bold">
-            🆘 嚴重低血糖 (< 40)！立刻塗抹糖水並準備送醫！
-          </div>
-          <div v-else-if="editForm.glucose !== '' && editForm.glucose !== 'HI' && editForm.glucose < 60" class="mt-2 p-2 bg-red-50 border border-red-300 rounded text-red-700 text-xs animate-pulse">
-            🚨 血糖危險 (< 60)！請立即餵食或抹糖。
-          </div>
-          <div v-else-if="editForm.glucose !== '' && editForm.glucose !== 'HI' && editForm.glucose < 80" class="mt-2 p-2 bg-orange-50 border border-orange-300 rounded text-orange-700 text-xs">
-            ⚠️ 血糖偏低 (< 80)，請密切觀察。
-          </div>
         </div>
 
         <div v-if="editForm.type === 'insulin'" class="mb-4">
@@ -447,19 +459,10 @@
           <label class="text-sm text-gray-500 block mb-1">食物名稱</label>
           <input type="text" v-model="editForm.foodName" class="input-field mb-2" disabled>
           <div class="grid grid-cols-2 gap-2 mb-2">
-            <div>
-              <label class="text-xs text-gray-500 block mb-1">數量</label>
-              <input type="number" inputmode="decimal" step="0.01" v-model="editForm.foodAmount" @input="recalcEditFoodKcal" class="input-field !p-2 text-sm font-bold text-orange-600">
-            </div>
-            <div>
-              <label class="text-xs text-gray-500 block mb-1">單位</label>
-              <input type="text" v-model="editForm.unit" class="input-field !p-2 text-sm" disabled>
-            </div>
+            <div><label class="text-xs text-gray-500 block mb-1">數量</label><input type="number" inputmode="decimal" step="0.01" v-model="editForm.foodAmount" @input="recalcEditFoodKcal" class="input-field !p-2 text-sm font-bold text-orange-600"></div>
+            <div><label class="text-xs text-gray-500 block mb-1">單位</label><input type="text" v-model="editForm.unit" class="input-field !p-2 text-sm" disabled></div>
           </div>
-          <div>
-            <label class="text-xs text-gray-500 block mb-1">總熱量 (kcal)</label>
-            <input type="number" inputmode="decimal" v-model="editForm.kcal" class="input-field !p-2 text-sm font-bold text-orange-500">
-          </div>
+          <div><label class="text-xs text-gray-500 block mb-1">總熱量 (kcal)</label><input type="number" inputmode="decimal" v-model="editForm.kcal" class="input-field !p-2 text-sm font-bold text-orange-500"></div>
         </div>
 
         <div v-if="editForm.type === 'other'" class="mb-4">
@@ -502,18 +505,16 @@
           chartRange: '7',
           customStartDate: getPastDateString(7), 
           customEndDate: getLocalDateString(),   
+          logFilter: 'all', // 🌟 新增：日記篩選狀態
           
           records: JSON.parse(localStorage.getItem('pupu_records')) || [],
-          
           profile: JSON.parse(localStorage.getItem('pupu_profile')) || { weight: '', targetKcal: 200 },
-
           foods: JSON.parse(localStorage.getItem('pupu_foods')) || [
             { id: 1, name: '汪喵罐頭', unit: '罐', kcal: 110 },
             { id: 2, name: '小怪獸罐頭', unit: '罐', kcal: 115 },
             { id: 3, name: '皇家濕糧', unit: '包', kcal: 85 },
             { id: 4, name: '純肉泥', unit: '條', kcal: 15 }
           ],
-          
           insulinRules: JSON.parse(localStorage.getItem('pupu_insulin_rules')) || [
             { id: 1, min: 0, max: 149, dose: '0 (不打)' },
             { id: 2, min: 150, max: 199, dose: '0.01' },
@@ -524,19 +525,13 @@
           newFood: { name: '', unit: '', kcal: '' },
 
           form: {
-            date: getLocalDateString(),
-            time: getLocalTimeString(),
-            glucose: '',
-            actualInsulinDose: '', 
-            insulinTime: new Date().getHours() < 15 ? '早' : '晚',
-            selectedFoodId: null, 
-            foodAmount: '', 
-            weight: '', notes: ''
+            date: getLocalDateString(), time: getLocalTimeString(),
+            glucose: '', actualInsulinDose: '', insulinTime: new Date().getHours() < 15 ? '早' : '晚',
+            selectedFoodId: null, foodAmount: '', weight: '', notes: ''
           },
           
           exportOptions: { glucose: true, insulin: true, food: true, other: true },
           editingRecord: null, editForm: {},
-          
           editingSettingFood: null, editSettingFoodForm: {},
           editingSettingInsulin: null, editSettingInsulinForm: {}
         }
@@ -564,41 +559,109 @@
         suggestedInsulin() {
           const ref = this.referenceGlucose;
           if (!this.insulinRules || this.insulinRules.length === 0) return '請先至設定新增對照表';
-          
           let maxRule = this.insulinRules.reduce((prev, current) => (prev.max > current.max) ? prev : current, this.insulinRules[0]);
           if (ref === 'HI') return maxRule.dose; 
-          
           const g = parseFloat(ref);
           if (isNaN(g) || ref === null || ref === '') return '請先往上輸入血糖';
-          
           let matchedRule = this.insulinRules.find(r => g >= r.min && g <= r.max);
           if (matchedRule) return matchedRule.dose;
-          
           return '無對應劑量，請確認設定';
         },
-        sortedRecords() {
-          return [...this.records].sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
+        
+        // 🌟 核心：提供圖表和 Dashboard 計算的統一資料來源
+        filteredChartRecords() {
+          let filtered = [...this.records].filter(r => r.type === 'glucose').sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time));
+          if (this.chartRange === 'custom') {
+            filtered = filtered.filter(r => r.date >= this.customStartDate && r.date <= this.customEndDate);
+          } else if (this.chartRange !== 'all') {
+            const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(this.chartRange));
+            filtered = filtered.filter(r => new Date(r.date) >= cutoff);
+          }
+          return filtered;
         },
-        groupedRecordsByDate() {
+
+        // 🌟 新增：Dashboard 頂部數據卡計算
+        chartStats() {
+          const recs = this.filteredChartRecords;
+          if (recs.length === 0) return { avg: '-', max: '-', min: '-' };
+          
+          let vals = recs.map(r => r.glucose === 'HI' ? 500 : parseFloat(r.glucose)).filter(v => !isNaN(v));
+          if (vals.length === 0) return { avg: '-', max: '-', min: '-' };
+          
+          let max = Math.max(...vals);
+          let min = Math.min(...vals);
+          let avg = Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length);
+          
+          return {
+            avg: avg,
+            max: max === 500 ? 'HI' : max,
+            min: min
+          };
+        },
+
+        // 🌟 新增：今日熱量進度條計算
+        todayStats() {
+          const today = getLocalDateString();
+          let total = 0;
+          this.records.forEach(r => {
+            if (r.date === today && r.type === 'food' && r.kcal) {
+              total += parseFloat(r.kcal);
+            }
+          });
+          let target = this.profile.targetKcal || 1;
+          let percent = Math.round((total / target) * 100);
+          return { total: Math.round(total), percent: percent };
+        },
+
+        // 🌟 升級：打包每日紀錄 (包含篩選與紅綠燈狀態判定)
+        filteredGroupedRecords() {
           const groups = {};
           this.records.forEach(rec => {
+            // 套用分類過濾器
+            if (this.logFilter === 'medical' && rec.type !== 'glucose' && rec.type !== 'insulin') return;
+            if (this.logFilter === 'food' && rec.type !== 'food') return;
+
             if (!groups[rec.date]) groups[rec.date] = { events: [], totalKcal: 0 };
             groups[rec.date].events.push(rec);
             if (rec.type === 'food' && rec.kcal) {
               groups[rec.date].totalKcal += parseFloat(rec.kcal);
             }
           });
-          return Object.keys(groups).sort((a, b) => b.localeCompare(a)).map(date => ({ 
-            date: date, 
-            events: groups[date].events,
-            totalKcal: Math.round(groups[date].totalKcal)
-          }));
+
+          return Object.keys(groups).sort((a, b) => b.localeCompare(a)).map(date => {
+            const evs = groups[date].events;
+            // 判斷紅綠燈狀態
+            let hasDanger = false;
+            let allPerfect = true;
+            let hasGlucose = false;
+
+            evs.forEach(rec => {
+              if(rec.type === 'glucose') {
+                hasGlucose = true;
+                let val = rec.glucose === 'HI' ? 500 : parseFloat(rec.glucose);
+                if (val >= 500 || val < 60) hasDanger = true;
+                if (val > 150 || val < 80) allPerfect = false;
+              }
+            });
+
+            let status = 'normal';
+            if (hasDanger) status = 'danger';
+            else if (hasGlucose && allPerfect) status = 'perfect';
+
+            return { 
+              date: date, 
+              events: evs.sort((a, b) => a.time.localeCompare(b.time)),
+              totalKcal: Math.round(groups[date].totalKcal),
+              status: status
+            };
+          });
         }
       },
       watch: {
-        currentTab(newVal) {
-          if (newVal === 'chart') this.$nextTick(() => { this.renderChart(); });
-        },
+        currentTab(newVal) { if (newVal === 'chart') this.$nextTick(() => { this.renderChart(); }); },
+        chartRange() { this.$nextTick(() => { this.renderChart(); }); },
+        customStartDate() { this.$nextTick(() => { this.renderChart(); }); },
+        customEndDate() { this.$nextTick(() => { this.renderChart(); }); },
         suggestedInsulin(newVal) {
           if (newVal && !newVal.includes('請先') && !newVal.includes('無對應')) {
             this.form.actualInsulinDose = newVal;
@@ -606,10 +669,7 @@
         }
       },
       methods: {
-        startEditInsulin(rule) {
-          this.editingSettingInsulin = rule;
-          this.editSettingInsulinForm = JSON.parse(JSON.stringify(rule));
-        },
+        startEditInsulin(rule) { this.editingSettingInsulin = rule; this.editSettingInsulinForm = JSON.parse(JSON.stringify(rule)); },
         cancelEditInsulin() { this.editingSettingInsulin = null; },
         saveEditInsulin() {
           const index = this.insulinRules.findIndex(r => r.id === this.editSettingInsulinForm.id);
@@ -633,18 +693,12 @@
           }
         },
 
-        startEditFood(food) {
-          this.editingSettingFood = food;
-          this.editSettingFoodForm = JSON.parse(JSON.stringify(food));
-        },
+        startEditFood(food) { this.editingSettingFood = food; this.editSettingFoodForm = JSON.parse(JSON.stringify(food)); },
         cancelEditFood() { this.editingSettingFood = null; },
-        
-        // 🌟 儲存食物庫設定時，同步更新歷史紀錄的名字與熱量
         saveEditFood() {
           const index = this.foods.findIndex(f => f.id === this.editSettingFoodForm.id);
           if (index !== -1) {
             const oldName = this.foods[index].name;
-            
             this.foods[index] = this.editSettingFoodForm;
             localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
 
@@ -653,30 +707,18 @@
               if (r.type === 'food' && (r.foodName === oldName || r.foodType === oldName)) {
                 r.foodName = this.editSettingFoodForm.name;
                 r.unit = this.editSettingFoodForm.unit;
-                
                 let amt = parseFloat(r.foodAmount);
-                if (!isNaN(amt)) {
-                  r.kcal = Math.round(amt * this.editSettingFoodForm.kcal);
-                }
+                if (!isNaN(amt)) r.kcal = Math.round(amt * this.editSettingFoodForm.kcal);
                 historyUpdated = true;
               }
             });
-            
-            if (historyUpdated) {
-              this.saveToLocal();
-            }
+            if (historyUpdated) this.saveToLocal();
           }
           this.editingSettingFood = null;
         },
-        
         addFood() {
           if (!this.newFood.name || !this.newFood.unit || !this.newFood.kcal) return alert('請填寫完整食物資料！');
-          this.foods.push({
-            id: Date.now(),
-            name: this.newFood.name,
-            unit: this.newFood.unit,
-            kcal: parseFloat(this.newFood.kcal)
-          });
+          this.foods.push({ id: Date.now(), name: this.newFood.name, unit: this.newFood.unit, kcal: parseFloat(this.newFood.kcal) });
           localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
           this.newFood = { name: '', unit: '', kcal: '' };
           alert('新增成功！');
@@ -691,32 +733,19 @@
         calculateTargetKcal() {
           let w = parseFloat(this.profile.weight);
           if (!isNaN(w) && w > 0) {
-            let rer = (30 * w) + 70;
-            this.profile.targetKcal = Math.round(rer * 1.2);
+            this.profile.targetKcal = Math.round(((30 * w) + 70) * 1.2);
             this.saveProfile();
           }
         },
-        saveProfile() {
-          localStorage.setItem('pupu_profile', JSON.stringify(this.profile));
-        },
+        saveProfile() { localStorage.setItem('pupu_profile', JSON.stringify(this.profile)); },
 
-        setNow() {
-          this.form.date = getLocalDateString();
-          this.form.time = getLocalTimeString();
-        },
-        startEdit(rec) {
-          this.editingRecord = rec;
-          this.editForm = JSON.parse(JSON.stringify(rec));
-        },
+        setNow() { this.form.date = getLocalDateString(); this.form.time = getLocalTimeString(); },
+        startEdit(rec) { this.editingRecord = rec; this.editForm = JSON.parse(JSON.stringify(rec)); },
         recalcEditFoodKcal() {
           const food = this.foods.find(f => f.name === this.editForm.foodName);
           if (food) {
             let amt = parseFloat(this.editForm.foodAmount);
-            if (!isNaN(amt)) {
-              this.editForm.kcal = Math.round(amt * food.kcal);
-            } else {
-              this.editForm.kcal = '';
-            }
+            this.editForm.kcal = !isNaN(amt) ? Math.round(amt * food.kcal) : '';
           }
         },
         cancelEdit() { this.editingRecord = null; },
@@ -730,9 +759,7 @@
           this.editingRecord = null;
         },
         
-        getEventsByType(events, type) {
-          return events.filter(e => e.type === type).sort((a, b) => a.time.localeCompare(b.time));
-        },
+        getEventsByType(events, type) { return events.filter(e => e.type === type); },
         updateTime() { this.form.time = getLocalTimeString(); },
         saveToLocal() { localStorage.setItem('pupu_records', JSON.stringify(this.records)); },
         deleteRecord(id) {
@@ -747,44 +774,26 @@
           if (!this.form.glucose) return alert('請先輸入血糖喔！');
           this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose });
           this.saveToLocal(); alert('🩸 血糖已紀錄！'); 
-          this.form.glucose = ''; 
-          this.updateTime();
+          this.form.glucose = ''; this.updateTime();
         },
-        
         saveInsulin() {
           if (!this.form.actualInsulinDose) return alert('請輸入實際施打的劑量！');
           this.records.push({ id: Date.now(), type: 'insulin', date: this.form.date, time: this.form.time, insulinTime: this.form.insulinTime, insulinDose: this.form.actualInsulinDose });
           this.saveToLocal(); alert('💉 胰島素已紀錄！'); 
-          this.form.actualInsulinDose = ''; 
-          this.updateTime();
+          this.form.actualInsulinDose = ''; this.updateTime();
         },
-        
         saveFood() {
           if (!this.selectedFood || !this.form.foodAmount) return alert('請選擇食物並輸入份量！');
-          this.records.push({ 
-            id: Date.now(), 
-            type: 'food', 
-            date: this.form.date, 
-            time: this.form.time, 
-            foodName: this.selectedFood.name,  
-            foodAmount: this.form.foodAmount,  
-            unit: this.selectedFood.unit,      
-            kcal: this.calculatedKcal          
-          });
+          this.records.push({ id: Date.now(), type: 'food', date: this.form.date, time: this.form.time, foodName: this.selectedFood.name, foodAmount: this.form.foodAmount, unit: this.selectedFood.unit, kcal: this.calculatedKcal });
           this.saveToLocal(); alert('🐟 飲食已紀錄！'); 
           this.form.selectedFoodId = null; this.form.foodAmount = ''; this.updateTime();
         },
-        
         saveOther() {
           if (!this.form.weight && !this.form.notes) return alert('請輸入體重或備註！');
-          
-          if (this.form.weight) {
-            if (confirm(`是否要將普普的最新體重 (${this.form.weight} kg) 同步更新到「設定」，並自動重新計算每日目標熱量？`)) {
-              this.profile.weight = this.form.weight;
-              this.calculateTargetKcal();
-            }
+          if (this.form.weight && confirm(`是否要將普普的最新體重 (${this.form.weight} kg) 同步更新到「設定」，並自動重新計算每日目標熱量？`)) {
+            this.profile.weight = this.form.weight;
+            this.calculateTargetKcal();
           }
-
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = ''; this.updateTime();
         },
@@ -803,7 +812,6 @@
           recordsToExport.forEach(r => {
             let notesSafe = r.notes ? r.notes.replace(/"/g, '""') : ''; 
             let typeMap = { glucose: '血糖', insulin: '胰島素', food: '飲食', other: '其他' };
-            
             let fName = r.foodName || r.foodType || '';
             let fAmount = r.unit ? `${r.foodAmount} ${r.unit}` : (r.foodAmount || '');
             let fKcal = r.kcal || '';
@@ -821,14 +829,9 @@
         renderChart() {
           const ctx = document.getElementById('glucoseChart');
           if(!ctx) return;
-          let filtered = [...this.records].filter(r => r.type === 'glucose').sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time));
           
-          if (this.chartRange === 'custom') {
-            filtered = filtered.filter(r => r.date >= this.customStartDate && r.date <= this.customEndDate);
-          } else if (this.chartRange !== 'all') {
-            const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(this.chartRange));
-            filtered = filtered.filter(r => new Date(r.date) >= cutoff);
-          }
+          const filtered = this.filteredChartRecords; // 🌟 直接套用統一來源
+          
           if(chartInstance) chartInstance.destroy();
           if(filtered.length === 0) return;
           
@@ -840,6 +843,26 @@
           });
           const pointRadius = filtered.map(r => (r.glucose === 'HI' || parseFloat(r.glucose) < 80) ? 5 : 3);
 
+          // 🌟 繪製安全區綠色背景的自訂外掛
+          const safeZonePlugin = {
+            id: 'safeZone',
+            beforeDraw: (chart) => {
+              const {ctx, chartArea, scales: {y}} = chart;
+              if (!chartArea) return;
+              ctx.save();
+              const yTop = y.getPixelForValue(150);
+              const yBottom = y.getPixelForValue(80);
+              // 確保綠色網底在可視範圍內
+              const top = Math.max(yTop, chartArea.top);
+              const bottom = Math.min(yBottom, chartArea.bottom);
+              if (bottom > top) {
+                ctx.fillStyle = 'rgba(167, 243, 208, 0.4)'; // 柔和的綠色
+                ctx.fillRect(chartArea.left, top, chartArea.right - chartArea.left, bottom - top);
+              }
+              ctx.restore();
+            }
+          };
+
           chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
@@ -847,16 +870,20 @@
               datasets: [{
                 label: '血糖 (mg/dL)', data: dataVals,
                 borderColor: '#FFB6C1', backgroundColor: 'rgba(255, 182, 193, 0.2)', borderWidth: 2,
-                pointBackgroundColor: pointColors, pointRadius: pointRadius, fill: true, tension: 0.3
+                pointBackgroundColor: pointColors, pointRadius: pointRadius, fill: false, tension: 0.3
               }]
             },
             options: {
               responsive: true,
-              plugins: { tooltip: { callbacks: { label: function(context) {
-                let rawGlucose = filtered[context.dataIndex].glucose;
-                return '血糖: ' + rawGlucose + (rawGlucose === 'HI' ? ' (>500)' : ' mg/dL');
-              }}}}
-            }
+              scales: { y: { min: 0 } }, // 確保 Y 軸從 0 開始，背景才會精準
+              plugins: { 
+                tooltip: { callbacks: { label: function(context) {
+                  let rawGlucose = filtered[context.dataIndex].glucose;
+                  return '血糖: ' + rawGlucose + (rawGlucose === 'HI' ? ' (>500)' : ' mg/dL');
+                }}}
+              }
+            },
+            plugins: [safeZonePlugin] // 🌟 啟動安全區背景
           });
         }
       }
