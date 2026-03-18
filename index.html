@@ -386,7 +386,6 @@
 
       <div class="card !bg-white border-2 border-[#FFE4E1] mb-8">
         <h3 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">📥 匯出資料給醫生</h3>
-        <p class="text-xs text-gray-500 mb-3">請選擇想要匯出的項目，會自動產生 CSV 報表檔。</p>
         <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
           <label class="flex items-center gap-2 bg-pink-50 p-2 rounded-lg border border-pink-100"><input type="checkbox" v-model="exportOptions.glucose" class="w-4 h-4 chk-glucose"> 🩸 血糖</label>
           <label class="flex items-center gap-2 bg-blue-50 p-2 rounded-lg border border-blue-100"><input type="checkbox" v-model="exportOptions.insulin" class="w-4 h-4 chk-insulin"> 💉 胰島素</label>
@@ -505,7 +504,7 @@
           chartRange: '7',
           customStartDate: getPastDateString(7), 
           customEndDate: getLocalDateString(),   
-          logFilter: 'all', // 🌟 新增：日記篩選狀態
+          logFilter: 'all', 
           
           records: JSON.parse(localStorage.getItem('pupu_records')) || [],
           profile: JSON.parse(localStorage.getItem('pupu_profile')) || { weight: '', targetKcal: 200 },
@@ -568,7 +567,6 @@
           return '無對應劑量，請確認設定';
         },
         
-        // 🌟 核心：提供圖表和 Dashboard 計算的統一資料來源
         filteredChartRecords() {
           let filtered = [...this.records].filter(r => r.type === 'glucose').sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time));
           if (this.chartRange === 'custom') {
@@ -580,26 +578,17 @@
           return filtered;
         },
 
-        // 🌟 新增：Dashboard 頂部數據卡計算
         chartStats() {
           const recs = this.filteredChartRecords;
           if (recs.length === 0) return { avg: '-', max: '-', min: '-' };
-          
           let vals = recs.map(r => r.glucose === 'HI' ? 500 : parseFloat(r.glucose)).filter(v => !isNaN(v));
           if (vals.length === 0) return { avg: '-', max: '-', min: '-' };
-          
           let max = Math.max(...vals);
           let min = Math.min(...vals);
           let avg = Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length);
-          
-          return {
-            avg: avg,
-            max: max === 500 ? 'HI' : max,
-            min: min
-          };
+          return { avg: avg, max: max === 500 ? 'HI' : max, min: min };
         },
 
-        // 🌟 新增：今日熱量進度條計算
         todayStats() {
           const today = getLocalDateString();
           let total = 0;
@@ -613,29 +602,35 @@
           return { total: Math.round(total), percent: percent };
         },
 
-        // 🌟 升級：打包每日紀錄 (包含篩選與紅綠燈狀態判定)
         filteredGroupedRecords() {
           const groups = {};
+          
           this.records.forEach(rec => {
-            // 套用分類過濾器
-            if (this.logFilter === 'medical' && rec.type !== 'glucose' && rec.type !== 'insulin') return;
-            if (this.logFilter === 'food' && rec.type !== 'food') return;
-
-            if (!groups[rec.date]) groups[rec.date] = { events: [], totalKcal: 0 };
-            groups[rec.date].events.push(rec);
+            if (!groups[rec.date]) groups[rec.date] = { allEvents: [], totalKcal: 0 };
+            groups[rec.date].allEvents.push(rec);
             if (rec.type === 'food' && rec.kcal) {
               groups[rec.date].totalKcal += parseFloat(rec.kcal);
             }
           });
 
-          return Object.keys(groups).sort((a, b) => b.localeCompare(a)).map(date => {
-            const evs = groups[date].events;
-            // 判斷紅綠燈狀態
+          const finalResult = [];
+          Object.keys(groups).sort((a, b) => b.localeCompare(a)).forEach(date => {
+            let dayData = groups[date];
+            let displayEvents = [...dayData.allEvents];
+
+            if (this.logFilter === 'medical') {
+              displayEvents = displayEvents.filter(r => r.type === 'glucose' || r.type === 'insulin');
+            } else if (this.logFilter === 'food') {
+              displayEvents = displayEvents.filter(r => r.type === 'food');
+            }
+
+            if (displayEvents.length === 0) return;
+
             let hasDanger = false;
             let allPerfect = true;
             let hasGlucose = false;
 
-            evs.forEach(rec => {
+            dayData.allEvents.forEach(rec => {
               if(rec.type === 'glucose') {
                 hasGlucose = true;
                 let val = rec.glucose === 'HI' ? 500 : parseFloat(rec.glucose);
@@ -648,13 +643,15 @@
             if (hasDanger) status = 'danger';
             else if (hasGlucose && allPerfect) status = 'perfect';
 
-            return { 
+            finalResult.push({ 
               date: date, 
-              events: evs.sort((a, b) => a.time.localeCompare(b.time)),
-              totalKcal: Math.round(groups[date].totalKcal),
+              events: displayEvents.sort((a, b) => a.time.localeCompare(b.time)),
+              totalKcal: Math.round(dayData.totalKcal),
               status: status
-            };
+            });
           });
+
+          return finalResult;
         }
       },
       watch: {
@@ -830,7 +827,7 @@
           const ctx = document.getElementById('glucoseChart');
           if(!ctx) return;
           
-          const filtered = this.filteredChartRecords; // 🌟 直接套用統一來源
+          const filtered = this.filteredChartRecords;
           
           if(chartInstance) chartInstance.destroy();
           if(filtered.length === 0) return;
@@ -843,7 +840,6 @@
           });
           const pointRadius = filtered.map(r => (r.glucose === 'HI' || parseFloat(r.glucose) < 80) ? 5 : 3);
 
-          // 🌟 繪製安全區綠色背景的自訂外掛
           const safeZonePlugin = {
             id: 'safeZone',
             beforeDraw: (chart) => {
@@ -852,11 +848,10 @@
               ctx.save();
               const yTop = y.getPixelForValue(150);
               const yBottom = y.getPixelForValue(80);
-              // 確保綠色網底在可視範圍內
               const top = Math.max(yTop, chartArea.top);
               const bottom = Math.min(yBottom, chartArea.bottom);
               if (bottom > top) {
-                ctx.fillStyle = 'rgba(167, 243, 208, 0.4)'; // 柔和的綠色
+                ctx.fillStyle = 'rgba(167, 243, 208, 0.4)';
                 ctx.fillRect(chartArea.left, top, chartArea.right - chartArea.left, bottom - top);
               }
               ctx.restore();
@@ -875,7 +870,7 @@
             },
             options: {
               responsive: true,
-              scales: { y: { min: 0 } }, // 確保 Y 軸從 0 開始，背景才會精準
+              scales: { y: { min: 0 } },
               plugins: { 
                 tooltip: { callbacks: { label: function(context) {
                   let rawGlucose = filtered[context.dataIndex].glucose;
@@ -883,7 +878,7 @@
                 }}}
               }
             },
-            plugins: [safeZonePlugin] // 🌟 啟動安全區背景
+            plugins: [safeZonePlugin]
           });
         }
       }
