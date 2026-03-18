@@ -213,11 +213,9 @@
                   <span :class="rec.glucose === 'HI' ? 'text-purple-600 font-bold' : (rec.glucose < 80 ? 'text-red-500 font-bold' : 'text-[#5D4037] font-bold')">
                     {{ rec.glucose }} <span v-if="rec.glucose !== 'HI'" class="text-xs font-normal text-gray-400">mg/dL</span>
                   </span>
-                  
                   <span v-if="rec.glucose !== 'HI' && parseFloat(rec.glucose) >= 80 && parseFloat(rec.glucose) <= 150" class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm inline-flex items-center">
                     🌟 漂亮
                   </span>
-
                 </div>
                 <div class="flex gap-2 shrink-0">
                   <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
@@ -640,14 +638,37 @@
           this.editSettingFoodForm = JSON.parse(JSON.stringify(food));
         },
         cancelEditFood() { this.editingSettingFood = null; },
+        
+        // 🌟 儲存食物庫設定時，同步更新歷史紀錄的名字與熱量
         saveEditFood() {
           const index = this.foods.findIndex(f => f.id === this.editSettingFoodForm.id);
           if (index !== -1) {
+            const oldName = this.foods[index].name;
+            
             this.foods[index] = this.editSettingFoodForm;
             localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
+
+            let historyUpdated = false;
+            this.records.forEach(r => {
+              if (r.type === 'food' && (r.foodName === oldName || r.foodType === oldName)) {
+                r.foodName = this.editSettingFoodForm.name;
+                r.unit = this.editSettingFoodForm.unit;
+                
+                let amt = parseFloat(r.foodAmount);
+                if (!isNaN(amt)) {
+                  r.kcal = Math.round(amt * this.editSettingFoodForm.kcal);
+                }
+                historyUpdated = true;
+              }
+            });
+            
+            if (historyUpdated) {
+              this.saveToLocal();
+            }
           }
           this.editingSettingFood = null;
         },
+        
         addFood() {
           if (!this.newFood.name || !this.newFood.unit || !this.newFood.kcal) return alert('請填寫完整食物資料！');
           this.foods.push({
