@@ -71,7 +71,6 @@
             <input type="text" inputmode="decimal" v-model="form.glucose" placeholder="輸入數值" class="input-field text-lg text-center font-bold flex-1">
             <button @click="form.glucose = 'HI'" class="bg-purple-50 text-purple-600 border-2 border-purple-200 font-bold py-2.5 px-4 rounded-xl active:bg-purple-100 transition-all">HI</button>
           </div>
-          
           <div v-if="form.glucose === 'HI'" class="mt-2 p-3 bg-purple-50 border-2 border-purple-300 rounded-xl text-purple-700 text-sm shadow-sm animate-pulse">
             <p class="font-bold mb-1">🚨 數值 HI (大於設定最高值)！</p>
             <p>血糖極高，請留意普普的精神與飲水，並視情況聯繫醫師！</p>
@@ -105,7 +104,6 @@
           <h2 class="font-bold flex items-center gap-2">💉 胰島素紀錄</h2>
           <div class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">參考血糖: {{ referenceGlucose || '無' }}</div>
         </div>
-        
         <div class="mb-3 p-3 bg-[#FFF9FA] rounded-xl border-2 border-[#FFE4E1]">
           <div class="text-center mb-2">
             <span class="text-sm text-gray-500 block">系統計算建議</span>
@@ -116,7 +114,6 @@
             <input type="text" inputmode="decimal" v-model="form.actualInsulinDose" placeholder="手動輸入 (例: 0.01)" class="input-field text-2xl text-center font-bold text-blue-600 !bg-white">
           </div>
         </div>
-
         <div class="flex items-center justify-center mt-2">
           <label><input type="radio" v-model="form.insulinTime" value="早" class="hidden"> <span class="radio-pill !px-6">早</span></label>
           <label><input type="radio" v-model="form.insulinTime" value="晚" class="hidden"> <span class="radio-pill !px-6">晚</span></label>
@@ -214,7 +211,11 @@
           <span class="text-[#D87093] font-bold">~</span>
           <input type="date" v-model="customEndDate" @change="renderChart" class="bg-white border border-pink-200 rounded p-1 text-xs w-full outline-none text-[#5D4037]">
         </div>
-        <canvas id="glucoseChart"></canvas>
+        
+        <p class="text-xs text-gray-400 text-center mb-2">💡 圖表下方 💉 代表打針、🐟 代表吃飯</p>
+        <div style="position: relative; height: 250px; width: 100%;">
+          <canvas id="glucoseChart"></canvas>
+        </div>
       </div>
       
       <div class="mt-6 mb-4">
@@ -236,7 +237,6 @@
           <div class="bg-[#FFF0F5] px-4 py-3 font-bold text-[#D87093] flex flex-col gap-1">
             <div class="flex justify-between items-center">
               <span class="text-lg">{{ day.date }}</span>
-              
               <span v-if="day.status === 'danger'" class="text-xs bg-red-500 text-white px-2 py-1 rounded-full shadow-sm">🚨 異常注意</span>
               <span v-else-if="day.status === 'perfect'" class="text-xs bg-green-500 text-white px-2 py-1 rounded-full shadow-sm">🌟 完美控制</span>
               <span v-else class="text-xs bg-white text-gray-500 px-2 py-1 rounded-full shadow-sm">{{ day.events.length }} 筆</span>
@@ -325,6 +325,21 @@
 
     <div v-show="currentTab === 'settings'" class="mb-10">
       
+      <div class="card !bg-white border-2 border-blue-100">
+        <h3 class="font-bold mb-3 text-blue-600 border-b border-blue-100 pb-2">💾 系統備份與還原</h3>
+        <p class="text-xs text-gray-500 mb-3">請定期備份您的紀錄！換手機或重新安裝 APP 時，只要將檔案還原即可一鍵恢復。</p>
+        <div class="flex gap-3">
+          <button @click="exportBackup" class="bg-blue-500 text-white font-bold py-2 px-3 rounded-lg flex-1 text-sm shadow-sm active:bg-blue-600 transition-all flex items-center justify-center gap-1">
+            📥 備份資料
+          </button>
+          
+          <label class="bg-white text-blue-500 border-2 border-blue-200 font-bold py-2 px-3 rounded-lg flex-1 text-sm text-center shadow-sm active:bg-blue-50 transition-all cursor-pointer flex items-center justify-center gap-1">
+            📤 還原紀錄
+            <input type="file" accept=".json" @change="importBackup" class="hidden">
+          </label>
+        </div>
+      </div>
+
       <div class="card">
         <h2 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">🐈 貓咪基本資料</h2>
         <div class="mb-4">
@@ -386,6 +401,7 @@
 
       <div class="card !bg-white border-2 border-[#FFE4E1] mb-8">
         <h3 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">📥 匯出資料給醫生</h3>
+        <p class="text-xs text-gray-500 mb-3">請選擇想要匯出的項目，會自動產生 CSV 報表檔。</p>
         <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
           <label class="flex items-center gap-2 bg-pink-50 p-2 rounded-lg border border-pink-100"><input type="checkbox" v-model="exportOptions.glucose" class="w-4 h-4 chk-glucose"> 🩸 血糖</label>
           <label class="flex items-center gap-2 bg-blue-50 p-2 rounded-lg border border-blue-100"><input type="checkbox" v-model="exportOptions.insulin" class="w-4 h-4 chk-insulin"> 💉 胰島素</label>
@@ -567,8 +583,9 @@
           return '無對應劑量，請確認設定';
         },
         
+        // 🌟 核心：提供圖表和 Dashboard 包含所有事件(打針、吃飯、血糖)的時間軸資料
         filteredChartRecords() {
-          let filtered = [...this.records].filter(r => r.type === 'glucose').sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time));
+          let filtered = [...this.records].sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time));
           if (this.chartRange === 'custom') {
             filtered = filtered.filter(r => r.date >= this.customStartDate && r.date <= this.customEndDate);
           } else if (this.chartRange !== 'all') {
@@ -578,8 +595,9 @@
           return filtered;
         },
 
+        // 🌟 頂部大盤資料：只計算血糖的平均與極值
         chartStats() {
-          const recs = this.filteredChartRecords;
+          const recs = this.filteredChartRecords.filter(r => r.type === 'glucose');
           if (recs.length === 0) return { avg: '-', max: '-', min: '-' };
           let vals = recs.map(r => r.glucose === 'HI' ? 500 : parseFloat(r.glucose)).filter(v => !isNaN(v));
           if (vals.length === 0) return { avg: '-', max: '-', min: '-' };
@@ -666,6 +684,54 @@
         }
       },
       methods: {
+        // 🌟 備份與還原功能
+        exportBackup() {
+          const backupData = {
+            records: this.records,
+            profile: this.profile,
+            foods: this.foods,
+            insulinRules: this.insulinRules,
+            exportDate: new Date().toISOString()
+          };
+          const blob = new Blob([JSON.stringify(backupData)], { type: 'application/json' });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `普普健康日記_備份_${getLocalDateString()}.json`;
+          link.click();
+        },
+        importBackup(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const data = JSON.parse(e.target.result);
+              if (data.records && Array.isArray(data.records)) {
+                if (confirm('⚠️ 警告：還原將會覆蓋目前的所有的紀錄與設定！確定要繼續嗎？')) {
+                  this.records = data.records;
+                  if (data.profile) this.profile = data.profile;
+                  if (data.foods) this.foods = data.foods;
+                  if (data.insulinRules) this.insulinRules = data.insulinRules;
+                  
+                  this.saveToLocal();
+                  this.saveProfile();
+                  localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
+                  localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules));
+                  
+                  alert('🎉 備份還原成功！');
+                  if (this.currentTab === 'chart') this.$nextTick(() => { this.renderChart(); });
+                }
+              } else {
+                alert('❌ 檔案格式不正確，請確認這是否為普普的備份檔！');
+              }
+            } catch (err) {
+              alert('❌ 讀取檔案失敗！');
+            }
+          };
+          reader.readAsText(file);
+          event.target.value = ''; 
+        },
+
         startEditInsulin(rule) { this.editingSettingInsulin = rule; this.editSettingInsulinForm = JSON.parse(JSON.stringify(rule)); },
         cancelEditInsulin() { this.editingSettingInsulin = null; },
         saveEditInsulin() {
@@ -828,17 +894,30 @@
           if(!ctx) return;
           
           const filtered = this.filteredChartRecords;
-          
           if(chartInstance) chartInstance.destroy();
           if(filtered.length === 0) return;
           
-          const dataVals = filtered.map(r => r.glucose === 'HI' ? 500 : parseFloat(r.glucose));
-          const pointColors = filtered.map(r => {
-             if (r.glucose === 'HI') return '#9333EA'; 
-             if (parseFloat(r.glucose) < 80) return '#EF4444'; 
+          // 🌟 1. 提取所有唯一的時間軸點 (包含沒量血糖的打針或吃飯)
+          const uniqueTimestamps = [...new Set(filtered.map(r => r.date + ' ' + r.time))];
+
+          // 🌟 2. 對應時間軸產出血糖數據 (沒有血糖就給 null，用 spanGaps 連接)
+          const dataVals = uniqueTimestamps.map(ts => {
+            const gRec = filtered.find(r => r.type === 'glucose' && (r.date + ' ' + r.time) === ts);
+            if (gRec) return gRec.glucose === 'HI' ? 500 : parseFloat(gRec.glucose);
+            return null;
+          });
+
+          const pointColors = dataVals.map(val => {
+             if (val === null) return 'transparent';
+             if (val === 500) return '#9333EA'; 
+             if (val < 80) return '#EF4444'; 
              return '#D87093'; 
           });
-          const pointRadius = filtered.map(r => (r.glucose === 'HI' || parseFloat(r.glucose) < 80) ? 5 : 3);
+          const pointRadius = dataVals.map(val => {
+             if (val === null) return 0;
+             if (val === 500 || val < 80) return 5; 
+             return 3; 
+          });
 
           const safeZonePlugin = {
             id: 'safeZone',
@@ -858,27 +937,68 @@
             }
           };
 
+          // 🌟 3. 自訂圖標 Plugin：在對應時間點畫上打針或吃飯圖示
+          const eventIconsPlugin = {
+            id: 'eventIcons',
+            afterDraw: (chart) => {
+              const {ctx, chartArea, scales: {x, y}} = chart;
+              ctx.save();
+              ctx.font = '16px Arial';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'bottom';
+
+              uniqueTimestamps.forEach((ts, index) => {
+                let recsAtTs = filtered.filter(r => (r.date + ' ' + r.time) === ts);
+                let hasFood = recsAtTs.some(r => r.type === 'food');
+                let hasInsulin = recsAtTs.some(r => r.type === 'insulin');
+
+                if (hasFood || hasInsulin) {
+                  let xPos = x.getPixelForValue(index);
+                  let yPos = chartArea.bottom - 5; // 畫在圖表最下方
+
+                  if (hasFood) {
+                    ctx.fillText('🐟', xPos, yPos);
+                    yPos -= 20; // 疊上去
+                  }
+                  if (hasInsulin) {
+                    ctx.fillText('💉', xPos, yPos);
+                  }
+                }
+              });
+              ctx.restore();
+            }
+          };
+
           chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-              labels: filtered.map(r => `${r.date.slice(5)} ${r.time}`),
+              labels: uniqueTimestamps.map(ts => ts.slice(5)), // 顯示 'MM-DD HH:mm'
               datasets: [{
-                label: '血糖 (mg/dL)', data: dataVals,
-                borderColor: '#FFB6C1', backgroundColor: 'rgba(255, 182, 193, 0.2)', borderWidth: 2,
-                pointBackgroundColor: pointColors, pointRadius: pointRadius, fill: false, tension: 0.3
+                label: '血糖 (mg/dL)', 
+                data: dataVals,
+                borderColor: '#FFB6C1', 
+                backgroundColor: 'rgba(255, 182, 193, 0.2)', 
+                borderWidth: 2,
+                pointBackgroundColor: pointColors, 
+                pointRadius: pointRadius, 
+                fill: false, 
+                tension: 0.3,
+                spanGaps: true // 🌟 跨越 null 點繼續連線
               }]
             },
             options: {
               responsive: true,
+              maintainAspectRatio: false,
               scales: { y: { min: 0 } },
               plugins: { 
                 tooltip: { callbacks: { label: function(context) {
-                  let rawGlucose = filtered[context.dataIndex].glucose;
-                  return '血糖: ' + rawGlucose + (rawGlucose === 'HI' ? ' (>500)' : ' mg/dL');
+                  let val = context.raw;
+                  if (val === null) return null;
+                  return '血糖: ' + val + (val === 500 ? ' (HI)' : ' mg/dL');
                 }}}
               }
             },
-            plugins: [safeZonePlugin]
+            plugins: [safeZonePlugin, eventIconsPlugin]
           });
         }
       }
