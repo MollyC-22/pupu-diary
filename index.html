@@ -47,9 +47,85 @@
     </div>
 
     <div class="flex justify-around mb-6 bg-white rounded-full shadow-sm p-1">
+      <button @click="currentTab = 'home'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'home' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">🏠 主頁</button>
       <button @click="currentTab = 'record'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'record' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">📝 紀錄</button>
       <button @click="currentTab = 'chart'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'chart' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">📈 圖表</button>
       <button @click="currentTab = 'settings'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'settings' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">⚙️ 設定</button>
+    </div>
+
+    <div v-show="currentTab === 'home'">
+      
+      <div class="card bg-gradient-to-br from-pink-100 to-pink-50 !border-0">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <h2 class="text-xl font-bold text-[#D87093] mb-1">{{ homeStatus.greeting }}</h2>
+            <p class="text-sm text-gray-600">今天普普精神好嗎？🐈</p>
+          </div>
+          <div class="bg-white px-3 py-1.5 rounded-xl shadow-sm text-center">
+            <div class="text-[10px] text-gray-400 font-bold">目前體重</div>
+            <div class="text-sm font-bold text-[#5D4037]">{{ profile.weight || '?' }} kg</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="font-bold text-gray-600 mb-3 pl-2">🎯 今日健康任務</h3>
+      <div class="grid grid-cols-1 gap-3 mb-6">
+        
+        <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4" :class="homeStatus.bgStatus.borderClass">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🩸</span>
+              <div>
+                <div class="text-xs text-gray-500 font-bold">今日血糖狀況</div>
+                <div class="font-bold text-sm" :class="homeStatus.bgStatus.textClass">{{ homeStatus.bgStatus.text }}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-lg font-bold" :class="homeStatus.bgStatus.textClass">{{ homeStatus.bgStatus.value }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4" :class="homeStatus.insulinStatus.borderClass">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">💉</span>
+              <div>
+                <div class="text-xs text-gray-500 font-bold">胰島素施打</div>
+                <div class="font-bold text-sm" :class="homeStatus.insulinStatus.textClass">{{ homeStatus.insulinStatus.text }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4" :class="homeStatus.calStatus.borderClass">
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🐟</span>
+              <div>
+                <div class="text-xs text-gray-500 font-bold">熱量攝取進度</div>
+                <div class="font-bold text-sm" :class="homeStatus.calStatus.textClass">{{ homeStatus.calStatus.text }}</div>
+              </div>
+            </div>
+            <div class="text-right font-bold text-orange-500 text-sm">
+              {{ todayStats.total }} / {{ profile.targetKcal }} kcal
+            </div>
+          </div>
+          <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+            <div class="bg-orange-400 h-2 rounded-full transition-all duration-500" :style="{ width: Math.min(todayStats.percent, 100) + '%' }"></div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="font-bold text-gray-600 mb-3 pl-2">👩‍⚕️ 近 7 日趨勢分析小結</h3>
+      <div class="card !bg-[#FFF9FA] border border-[#FFE4E1]">
+        <p class="text-sm text-gray-700 leading-relaxed font-bold" v-html="trendAnalysisText"></p>
+      </div>
+
+      <button @click="currentTab = 'record'; setNow();" class="w-full bg-[#D87093] text-white font-bold text-lg py-4 rounded-2xl shadow-lg active:scale-95 transition-all mt-2 flex justify-center items-center gap-2">
+        <span>➕</span> 幫普普記一筆！
+      </button>
+
     </div>
 
     <div v-show="currentTab === 'record'">
@@ -226,15 +302,6 @@
             <div class="text-lg font-bold text-blue-500">{{ chartStats.min }}</div>
           </div>
         </div>
-        <div class="bg-white p-3 rounded-xl border border-orange-100 shadow-sm">
-           <div class="flex justify-between items-end mb-2">
-             <span class="text-xs font-bold text-orange-600 flex items-center gap-1">🎯 今日熱量達成率</span>
-             <span class="text-sm font-bold text-orange-500">{{ todayStats.total }} / {{ profile.targetKcal }} <span class="text-xs">kcal</span></span>
-           </div>
-           <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-             <div class="bg-orange-400 h-3 rounded-full transition-all duration-500" :style="{ width: Math.min(todayStats.percent, 100) + '%' }"></div>
-           </div>
-        </div>
       </div>
 
       <div class="card">
@@ -371,7 +438,7 @@
       
       <div class="card !bg-white border-2 border-blue-100">
         <h3 class="font-bold mb-3 text-blue-600 border-b border-blue-100 pb-2">💾 系統備份與還原</h3>
-        <p class="text-xs text-gray-500 mb-3">定期備份紀錄，換手機也能一鍵還原！</p>
+        <p class="text-xs text-gray-500 mb-3">請定期備份。若系統阻擋檔案下載，會自動彈出「文字備份」供您複製保存。</p>
         <div class="flex gap-3">
           <button @click="exportBackup" class="bg-blue-500 text-white font-bold py-2.5 px-3 rounded-lg flex-1 text-sm shadow-md active:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-1">
             📥 備份資料
@@ -417,6 +484,7 @@
 
       <div class="card">
         <h2 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">🥫 自訂食物庫</h2>
+        
         <div class="flex flex-col gap-2 mb-4">
           <div v-for="f in foods" :key="f.id" class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
             <div>
@@ -467,20 +535,17 @@
         </div>
         <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center gap-2 text-lg shadow-sm active:scale-95 transition-all">📥 產生報表檔</button>
       </div>
+
     </div>
 
-    <div v-if="exportModal.show" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+    <div v-if="fallbackData" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl flex flex-col max-h-[85vh]">
-        <h3 class="font-bold text-blue-600 mb-2 flex items-center gap-2">📄 {{ exportModal.title }}</h3>
-        <p class="text-xs text-gray-600 mb-3">資料已產生！請選擇您要的輸出方式：</p>
-        
-        <textarea readonly class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-mono text-gray-500 mb-3 overflow-y-auto" v-model="exportModal.content"></textarea>
-        
-        <div class="flex flex-col gap-2 shrink-0">
-          <button @click="copyExport" class="bg-green-500 text-white font-bold py-2.5 rounded-xl shadow-md text-sm active:scale-95 transition-all">📋 1. 複製全部文字 (最安全推薦)</button>
-          <button @click="downloadExport" class="bg-blue-500 text-white font-bold py-2.5 rounded-xl shadow-md text-sm active:scale-95 transition-all">📥 2. 儲存為檔案 (電腦或Android)</button>
-          <button @click="shareExport" class="bg-orange-500 text-white font-bold py-2.5 rounded-xl shadow-md text-sm active:scale-95 transition-all">📤 3. 系統分享 (蘋果 iOS 專用)</button>
-          <button @click="exportModal.show = false" class="bg-white text-gray-500 border-2 border-gray-200 font-bold py-2 rounded-xl text-sm mt-1 active:scale-95 transition-all">關閉視窗</button>
+        <h3 class="font-bold text-[#D87093] mb-2 flex items-center gap-2">📋 取得資料成功</h3>
+        <p class="text-xs text-gray-600 mb-3">由於蘋果系統限制無法直接下載，請點擊下方按鈕將內容<strong class="text-red-500">複製並貼上到「備忘錄」或「LINE」儲存。</strong></p>
+        <textarea id="fallbackTextArea" readonly class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-mono text-gray-500 mb-3 overflow-y-auto" v-model="fallbackData"></textarea>
+        <div class="flex gap-3 shrink-0 mt-2">
+          <button @click="fallbackData = null" class="btn-outline flex-1 !py-3 text-sm active:scale-95 transition-all">關閉</button>
+          <button @click="copyFallback" class="btn-save flex-1 !mt-0 !py-3 shadow-md text-sm bg-blue-500 active:scale-95 transition-all">一鍵複製全部</button>
         </div>
       </div>
     </div>
@@ -618,7 +683,8 @@
     createApp({
       data() {
         return {
-          currentTab: 'record', chartRange: '7',
+          currentTab: 'home', // 🌟 預設開啟主頁
+          chartRange: '7',
           customStartDate: getPastDateString(7), customEndDate: getLocalDateString(),   
           logFilter: 'all', 
           
@@ -656,13 +722,98 @@
           editingSettingFood: null, editSettingFoodForm: {},
           editingSettingInsulin: null, editSettingInsulinForm: {},
           
-          // 🌟 輸出控制台狀態變數
-          exportModal: { show: false, title: '', content: '', fileName: '', mimeType: '' },
+          fallbackData: null,
           showPasteImport: false,
           pasteData: ''
         }
       },
       computed: {
+        // 🌟 新增：主頁的各種狀態計算
+        homeStatus() {
+          const today = getLocalDateString();
+          const hr = new Date().getHours();
+          let greeting = '午安';
+          if (hr >= 5 && hr < 12) greeting = '早安';
+          else if (hr >= 18 || hr < 5) greeting = '晚安';
+
+          const todayRecs = this.records.filter(r => r.date === today);
+          
+          // 血糖狀態
+          let bgStatus = { text: '尚未測量', value: '--', borderClass: 'border-gray-300', textClass: 'text-gray-500' };
+          const bgRecs = todayRecs.filter(r => r.type === 'glucose').sort((a,b) => b.time.localeCompare(a.time));
+          if (bgRecs.length > 0) {
+            const latest = bgRecs[0].glucose;
+            bgStatus.value = latest + (latest !== 'HI' && latest !== 'LO' ? ' mg/dL' : '');
+            
+            if (latest === 'HI' || parseFloat(latest) >= 250) {
+              bgStatus.text = '偏高注意 📈'; bgStatus.borderClass = 'border-purple-400'; bgStatus.textClass = 'text-purple-600';
+            } else if (latest === 'LO' || parseFloat(latest) < 80) {
+              bgStatus.text = '低血糖警報 ⚠️'; bgStatus.borderClass = 'border-red-500'; bgStatus.textClass = 'text-red-600';
+            } else if (parseFloat(latest) >= 80 && parseFloat(latest) <= 150) {
+              bgStatus.text = '完美控制 🌟'; bgStatus.borderClass = 'border-green-400'; bgStatus.textClass = 'text-green-600';
+            } else {
+              bgStatus.text = '稍微偏高 👀'; bgStatus.borderClass = 'border-yellow-400'; bgStatus.textClass = 'text-yellow-600';
+            }
+          }
+
+          // 胰島素狀態
+          let insulinStatus = { text: '今天還沒打針喔！', borderClass: 'border-gray-300', textClass: 'text-gray-500' };
+          const insRecs = todayRecs.filter(r => r.type === 'insulin');
+          const hasMorning = insRecs.some(r => r.insulinTime === '早');
+          const hasEvening = insRecs.some(r => r.insulinTime === '晚');
+          
+          if (hasMorning && hasEvening) {
+            insulinStatus = { text: '早晚針都打完囉！👍', borderClass: 'border-blue-400', textClass: 'text-blue-600' };
+          } else if (hasMorning) {
+            insulinStatus = { text: '早上已打，別忘了晚針！', borderClass: 'border-blue-300', textClass: 'text-blue-500' };
+          } else if (hasEvening) {
+            insulinStatus = { text: '晚上已打！', borderClass: 'border-blue-300', textClass: 'text-blue-500' };
+          }
+
+          // 熱量狀態
+          let calStatus = { text: '尚未進食', borderClass: 'border-gray-300', textClass: 'text-gray-500' };
+          let diff = (this.profile.targetKcal || 200) - this.todayStats.total;
+          if (this.todayStats.total > 0) {
+            if (diff <= 0) {
+              calStatus = { text: '今日已達標！🎉', borderClass: 'border-orange-400', textClass: 'text-orange-600' };
+            } else {
+              calStatus = { text: `還差 ${diff} kcal 喔！🐟`, borderClass: 'border-orange-300', textClass: 'text-orange-500' };
+            }
+          }
+
+          return { greeting, bgStatus, insulinStatus, calStatus };
+        },
+
+        // 🌟 新增：AI 趨勢分析
+        trendAnalysisText() {
+          const past7 = getPastDateString(7);
+          const recs = this.records.filter(r => r.type === 'glucose' && r.date >= past7);
+          if (recs.length === 0) return '過去 7 天還沒有測量紀錄，無法分析喔！趕快幫普普量個血糖吧！';
+          
+          let vals = recs.map(r => {
+            if (r.glucose === 'HI') return 500;
+            if (r.glucose === 'LO') return 20;
+            return parseFloat(r.glucose);
+          }).filter(v => !isNaN(v));
+
+          let avg = Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length);
+          let lowCount = vals.filter(v => v < 80).length;
+          let hiCount = vals.filter(v => v >= 250).length;
+
+          let text = `過去一週平均血糖為 <span class="text-[#D87093]">${avg} mg/dL</span>。<br>`;
+          
+          if (lowCount > 0) {
+            text += `<span class="text-red-500 mt-1 block">⚠️ 注意：這週出現了 ${lowCount} 次低血糖 (<80)！請特別注意普普的食慾與精神，必要時請與醫師討論是否調降劑量。</span>`;
+          } else if (avg >= 80 && avg <= 150) {
+            text += `<span class="text-green-600 mt-1 block">🌟 太棒了！普普這週的血糖控制得非常完美，請繼續保持這個節奏喔！</span>`;
+          } else if (hiCount > 3) {
+            text += `<span class="text-purple-600 mt-1 block">📈 整體偏高：這週有較多次高血糖的情況。如果飲水量也有增加，回診時記得給醫師看圖表喔！</span>`;
+          } else {
+            text += `<span class="text-gray-600 mt-1 block">控制得還算平穩！記得每天定時定量吃飯打針喔！</span>`;
+          }
+          return text;
+        },
+
         selectedFood() {
           if (!this.form.selectedFoodId) return null;
           return this.foods.find(f => f.id === this.form.selectedFoodId);
@@ -689,7 +840,6 @@
           if (this.form.glucose) return this.form.glucose;
           let todayGlucoseRecs = this.records.filter(r => r.type === 'glucose' && r.date === this.form.date);
           if (todayGlucoseRecs.length > 0) {
-            // 🌟 修正：使用安全的字串排序
             todayGlucoseRecs.sort((a, b) => b.time.localeCompare(a.time));
             return todayGlucoseRecs[0].glucose;
           }
@@ -711,7 +861,6 @@
           return '無對應劑量，請確認設定';
         },
         
-        // 🌟 修正：蘋果當機的元凶，現在改為安全的字串比對排序法
         filteredChartRecords() {
           let filtered = [...this.records].sort((a,b) => {
             const timeA = a.date + ' ' + a.time;
@@ -729,7 +878,6 @@
           return filtered;
         },
 
-        // 🌟 修正蘋果當機的元凶 (首頁列表用)
         sortedRecords() {
           return [...this.records].sort((a, b) => {
             const timeA = a.date + ' ' + a.time;
@@ -830,50 +978,22 @@
         }
       },
       methods: {
-        // 🌟 防彈檔案輸出按鈕 (複製/下載/分享)
-        copyExport() {
-          navigator.clipboard.writeText(this.exportModal.content).then(() => {
-            alert('✅ 複製成功！\n\n您可以將內容直接貼到「備忘錄」保存，或是在 LINE 裡面貼給醫生。');
-          }).catch(err => {
-            alert('❌ 系統阻擋複製，請長按文字框手動「全選」並複製。');
-          });
-        },
-        downloadExport() {
+        copyFallback() {
+          const textArea = document.getElementById("fallbackTextArea");
+          textArea.select();
           try {
-            const blob = new Blob([this.exportModal.content], { type: this.exportModal.mimeType });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = this.exportModal.fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-          } catch(e) {
-            alert('❌ 您的裝置無法直接下載檔案，請使用「複製全部文字」功能。');
-          }
-        },
-        shareExport() {
-          if (navigator.share) {
-            const file = new File([this.exportModal.content], this.exportModal.fileName, { type: this.exportModal.mimeType });
-            navigator.share({
-              files: [file],
-              title: this.exportModal.title
-            }).catch(e => console.log('分享取消或失敗', e));
-          } else {
-            alert('❌ 您的裝置不支援系統分享，請使用「複製全部文字」功能。');
+            document.execCommand('copy');
+            alert('✅ 複製成功！\n請將內容貼到「備忘錄」保存，或直接傳給醫師。');
+            this.fallbackData = null;
+          } catch (err) {
+            alert('❌ 複製失敗，請長按文字框手動全選複製。');
           }
         },
 
         exportBackup() {
           const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, exportDate: new Date().toISOString() };
-          this.exportModal = {
-             show: true,
-             title: '系統備份檔案',
-             content: JSON.stringify(backupData),
-             fileName: `普普健康日記_備份_${getLocalDateString()}.json`,
-             mimeType: 'application/json'
-          };
+          const jsonString = JSON.stringify(backupData);
+          this.fallbackData = jsonString; // 🌟 100% 絕對彈出複製視窗
         },
         
         importFromPaste() {
@@ -910,7 +1030,7 @@
             recordsToExport = recordsToExport.filter(r => r.date >= this.exportStartDate && r.date <= this.exportEndDate);
           }
 
-          if (recordsToExport.length === 0) return alert('這個區間沒有選取的紀錄可匯出喔！');
+          if (recordsToExport.length === 0) return alert('這個區間與項目沒有紀錄可匯出喔！');
           
           let csvContent = "\uFEFF日期,時間,類別,血糖值,測量儀器,施打時段,施打劑量,食物名稱,份量,攝取熱量(kcal),體重(kg),備註\n";
           recordsToExport.forEach(r => {
@@ -930,13 +1050,7 @@
             csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${dev},${r.insulinTime||''},${r.insulinDose||''},${fName},${fAmount},${fKcal},${r.weight||''},"${notesSafe}"\n`;
           });
           
-          this.exportModal = {
-             show: true,
-             title: '健康報表檔 (CSV)',
-             content: csvContent,
-             fileName: `普普健康日記_${getLocalDateString()}.csv`,
-             mimeType: 'text/csv;charset=utf-8;'
-          };
+          this.fallbackData = csvContent; // 🌟 100% 絕對彈出複製視窗
         },
 
         startEditInsulin(rule) { this.editingSettingInsulin = rule; this.editSettingInsulinForm = JSON.parse(JSON.stringify(rule)); },
