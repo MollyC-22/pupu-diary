@@ -128,7 +128,7 @@
             <span class="text-lg font-bold text-gray-400">{{ suggestedInsulin }}</span>
           </div>
           <div v-if="form.device === '羅氏(人用)' && referenceGlucose && referenceGlucose !== 'HI' && referenceGlucose !== 'LO'" class="text-[11px] text-orange-500 bg-orange-50 p-2 rounded-lg mb-3 text-center">
-            ⚠️ 提醒：系統建議是以您輸入的「{{ referenceGlucose }}」來計算。若醫師指示是以「貓咪實際估算值」對照表來打針，請務必自行調整下方劑量！
+            ⚠️ 提醒：系統建議是以您輸入的「{{ referenceGlucose }}」來計算。若醫師指示是以「貓咪實際估算值」對照表來打針，請自行調整劑量！
           </div>
           <div>
             <label class="text-sm text-[#D87093] font-bold block mb-1 text-center">💉 實際施打劑量</label>
@@ -145,7 +145,6 @@
       <div class="card">
         <h2 class="font-bold mb-3 flex items-center gap-2">🐟 飲食與熱量紀錄</h2>
         <div v-if="foods.length === 0" class="text-sm text-red-500 mb-3 bg-red-50 p-2 rounded">⚠️ 請先到「⚙️ 設定」分頁建立食物資料庫喔！</div>
-        
         <div class="mb-3" v-else>
           <label class="text-sm text-gray-500 mb-1 block">請選擇食物/點心：</label>
           <div class="flex flex-wrap">
@@ -155,7 +154,6 @@
             </label>
           </div>
         </div>
-
         <div class="mb-2 mt-3 p-3 bg-orange-50 rounded-xl border border-orange-100" v-if="selectedFood">
           <div class="flex justify-between items-center mb-2">
             <p class="text-sm text-gray-600 font-bold">吃了多少？</p>
@@ -370,15 +368,20 @@
       
       <div class="card !bg-white border-2 border-blue-100">
         <h3 class="font-bold mb-3 text-blue-600 border-b border-blue-100 pb-2">💾 系統備份與還原</h3>
-        <p class="text-xs text-gray-500 mb-3">定期備份紀錄，換手機也能一鍵還原！</p>
-        <div class="flex gap-3">
-          <button @click="exportBackup" class="bg-blue-500 text-white font-bold py-2 px-3 rounded-lg flex-1 text-sm shadow-sm active:bg-blue-600 transition-all flex items-center justify-center gap-1">
+        <p class="text-xs text-gray-500 mb-3">請定期點擊「備份資料」並將文字複製到您的備忘錄中保管。換手機時只要貼上即可一鍵還原！</p>
+        <div class="flex gap-2">
+          <button @click="exportBackup" class="bg-blue-500 text-white font-bold py-2 px-2 rounded-lg flex-1 text-[13px] shadow-sm active:bg-blue-600 transition-all flex items-center justify-center gap-1">
             📥 備份資料
           </button>
-          <label class="bg-white text-blue-500 border-2 border-blue-200 font-bold py-2 px-3 rounded-lg flex-1 text-sm text-center shadow-sm active:bg-blue-50 transition-all cursor-pointer flex items-center justify-center gap-1">
-            📤 還原紀錄
+          
+          <label class="bg-white text-blue-500 border-2 border-blue-200 font-bold py-2 px-2 rounded-lg flex-1 text-[13px] text-center shadow-sm active:bg-blue-50 transition-all cursor-pointer flex items-center justify-center gap-1">
+            📤 讀取檔案
             <input type="file" accept=".json" @change="importBackup" class="hidden">
           </label>
+          
+          <button @click="showPasteImport = true" class="bg-white text-blue-500 border-2 border-blue-200 font-bold py-2 px-2 rounded-lg flex-1 text-[13px] text-center shadow-sm active:bg-blue-50 transition-all flex items-center justify-center gap-1">
+            📋 文字還原
+          </button>
         </div>
       </div>
 
@@ -465,9 +468,33 @@
           <label class="flex items-center gap-2 bg-orange-50 p-2 rounded-lg border border-orange-100"><input type="checkbox" v-model="exportOptions.food" class="w-4 h-4 chk-food"> 🐟 飲食</label>
           <label class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200"><input type="checkbox" v-model="exportOptions.other" class="w-4 h-4 chk-other"> 🩺 其他</label>
         </div>
-        <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center gap-2 text-lg shadow-sm">📥 下載報表檔</button>
+        <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center gap-2 text-lg shadow-sm">📥 產生報表檔</button>
       </div>
 
+    </div>
+
+    <div v-if="fallbackData" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+      <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl flex flex-col max-h-[85vh]">
+        <h3 class="font-bold text-[#D87093] mb-2 flex items-center gap-2">⚠️ 系統安全限制</h3>
+        <p class="text-xs text-gray-600 mb-3">由於蘋果系統限制無法直接下載檔案，請點擊下方按鈕將內容<strong class="text-red-500">複製並貼上到「備忘錄」儲存</strong>，或是直接傳給醫生！</p>
+        <textarea readonly class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-mono text-gray-500 mb-3 overflow-y-auto" v-model="fallbackData"></textarea>
+        <div class="flex gap-3 shrink-0">
+          <button @click="fallbackData = null" class="btn-outline flex-1 !py-2 text-sm">關閉</button>
+          <button @click="copyFallback" class="btn-save flex-1 !mt-0 !py-2 shadow-md text-sm bg-blue-500">一鍵複製全部</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showPasteImport" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+      <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl flex flex-col max-h-[85vh]">
+        <h3 class="font-bold text-blue-600 mb-2 flex items-center gap-2">📋 貼上備份文字還原</h3>
+        <p class="text-xs text-gray-600 mb-3">請將先前複製在備忘錄裡的密碼內容<strong class="text-red-500">完整貼在下方框框內</strong>：</p>
+        <textarea class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-mono text-gray-700 mb-3 overflow-y-auto" rows="8" v-model="pasteData" placeholder='在此貼上 {"records": [...]}'></textarea>
+        <div class="flex gap-3 shrink-0">
+          <button @click="showPasteImport = false; pasteData = ''" class="btn-outline flex-1 !py-2 text-sm">取消</button>
+          <button @click="importFromPaste" class="btn-save !bg-blue-500 flex-1 !mt-0 !py-2 shadow-md text-sm">執行還原</button>
+        </div>
+      </div>
     </div>
 
     <div v-if="editingSettingFood" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -597,14 +624,12 @@
           
           records: JSON.parse(localStorage.getItem('pupu_records')) || [],
           profile: JSON.parse(localStorage.getItem('pupu_profile')) || { weight: '', targetKcal: 200 },
-          
           foods: JSON.parse(localStorage.getItem('pupu_foods')) || [
             { id: 1, name: '汪喵罐頭', unit: '罐', weight: 80, kcal: 110 },
             { id: 2, name: '小怪獸罐頭', unit: '罐', weight: 82, kcal: 115 },
             { id: 3, name: '皇家濕糧', unit: '包', weight: 85, kcal: 85 },
             { id: 4, name: '純肉泥', unit: '條', weight: 15, kcal: 15 }
           ],
-          
           insulinRules: JSON.parse(localStorage.getItem('pupu_insulin_rules')) || [
             { id: 1, min: 0, max: 149, dose: '0 (不打)' },
             { id: 2, min: 150, max: 199, dose: '0.01' },
@@ -624,9 +649,15 @@
           
           exportRange: 'all', exportStartDate: getPastDateString(30), exportEndDate: getLocalDateString(),
           exportOptions: { glucose: true, insulin: true, food: true, other: true },
+          
           editingRecord: null, editForm: {},
           editingSettingFood: null, editSettingFoodForm: {},
-          editingSettingInsulin: null, editSettingInsulinForm: {}
+          editingSettingInsulin: null, editSettingInsulinForm: {},
+          
+          // 🌟 Fallback 狀態變數
+          fallbackData: null,
+          showPasteImport: false,
+          pasteData: ''
         }
       },
       computed: {
@@ -780,33 +811,55 @@
         }
       },
       methods: {
-        exportBackup() {
-          const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, exportDate: new Date().toISOString() };
-          const file = new File([JSON.stringify(backupData)], `普普健康日記_備份_${getLocalDateString()}.json`, { type: 'application/json' });
-          
-          // 🌟 針對 iOS PWA 使用 Web Share API
+        // 🌟 處理蘋果擋下載的核心法寶
+        downloadDataOrFallback(content, fileName, mimeType) {
+          const isIOSPWA = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+          const file = new File([content], fileName, { type: mimeType });
+
+          // 嘗試 1：系統原生分享/存檔 (成功率 80%)
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             navigator.share({
               files: [file],
-              title: '普普健康日記備份',
-              text: '這是普普的健康日記備份檔，請儲存到檔案中保管。'
-            }).catch(err => console.log('分享取消或失敗', err));
-          } else {
-            try {
-              const url = URL.createObjectURL(file);
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = file.name;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              URL.revokeObjectURL(url);
-              alert('✅ 備份已嘗試下載！\n\n(若使用 iPhone 且無反應，請去「檔案」APP 的「下載項目」尋找)');
-            } catch(e) {
-              alert('❌ 發生錯誤，裝置不支援直接下載。');
-            }
+              title: fileName
+            }).catch(err => {
+              if (err.name !== 'AbortError') {
+                this.fallbackData = content; // 失敗跳強制視窗
+              }
+            });
+          } 
+          // 嘗試 2：傳統下載 (Android 或電腦 100% 成功)
+          else if (!isIOSPWA) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          } 
+          // 嘗試 3：蘋果死不給過，直接彈出強制複製視窗 (成功率 100%)
+          else {
+            this.fallbackData = content;
           }
         },
+
+        copyFallback() {
+          navigator.clipboard.writeText(this.fallbackData).then(() => {
+            alert('✅ 複製成功！\n請將內容貼到「備忘錄」保存，或直接傳送給醫師。');
+            this.fallbackData = null;
+          }).catch(err => {
+            alert('❌ 複製失敗，請長按文字框手動全選複製。');
+          });
+        },
+
+        exportBackup() {
+          const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, exportDate: new Date().toISOString() };
+          const jsonString = JSON.stringify(backupData);
+          this.downloadDataOrFallback(jsonString, `普普健康日記_備份_${getLocalDateString()}.json`, 'application/json');
+        },
+        
         importBackup(event) {
           const file = event.target.files[0];
           if (!file) return;
@@ -831,6 +884,64 @@
           };
           reader.readAsText(file);
           event.target.value = ''; 
+        },
+
+        // 🌟 新增：從文字直接還原
+        importFromPaste() {
+          try {
+            const data = JSON.parse(this.pasteData);
+            if (data.records && Array.isArray(data.records)) {
+              if (confirm('⚠️ 警告：還原將會覆蓋目前的所有的紀錄與設定！確定要繼續嗎？')) {
+                this.records = data.records;
+                if (data.profile) this.profile = data.profile;
+                if (data.foods) this.foods = data.foods;
+                if (data.insulinRules) this.insulinRules = data.insulinRules;
+                this.saveToLocal(); this.saveProfile();
+                localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
+                localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules));
+                alert('🎉 備份還原成功！');
+                this.showPasteImport = false;
+                this.pasteData = '';
+                if (this.currentTab === 'chart') this.$nextTick(() => { this.renderChart(); });
+              }
+            } else alert('❌ 內容格式不正確，請確認是否有複製完整！');
+          } catch (err) { alert('❌ 無法解析內容，請確定貼上的是正確的備份碼！'); }
+        },
+
+        exportCSV() {
+          const selectedTypes = [];
+          if (this.exportOptions.glucose) selectedTypes.push('glucose');
+          if (this.exportOptions.insulin) selectedTypes.push('insulin');
+          if (this.exportOptions.food) selectedTypes.push('food');
+          if (this.exportOptions.other) selectedTypes.push('other');
+
+          let recordsToExport = this.sortedRecords.filter(r => selectedTypes.includes(r.type));
+          
+          if (this.exportRange === 'custom') {
+            recordsToExport = recordsToExport.filter(r => r.date >= this.exportStartDate && r.date <= this.exportEndDate);
+          }
+
+          if (recordsToExport.length === 0) return alert('這個區間與項目沒有紀錄可匯出喔！');
+          
+          let csvContent = "\uFEFF日期,時間,類別,血糖值,測量儀器,施打時段,施打劑量,食物名稱,份量,攝取熱量(kcal),體重(kg),備註\n";
+          recordsToExport.forEach(r => {
+            let notesSafe = r.notes ? r.notes.replace(/"/g, '""') : ''; 
+            let typeMap = { glucose: '血糖', insulin: '胰島素', food: '飲食', other: '其他' };
+            
+            let fName = r.foodName || r.foodType || '';
+            let fAmount = '';
+            if (r.type === 'food') {
+               if (r.foodRecordType === 'grams') fAmount = `${r.foodGrams} 克`;
+               else fAmount = r.unit ? `${r.foodAmount} ${r.unit}` : (r.foodAmount || '');
+            }
+            
+            let fKcal = r.kcal || '';
+            let dev = r.device || '';
+
+            csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${dev},${r.insulinTime||''},${r.insulinDose||''},${fName},${fAmount},${fKcal},${r.weight||''},"${notesSafe}"\n`;
+          });
+          
+          this.downloadDataOrFallback(csvContent, `普普健康日記_${getLocalDateString()}.csv`, 'text/csv;charset=utf-8;');
         },
 
         startEditInsulin(rule) { this.editingSettingInsulin = rule; this.editSettingInsulinForm = JSON.parse(JSON.stringify(rule)); },
@@ -985,67 +1096,6 @@
           }
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = ''; this.updateTime();
-        },
-        
-        // 🌟 匯出 CSV 也改用 Web Share API
-        exportCSV() {
-          const selectedTypes = [];
-          if (this.exportOptions.glucose) selectedTypes.push('glucose');
-          if (this.exportOptions.insulin) selectedTypes.push('insulin');
-          if (this.exportOptions.food) selectedTypes.push('food');
-          if (this.exportOptions.other) selectedTypes.push('other');
-
-          let recordsToExport = this.sortedRecords.filter(r => selectedTypes.includes(r.type));
-          
-          if (this.exportRange === 'custom') {
-            recordsToExport = recordsToExport.filter(r => r.date >= this.exportStartDate && r.date <= this.exportEndDate);
-          }
-
-          if (recordsToExport.length === 0) return alert('這個區間與項目沒有紀錄可匯出喔！');
-          
-          let csvContent = "\uFEFF日期,時間,類別,血糖值,測量儀器,施打時段,施打劑量,食物名稱,份量,攝取熱量(kcal),體重(kg),備註\n";
-          recordsToExport.forEach(r => {
-            let notesSafe = r.notes ? r.notes.replace(/"/g, '""') : ''; 
-            let typeMap = { glucose: '血糖', insulin: '胰島素', food: '飲食', other: '其他' };
-            
-            let fName = r.foodName || r.foodType || '';
-            let fAmount = '';
-            if (r.type === 'food') {
-               if (r.foodRecordType === 'grams') fAmount = `${r.foodGrams} 克`;
-               else fAmount = r.unit ? `${r.foodAmount} ${r.unit}` : (r.foodAmount || '');
-            }
-            
-            let fKcal = r.kcal || '';
-            let dev = r.device || '';
-
-            csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${dev},${r.insulinTime||''},${r.insulinDose||''},${fName},${fAmount},${fKcal},${r.weight||''},"${notesSafe}"\n`;
-          });
-          
-          const fileName = `普普健康日記_${getLocalDateString()}.csv`;
-          const file = new File([csvContent], fileName, { type: 'text/csv;charset=utf-8;' });
-
-          // 🌟 針對 iOS PWA 使用 Web Share API
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            navigator.share({
-              files: [file],
-              title: '普普的健康日記報表',
-              text: '這是普普的最新健康報表，可以傳送給醫生或儲存到檔案。'
-            }).catch(err => console.log('分享取消或失敗', err));
-          } else {
-            try {
-              const url = URL.createObjectURL(file);
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = fileName;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              URL.revokeObjectURL(url);
-              alert('✅ 報表已嘗試下載！\n\n(若使用 iPhone 且無反應，請去「檔案」APP 的「下載項目」尋找)');
-            } catch(e) {
-              alert('❌ 發生錯誤，裝置不支援直接下載。');
-            }
-          }
         },
         
         renderChart() {
