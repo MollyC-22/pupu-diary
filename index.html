@@ -21,14 +21,12 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    /* 加入了防止點擊閃爍的優化 */
     body { font-family: 'Nunito', 'M PLUS Rounded 1c', sans-serif; background-color: #FFF0F5; color: #5D4037; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
     input:not([type="checkbox"]):not([type="radio"]), textarea, select { -webkit-user-select: text !important; user-select: text !important; -webkit-appearance: none !important; appearance: none !important; cursor: text !important; }
     input[type="checkbox"] { -webkit-appearance: checkbox !important; appearance: auto !important; }
 
     .card { background-color: #FFFFFF; border-radius: 20px; box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3); padding: 16px 20px; margin-bottom: 20px; }
     .btn-save { background-color: #FFB6C1; color: white; border-radius: 12px; padding: 8px 16px; font-weight: bold; width: 100%; margin-top: 12px; transition: transform 0.1s, background-color 0.2s; cursor: pointer; }
-    /* 優化按下去的瞬間回饋 */
     .btn-save:active { background-color: #FF9AA2; transform: scale(0.96); }
     .btn-outline { background-color: white; color: #D87093; border: 2px solid #FFB6C1; border-radius: 9999px; padding: 10px 20px; font-weight: bold; transition: transform 0.1s, background-color 0.2s; width: 100%; cursor: pointer;}
     .btn-outline:active { background-color: #FFF0F5; transform: scale(0.96); }
@@ -186,7 +184,7 @@
           </div>
 
           <div v-if="form.foodRecordType === 'grams'">
-            <div v-if="!selectedFood.weight" class="text-xs text-red-500 mb-2">⚠️ 請至設定補充此食物的「每份克數」才能轉換熱量喔！</div>
+            <div v-if="!selectedFood.weight" class="text-xs text-red-500 mb-2">⚠️ 請先至設定補充此食物的「每份克數」才能轉換熱量喔！</div>
             <div class="flex items-center gap-2">
               <input type="number" inputmode="decimal" step="0.1" v-model="form.foodGrams" placeholder="輸入克數" class="input-field text-center font-bold text-orange-600 w-24">
               <span class="text-sm text-gray-600">克 (g)</span>
@@ -255,7 +253,7 @@
           <input type="date" v-model="customEndDate" @change="renderChart" class="bg-white border border-pink-200 rounded p-1 text-xs w-full outline-none text-[#5D4037]">
         </div>
         
-        <p class="text-xs text-gray-400 text-center mb-2">💡 點擊圖表點點可看詳細資訊</p>
+        <p class="text-xs text-gray-400 text-center mb-2">💡 點擊圖表點點可看【換算血糖】與用藥時間</p>
         <div style="position: relative; height: 250px; width: 100%;">
           <canvas id="glucoseChart"></canvas>
         </div>
@@ -296,7 +294,7 @@
                   <div class="flex items-center gap-2 flex-wrap">
                     <span class="text-xs bg-white px-2 py-0.5 rounded text-gray-500 font-bold border border-gray-100">🕒 {{ rec.time }}</span>
                     <span :class="rec.glucose === 'HI' ? 'text-purple-600 font-bold' : (rec.glucose === 'LO' || rec.glucose < 80 ? 'text-red-600 font-bold' : 'text-[#5D4037] font-bold')">
-                      {{ rec.glucose }} <span v-if="rec.glucose !== 'HI' && rec.glucose !== 'LO'" class="text-xs font-normal text-gray-400">mg/dL</span>
+                      {{ rec.glucose }} <span v-if="rec.glucose !== 'HI'" class="text-xs font-normal text-gray-400">mg/dL</span>
                     </span>
                     <span v-if="rec.device === '羅氏(人用)' && rec.glucose !== 'HI' && rec.glucose !== 'LO'" class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded shadow-sm border border-blue-200">
                       估算約 {{ Math.round(parseFloat(rec.glucose) * 1.3) }}
@@ -373,7 +371,7 @@
       
       <div class="card !bg-white border-2 border-blue-100">
         <h3 class="font-bold mb-3 text-blue-600 border-b border-blue-100 pb-2">💾 系統備份與還原</h3>
-        <p class="text-xs text-gray-500 mb-3">請定期備份。若系統阻擋檔案下載，會自動彈出「文字備份」供您複製保存。</p>
+        <p class="text-xs text-gray-500 mb-3">定期備份紀錄，換手機也能一鍵還原！</p>
         <div class="flex gap-3">
           <button @click="exportBackup" class="bg-blue-500 text-white font-bold py-2.5 px-3 rounded-lg flex-1 text-sm shadow-md active:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-1">
             📥 備份資料
@@ -419,7 +417,6 @@
 
       <div class="card">
         <h2 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">🥫 自訂食物庫</h2>
-        
         <div class="flex flex-col gap-2 mb-4">
           <div v-for="f in foods" :key="f.id" class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
             <div>
@@ -473,14 +470,18 @@
 
     </div>
 
-    <div v-if="fallbackData" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+    <div v-if="exportModal.show" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl flex flex-col max-h-[85vh]">
-        <h3 class="font-bold text-[#D87093] mb-2 flex items-center gap-2">📋 取得資料成功</h3>
-        <p class="text-xs text-gray-600 mb-3">由於蘋果系統限制無法直接下載，請點擊下方按鈕將內容<strong class="text-red-500">複製並貼上到「備忘錄」或「LINE」儲存。</strong></p>
-        <textarea id="fallbackTextArea" readonly class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-mono text-gray-500 mb-3 overflow-y-auto" v-model="fallbackData"></textarea>
-        <div class="flex gap-3 shrink-0 mt-2">
-          <button @click="fallbackData = null" class="btn-outline flex-1 !py-3 text-sm active:scale-95 transition-all">關閉</button>
-          <button @click="copyFallback" class="btn-save flex-1 !mt-0 !py-3 shadow-md text-sm bg-blue-500 active:scale-95 transition-all">一鍵複製全部</button>
+        <h3 class="font-bold text-blue-600 mb-2 flex items-center gap-2">📄 檔案已產生！</h3>
+        <p class="text-xs text-gray-600 mb-3">由於 iPhone 系統安全限制，請選擇以下方式存檔：</p>
+        
+        <textarea readonly class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-mono text-gray-500 mb-3 overflow-y-auto" v-model="exportModal.content"></textarea>
+        
+        <div class="flex flex-col gap-2 shrink-0">
+          <button @click="copyExport" class="bg-green-500 text-white font-bold py-3 rounded-xl shadow-md text-sm active:scale-95 transition-all">📋 1. 一鍵複製 (貼到LINE或備忘錄)</button>
+          <button @click="shareExport" class="bg-blue-500 text-white font-bold py-3 rounded-xl shadow-md text-sm active:scale-95 transition-all">📤 2. 系統分享 (儲存到檔案)</button>
+          <button @click="downloadExport" class="bg-gray-500 text-white font-bold py-3 rounded-xl shadow-md text-sm active:scale-95 transition-all">📥 3. 嘗試直接下載 (iPhone可能無反應)</button>
+          <button @click="exportModal.show = false" class="bg-white text-gray-500 border-2 border-gray-200 font-bold py-2 rounded-xl text-sm mt-2 active:scale-95 transition-all">關閉視窗</button>
         </div>
       </div>
     </div>
@@ -656,7 +657,8 @@
           editingSettingFood: null, editSettingFoodForm: {},
           editingSettingInsulin: null, editSettingInsulinForm: {},
           
-          fallbackData: null,
+          // 🌟 輸出控制台狀態變數
+          exportModal: { show: false, content: '', fileName: '', mimeType: '' },
           showPasteImport: false,
           pasteData: ''
         }
@@ -812,42 +814,55 @@
         }
       },
       methods: {
-        // 🌟 防彈機制：處理蘋果阻擋下載的核心函數
-        async handleExport(content, fileName, mimeType) {
-          const file = new File([content], fileName, { type: mimeType });
-          try {
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              await navigator.share({
-                files: [file],
-                title: fileName
-              });
-            } else {
-              throw new Error('Share API not supported');
-            }
-          } catch (err) {
-            // 用戶手動取消分享，就不做事
-            if (err.name === 'AbortError') return;
-            // 否則觸發終極防彈：強制顯示文字視窗
-            this.fallbackData = content;
+        // 🌟 打開輸出控制台
+        openExportModal(content, fileName, mimeType) {
+          this.exportModal = { show: true, content, fileName, mimeType };
+        },
+
+        // 📋 1. 複製功能
+        copyExport() {
+          navigator.clipboard.writeText(this.exportModal.content).then(() => {
+            alert('✅ 複製成功！\n請將內容貼到「備忘錄」或傳送給醫師。');
+          }).catch(err => {
+            alert('❌ 複製失敗，請長按文字框手動全選複製。');
+          });
+        },
+
+        // 📤 2. 系統分享 (使用純文字分享，PWA最安全)
+        shareExport() {
+          if (navigator.share) {
+            navigator.share({
+              title: this.exportModal.fileName,
+              text: this.exportModal.content
+            }).catch(err => {
+              if (err.name !== 'AbortError') console.log('分享失敗', err);
+            });
+          } else {
+            alert('您的裝置不支援系統分享，請使用「複製」功能。');
           }
         },
 
-        copyFallback() {
-          const textArea = document.getElementById("fallbackTextArea");
-          textArea.select();
+        // 📥 3. 傳統下載 (給安卓或電腦用的)
+        downloadExport() {
           try {
-            document.execCommand('copy');
-            alert('✅ 複製成功！\n請將內容貼到「備忘錄」保存，或直接傳給醫師。');
-            this.fallbackData = null;
-          } catch (err) {
-            alert('❌ 複製失敗，請長按文字框手動全選複製。');
+            const blob = new Blob([this.exportModal.content], { type: this.exportModal.mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = this.exportModal.fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          } catch(e) {
+            alert('❌ 下載失敗，請使用「複製」功能。');
           }
         },
 
         exportBackup() {
           const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, exportDate: new Date().toISOString() };
           const jsonString = JSON.stringify(backupData);
-          this.handleExport(jsonString, `普普健康日記_備份_${getLocalDateString()}.json`, 'application/json');
+          this.openExportModal(jsonString, `普普健康日記_備份_${getLocalDateString()}.json`, 'application/json');
         },
         
         importFromPaste() {
@@ -904,7 +919,7 @@
             csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${dev},${r.insulinTime||''},${r.insulinDose||''},${fName},${fAmount},${fKcal},${r.weight||''},"${notesSafe}"\n`;
           });
           
-          this.handleExport(csvContent, `普普健康日記_${getLocalDateString()}.csv`, 'text/csv;charset=utf-8;');
+          this.openExportModal(csvContent, `普普健康日記_${getLocalDateString()}.csv`, 'text/csv;charset=utf-8;');
         },
 
         startEditInsulin(rule) { this.editingSettingInsulin = rule; this.editSettingInsulinForm = JSON.parse(JSON.stringify(rule)); },
