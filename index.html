@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-  <title>普普の健康日記</title>
   
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <title>普普の健康日記</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="mobile-web-app-capable" content="yes">
@@ -12,7 +16,6 @@
   
   <link rel="icon" href="icon2.png">
   <link rel="apple-touch-icon" href="icon2.png">
-  
   <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%E6%99%AE%E6%99%AE%E3%81%AE%E5%81%A5%E5%BA%B7%E6%97%A5%E8%A8%98%22%2C%22short_name%22%3A%22%E6%99%AE%E6%99%AE%E6%97%A5%E8%A8%98%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFF0F5%22%2C%22theme_color%22%3A%22%23FFB6C1%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon2.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D'>
 
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
@@ -144,10 +147,10 @@
       <div @click="currentTab = 'record'; setNow();" class="btn-chunky flex justify-center items-center gap-2 text-lg mb-8">
         <span class="text-2xl">🖍️</span> 幫普普記一筆手帳！
       </div>
-
     </div>
 
     <div v-show="currentTab === 'record'">
+      
       <div class="card !bg-[#FFF5EE] !border-2 !border-[#FFE4E1]">
         <h2 class="font-bold mb-3 flex items-center gap-2 text-[#D87093]">🕒 欲紀錄的時間</h2>
         <div class="flex flex-col gap-3">
@@ -168,20 +171,46 @@
             <option value="寵物專用">🐾 寵物專用</option>
           </select>
         </div>
+
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
             <input type="text" inputmode="decimal" v-model="form.glucose" placeholder="輸入數值" class="input-field text-xl text-center font-bold flex-1 py-3">
             <button @click="form.glucose = 'LO'" class="bg-red-50 text-red-600 border-2 border-red-200 font-bold py-3 px-4 rounded-xl active:bg-red-100 active:scale-95 transition-all text-sm shadow-sm">LO</button>
             <button @click="form.glucose = 'HI'" class="bg-purple-50 text-purple-600 border-2 border-purple-200 font-bold py-3 px-4 rounded-xl active:bg-purple-100 active:scale-95 transition-all text-sm shadow-sm">HI</button>
           </div>
+          
           <div v-if="form.device === '羅氏(人用)' && convertedGlucose" class="mt-2 p-3 bg-blue-50 border-2 border-blue-200 rounded-xl text-blue-800 text-sm shadow-sm">
             <div class="flex justify-between items-center mb-1">
-              <span class="font-bold">🐾 貓咪實際血糖估算：</span>
-              <span class="text-xl font-bold text-blue-600">{{ convertedGlucose }}</span>
+              <span class="font-bold flex items-center gap-1">🐾 貓咪實際血糖估算：</span>
+              <span class="text-xl font-bold text-blue-600">{{ convertedGlucose }} <span class="text-xs font-normal">mg/dL</span></span>
             </div>
+            <p class="text-[11px] text-blue-500/80">＊依據獸醫通用公式：羅氏數值 × 1.3</p>
           </div>
-          <div v-if="form.glucose === 'HI'" class="mt-2 p-3 bg-purple-50 border-2 border-purple-300 rounded-xl text-purple-700 text-sm animate-pulse">🚨 數值 HI！血糖極高。</div>
-          <div v-else-if="form.glucose === 'LO' || (form.glucose !== '' && form.glucose < 40)" class="mt-2 p-3 bg-red-100 border-2 border-red-500 rounded-xl text-red-800 text-sm animate-pulse font-bold">🆘 嚴重低血糖！立刻抹糖送醫！</div>
+          
+          <div v-if="form.glucose === 'HI'" class="mt-2 p-3 bg-purple-50 border-2 border-purple-300 rounded-xl text-purple-700 text-sm shadow-sm animate-pulse">
+            <p class="font-bold mb-1">🚨 數值 HI (大於設定最高值)！</p>
+            <p>血糖極高，請留意普普的精神與飲水，並視情況聯繫醫師！</p>
+          </div>
+          <div v-else-if="form.glucose === 'LO' || (form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 40)" class="mt-2 p-3 bg-red-100 border-2 border-red-500 rounded-xl text-red-800 text-sm shadow-sm animate-pulse">
+            <p class="font-bold mb-1 text-lg">🆘 嚴重低血糖 (LO 或 < 40)！極度危險！</p>
+            <ul class="list-disc pl-5 font-bold">
+              <li>立刻在牙齦塗抹糖水或蜂蜜！</li>
+              <li>請馬上準備送醫急診！</li>
+            </ul>
+          </div>
+          <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 60" class="mt-2 p-3 bg-red-50 border-2 border-red-300 rounded-xl text-red-700 text-sm shadow-sm animate-pulse">
+            <p class="font-bold mb-1">🚨 血糖危險 (< 60)！請立即處理：</p>
+            <ul class="list-disc pl-5">
+              <li><b>精神尚可：</b>立刻餵食高碳水食物。</li>
+              <li><b>精神渙散：</b>牙齦抹糖，盡速就醫！</li>
+            </ul>
+          </div>
+          <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose < 80" class="mt-2 p-3 bg-orange-50 border-2 border-orange-300 rounded-xl text-orange-700 text-sm shadow-sm">
+            <p class="font-bold mb-1">⚠️ 血糖偏低 (< 80)</p><p>若不吃東西，請務必進行灌食！</p>
+          </div>
+          <div v-else-if="form.glucose !== '' && form.glucose !== 'HI' && form.glucose >= 80 && form.glucose <= 150" class="mt-2 p-3 bg-green-50 border-2 border-green-300 rounded-xl text-green-700 text-sm shadow-sm">
+            <p class="font-bold flex items-center gap-1">🌟 太棒了！血糖控制得非常漂亮！</p>
+          </div>
         </div>
         <button @click="saveGlucose" class="btn-save py-3 text-lg">儲存血糖紀錄</button>
       </div>
@@ -194,7 +223,7 @@
         <div class="mb-4 p-4 bg-[#FFF9FA] rounded-2xl border-2 border-[#FFE4E1] shadow-inner">
           <div class="text-center mb-3">
             <span class="text-sm text-gray-500 block font-bold mb-1">系統建議</span>
-            <span class="text-2xl font-bold text-gray-400">{{ suggestedInsulin }}</span>
+            <span class="text-2xl font-bold" :class="suggestedInsulin.includes('免打') ? 'text-green-500' : 'text-gray-400'">{{ suggestedInsulin }}</span>
           </div>
           <div class="bg-white p-3 rounded-xl border border-pink-100 shadow-sm">
             <label class="text-sm text-[#D87093] font-bold block mb-2 text-center">💉 實際施打劑量</label>
@@ -202,8 +231,8 @@
           </div>
         </div>
         <div class="flex items-center justify-center mt-2">
-          <label><input type="radio" v-model="form.insulinTime" value="早" class="hidden"> <span class="radio-pill !px-8 !py-2 text-base">☀️ 早</span></label>
-          <label><input type="radio" v-model="form.insulinTime" value="晚" class="hidden"> <span class="radio-pill !px-8 !py-2 text-base">🌙 晚</span></label>
+          <label><input type="radio" v-model="form.insulinTime" value="早" class="hidden"> <span class="radio-pill !px-8 !py-2 text-base shadow-sm border border-gray-100">☀️ 早</span></label>
+          <label><input type="radio" v-model="form.insulinTime" value="晚" class="hidden"> <span class="radio-pill !px-8 !py-2 text-base shadow-sm border border-gray-100">🌙 晚</span></label>
         </div>
         <button @click="saveInsulin" class="btn-save py-3 text-lg">確認施打並儲存</button>
       </div>
@@ -223,7 +252,7 @@
                <input type="radio" v-model="form.selectedFoodId" :value="f.id" class="hidden">
                <span class="radio-pill shadow-sm border border-gray-100 !text-[13px] !px-3 !py-1.5">{{ f.name }}</span>
              </label>
-             <div v-if="filteredFoodsByTab.length === 0" class="text-xs text-gray-400 py-4 w-full text-center">這個分類下還沒有食物喔！</div>
+             <div v-if="filteredFoodsByTab.length === 0" class="text-xs text-gray-400 py-4 w-full text-center font-bold">這個分類下還沒有食物喔！</div>
           </div>
         </div>
 
@@ -242,7 +271,7 @@
               <button @click="form.foodAmount = 0.5" class="text-xs bg-white text-orange-600 border border-orange-200 px-2.5 py-1.5 rounded-lg font-bold shadow-sm">0.5</button>
             </div>
             <div class="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-orange-100">
-              <input type="number" inputmode="decimal" v-model="form.foodAmount" placeholder="份數" class="input-field !border-0 !bg-transparent text-center font-bold text-orange-600 text-lg w-20 !p-0">
+              <input type="number" inputmode="decimal" step="0.01" v-model="form.foodAmount" placeholder="份數" class="input-field !border-0 !bg-transparent text-center font-bold text-orange-600 text-lg w-20 !p-0">
               <span class="text-sm text-gray-500 font-bold">{{ selectedFood.unit }}</span>
               <div class="ml-auto text-right pr-2">
                 <span class="text-[10px] text-gray-400 block font-bold">KCAL</span>
@@ -253,7 +282,7 @@
 
           <div v-if="form.foodRecordType === 'grams'">
             <div class="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-orange-100">
-              <input type="number" inputmode="decimal" v-model="form.foodGrams" placeholder="克數" class="input-field !border-0 !bg-transparent text-center font-bold text-orange-600 text-lg w-24 !p-0">
+              <input type="number" inputmode="decimal" step="0.1" v-model="form.foodGrams" placeholder="克數" class="input-field !border-0 !bg-transparent text-center font-bold text-orange-600 text-lg w-24 !p-0">
               <span class="text-sm text-gray-500 font-bold">g</span>
               <div class="ml-auto text-right pr-2">
                 <span class="text-[10px] text-gray-400 block font-bold">KCAL</span>
@@ -305,9 +334,9 @@
       <div class="mt-8 mb-4">
         <div class="flex justify-between items-center mb-3 pl-2"><h3 class="font-bold text-gray-600 text-lg highlighter">📅 歷史健康手帳</h3></div>
         <div class="flex gap-2 mb-5 overflow-x-auto pb-2 pl-1 scrollbar-hide">
-          <button @click="logFilter = 'all'" :class="logFilter === 'all' ? 'bg-[#D87093] text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border-2">全部</button>
-          <button @click="logFilter = 'medical'" :class="logFilter === 'medical' ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border-2">🩸 醫療</button>
-          <button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border-2">🐟 飲食</button>
+          <button @click="logFilter = 'all'" :class="logFilter === 'all' ? 'bg-[#D87093] text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border-2">全部</button>
+          <button @click="logFilter = 'medical'" :class="logFilter === 'medical' ? 'bg-blue-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border-2">🩸 醫療</button>
+          <button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border-2">🐟 飲食</button>
         </div>
 
         <div v-for="day in filteredGroupedRecords" :key="day.date" class="card !p-0 overflow-hidden border-2 border-[#FFE4E1] !rounded-[2rem] shadow-md mb-6">
@@ -427,15 +456,14 @@
     <div v-if="fallbackData" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl flex flex-col border-4 border-[#FFB6C1]">
         <h3 class="font-bold text-[#D87093] mb-2 text-lg">📋 產生資料成功！</h3>
-        <p class="text-xs text-gray-600 mb-3 font-bold">蘋果系統無法直接下載，請點「複製全部」並貼到備忘錄或 LINE 保存。</p>
         <textarea id="fallbackTextArea" readonly class="w-full flex-1 bg-[#FFF9FA] border-2 border-pink-100 rounded-2xl p-4 text-[10px] font-mono text-gray-500 mb-4 overflow-y-auto" v-model="fallbackData"></textarea>
-        <div class="flex gap-3"><button @click="fallbackData = null" class="btn-outline flex-1 !py-3">關閉</button><button @click="copyFallback" class="btn-save flex-1 !mt-0 !py-3 bg-[#D87093]">一鍵複製全部</button></div>
+        <div class="flex gap-3"><button @click="fallbackData = null" class="btn-outline flex-1 !py-3">關閉</button><button @click="copyFallback" class="btn-save flex-1 !mt-0 !py-3 bg-[#D87093]">複製全部文字</button></div>
       </div>
     </div>
     <div v-if="showPasteImport" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl border-4 border-[#BAE6FD]">
         <h3 class="font-bold text-blue-600 mb-2 text-lg">📥 貼上備份還原</h3>
-        <textarea class="w-full flex-1 bg-blue-50 border-2 border-blue-100 rounded-2xl p-4 text-xs font-mono text-blue-800 mb-4 overflow-y-auto" rows="8" v-model="pasteData" placeholder='在此長按並貼上...'></textarea>
+        <textarea class="w-full flex-1 bg-blue-50 border-2 border-blue-100 rounded-2xl p-4 text-xs font-mono text-blue-800 mb-4 overflow-y-auto" rows="8" v-model="pasteData" placeholder='長按貼上...'></textarea>
         <div class="flex gap-3"><button @click="showPasteImport = false; pasteData = ''" class="btn-outline !border-blue-300 !text-blue-500 flex-1 !py-3">取消</button><button @click="importFromPaste" class="btn-save !bg-blue-500 flex-1 !mt-0 !py-3 border-2 border-white">執行還原</button></div>
       </div>
     </div>
@@ -452,7 +480,7 @@
     </div>
     <div v-if="editingRecord" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto border-4 border-[#FFE4E1]">
-        <h3 class="font-bold text-[#D87093] mb-4 text-lg highlighter">✏️ 編輯手帳紀錄</h3>
+        <h3 class="font-bold text-[#D87093] mb-4 text-lg highlighter">✏️ 編輯紀錄</h3>
         <input type="date" v-model="editForm.date" class="input-field mb-2 text-center font-bold">
         <input type="time" v-model="editForm.time" class="input-field mb-4 text-center font-bold">
         <div v-if="editForm.type === 'glucose'"><input type="text" v-model="editForm.glucose" class="input-field font-bold text-2xl text-center py-4"></div>
@@ -473,6 +501,7 @@
 
   <script>
     const { createApp } = Vue;
+    let chartInstance = null;
 
     function getLocalDateString() {
       const now = new Date();
@@ -490,66 +519,37 @@
     createApp({
       data() {
         return {
-          currentTab: 'home', chartRange: '7',
-          customStartDate: getPastDateString(7), customEndDate: getLocalDateString(),   
-          logFilter: 'all', 
-          recordFoodTab: 'staple', // 🌟 紀錄頁飲食分頁：預設主食
-          
+          currentTab: 'home', chartRange: '7', customStartDate: getPastDateString(7), customEndDate: getLocalDateString(), logFilter: 'all', recordFoodTab: 'staple', 
           records: JSON.parse(localStorage.getItem('pupu_records')) || [],
           profile: JSON.parse(localStorage.getItem('pupu_profile')) || { weight: '', targetKcal: 200 },
           avatar: localStorage.getItem('pupu_avatar') || '',
-          
           foods: JSON.parse(localStorage.getItem('pupu_foods')) || [
             { id: 1, name: '汪喵罐頭', unit: '罐', weight: 80, kcal: 110, category: 'staple' },
             { id: 2, name: '小怪獸罐頭', unit: '罐', weight: 82, kcal: 115, category: 'staple' },
             { id: 3, name: '皇家濕糧', unit: '包', weight: 85, kcal: 85, category: 'staple' },
             { id: 4, name: '純肉泥', unit: '條', weight: 15, kcal: 15, category: 'snack' }
           ],
-          
           insulinRules: JSON.parse(localStorage.getItem('pupu_insulin_rules')) || [
-            { id: 1, min: 0, max: 149, dose: '0 (不打)' },
-            { id: 2, min: 150, max: 199, dose: '0.01' },
-            { id: 3, min: 200, max: 300, dose: '0.015' },
-            { id: 4, min: 301, max: 999, dose: '0.02' }
+            { id: 1, min: 0, max: 149, dose: '0 (不打)' }, { id: 2, min: 150, max: 199, dose: '0.01' },
+            { id: 3, min: 200, max: 300, dose: '0.015' }, { id: 4, min: 301, max: 999, dose: '0.02' }
           ],
-
           newFood: { name: '', unit: '', weight: '', kcal: '', category: 'staple' },
-
-          form: {
-            date: getLocalDateString(), time: getLocalTimeString(),
-            glucose: '', device: 'CGM', 
-            actualInsulinDose: '', insulinTime: new Date().getHours() < 15 ? '早' : '晚',
-            selectedFoodId: null, foodRecordType: 'amount', foodAmount: '', foodGrams: '', 
-            weight: '', notes: ''
-          },
-          
-          exportRange: 'all', exportStartDate: getPastDateString(30), exportEndDate: getLocalDateString(),
-          exportOptions: { glucose: true, insulin: true, food: true, other: true },
-          
-          editingRecord: null, editForm: {},
-          editingSettingFood: null, editSettingFoodForm: {},
-          editingSettingInsulin: null, editSettingInsulinForm: {},
-          fallbackData: null, showPasteImport: false, pasteData: ''
+          form: { date: getLocalDateString(), time: getLocalTimeString(), glucose: '', device: 'CGM', actualInsulinDose: '', insulinTime: new Date().getHours() < 15 ? '早' : '晚', selectedFoodId: null, foodRecordType: 'amount', foodAmount: '', foodGrams: '', weight: '', notes: '' },
+          exportRange: 'all', exportStartDate: getPastDateString(30), exportEndDate: getLocalDateString(), exportOptions: { glucose: true, insulin: true, food: true, other: true },
+          editingRecord: null, editForm: {}, editingSettingFood: null, editSettingFoodForm: {}, editingSettingInsulin: null, editSettingInsulinForm: {}, fallbackData: null, showPasteImport: false, pasteData: ''
         }
       },
       computed: {
-        // 🌟 核心：根據分頁標籤過濾食物
-        filteredFoodsByTab() {
-          return this.foods.filter(f => f.category === this.recordFoodTab);
-        },
+        filteredFoodsByTab() { return this.foods.filter(f => f.category === this.recordFoodTab); },
         homeStatus() {
-          const today = getLocalDateString();
-          const hr = new Date().getHours();
-          let greeting = '午安日記';
-          if (hr >= 5 && hr < 12) greeting = '早安日記';
-          else if (hr >= 18 || hr < 5) greeting = '晚安日記';
+          const today = getLocalDateString(); const hr = new Date().getHours();
+          let greeting = '午安日記'; if (hr >= 5 && hr < 12) greeting = '早安日記'; else if (hr >= 18 || hr < 5) greeting = '晚安日記';
           const todayRecs = this.records.filter(r => r.date === today);
           let bgStatus = { text: '尚未測量 👀', value: '--', emoji: '🧐', dashColor: '#e0e0e0', textClass: 'text-gray-500', dotColor: 'bg-gray-100', isEst: false };
           const bgRecs = todayRecs.filter(r => r.type === 'glucose').sort((a,b) => b.time.localeCompare(a.time));
           let latestBgRecord = null;
           if (bgRecs.length > 0) {
-            latestBgRecord = bgRecs[0];
-            const latestRaw = latestBgRecord.glucose;
+            latestBgRecord = bgRecs[0]; const latestRaw = latestBgRecord.glucose;
             let val = latestRaw === 'HI' ? 500 : (latestRaw === 'LO' ? 20 : parseFloat(latestRaw));
             if (latestBgRecord.device === '羅氏(人用)' && val !== 500 && val !== 20) { val = Math.round(val * 1.3); bgStatus.isEst = true; }
             bgStatus.value = bgStatus.isEst ? `${val}` : latestRaw;
@@ -560,10 +560,8 @@
           }
           let insulinStatus = { text: '今天打針沒？😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' };
           const insRecs = todayRecs.filter(r => r.type === 'insulin');
-          const hasMorning = insRecs.some(r => r.insulinTime === '早');
-          const hasEvening = insRecs.some(r => r.insulinTime === '晚');
-          const isEveningNow = new Date().getHours() >= 15;
-          let currentNeedShot = true;
+          const hasMorning = insRecs.some(r => r.insulinTime === '早'); const hasEvening = insRecs.some(r => r.insulinTime === '晚');
+          const isEveningNow = new Date().getHours() >= 15; let currentNeedShot = true;
           if (latestBgRecord) {
              let val = latestBgRecord.glucose === 'HI' ? 500 : (latestBgRecord.glucose === 'LO' ? 20 : parseFloat(latestBgRecord.glucose));
              if (latestBgRecord.device === '羅氏(人用)' && val !== 500 && val !== 20) val = Math.round(val * 1.3);
@@ -585,8 +583,7 @@
           return { greeting, bgStatus, insulinStatus, calStatus };
         },
         trendAnalysisText() {
-          const past7 = getPastDateString(7);
-          const recs = this.records.filter(r => r.type === 'glucose' && r.date >= past7);
+          const past7 = getPastDateString(7); const recs = this.records.filter(r => r.type === 'glucose' && r.date >= past7);
           if (recs.length === 0) return '過去 7 天還沒有測量紀錄喔！';
           let vals = recs.map(r => {
             let v = r.glucose === 'HI' ? 500 : (r.glucose === 'LO' ? 20 : parseFloat(r.glucose));
@@ -594,8 +591,7 @@
             return v;
           }).filter(v => !isNaN(v));
           let avg = Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length);
-          let lowCount = vals.filter(v => v < 80).length;
-          let hiCount = vals.filter(v => v >= 250).length;
+          let lowCount = vals.filter(v => v < 80).length; let hiCount = vals.filter(v => v >= 250).length;
           let text = `平均預估血糖約 <strong class="text-[#D87093]">${avg}</strong> mg/dL。<br>`;
           if (lowCount > 0) text += `<span class="text-red-500 mt-2 block font-bold">⚠️ 注意：有 ${lowCount} 次低血糖！請留意普普狀況。</span>`;
           else if (avg >= 80 && avg <= 150) text += `<span class="text-green-600 mt-2 block font-bold">🌟 太棒了！本週血糖控制得非常完美！😺</span>`;
@@ -677,6 +673,10 @@
           });
           return finalResult;
         }
+      },
+      watch: {
+        currentTab(newVal) { if (newVal === 'chart') this.$nextTick(() => { this.renderChart(); }); },
+        chartRange() { this.$nextTick(() => { this.renderChart(); }); },
       },
       methods: {
         uploadAvatar(e) {
