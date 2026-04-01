@@ -13,7 +13,7 @@
   <link rel="icon" href="icon2.png">
   <link rel="apple-touch-icon" href="icon2.png">
   
-  <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%E6%99%AE%E6%99%AE%E3%81%AE%E5%81%A5%E5%BA%B7%E6%97%A5%E8%A8%98%22%2C%22short_name%22%3A%22%E6%99%AE%E6%99%AE%E6%97%A5%E8%A8%98%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFF0F5%22%2C%22theme_color%22%3A%22%23FFB6C1%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon2.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D'>
+  <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%E6%99%AE%E6%99%AE%E3%81%AE%E5%81%A5%E5%BA%B7%E6%97%A5%E8%A8%98%22%2C%22short_name%22%3A%22%E6%99%AE%E6%99%AE%E6%97%A5%E8%A8%98%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FFF0F5%22%2C%22theme_color%22%3A%22%23FFB6C1%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon2.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D'>
 
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -52,7 +52,6 @@
     </div>
 
     <div v-show="currentTab === 'record'">
-      
       <div class="card !bg-[#FFF5EE] !border-2 !border-[#FFE4E1]">
         <h2 class="font-bold mb-3 flex items-center gap-2 text-[#D87093]">🕒 欲紀錄的時間</h2>
         <div class="flex flex-col gap-3">
@@ -122,22 +121,19 @@
           <h2 class="font-bold flex items-center gap-2">💉 胰島素紀錄</h2>
           <div class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">參考血糖: {{ referenceGlucose || '無' }}</div>
         </div>
-        
         <div class="mb-3 p-3 bg-[#FFF9FA] rounded-xl border-2 border-[#FFE4E1]">
           <div class="text-center mb-2">
             <span class="text-sm text-gray-500 block">系統計算建議</span>
             <span class="text-lg font-bold text-gray-400">{{ suggestedInsulin }}</span>
           </div>
           <div v-if="form.device === '羅氏(人用)' && referenceGlucose && referenceGlucose !== 'HI' && referenceGlucose !== 'LO'" class="text-[11px] text-orange-500 bg-orange-50 p-2 rounded-lg mb-3 text-center">
-            ⚠️ 提醒：系統建議是以您輸入的「{{ referenceGlucose }}」來計算。若醫師指示是以「貓咪實際血糖({{convertedGlucose}})」對照表來打針，請務必自行調整下方劑量！
+            ⚠️ 提醒：系統建議是以您輸入的「{{ referenceGlucose }}」來計算。若醫師指示是以「貓咪實際估算值」對照表來打針，請務必自行調整下方劑量！
           </div>
-
           <div>
             <label class="text-sm text-[#D87093] font-bold block mb-1 text-center">💉 實際施打劑量</label>
             <input type="text" inputmode="decimal" v-model="form.actualInsulinDose" placeholder="手動輸入 (例: 0.01)" class="input-field text-2xl text-center font-bold text-blue-600 !bg-white shadow-inner">
           </div>
         </div>
-
         <div class="flex items-center justify-center mt-2">
           <label><input type="radio" v-model="form.insulinTime" value="早" class="hidden"> <span class="radio-pill !px-6">早</span></label>
           <label><input type="radio" v-model="form.insulinTime" value="晚" class="hidden"> <span class="radio-pill !px-6">晚</span></label>
@@ -148,7 +144,6 @@
       <div class="card">
         <h2 class="font-bold mb-3 flex items-center gap-2">🐟 飲食與熱量紀錄</h2>
         <div v-if="foods.length === 0" class="text-sm text-red-500 mb-3 bg-red-50 p-2 rounded">⚠️ 請先到「⚙️ 設定」分頁建立食物資料庫喔！</div>
-        
         <div class="mb-3" v-else>
           <label class="text-sm text-gray-500 mb-1 block">請選擇食物/點心：</label>
           <div class="flex flex-wrap">
@@ -158,7 +153,6 @@
             </label>
           </div>
         </div>
-
         <div class="mb-2 mt-3 p-3 bg-orange-50 rounded-xl border border-orange-100" v-if="selectedFood">
           <div class="flex justify-between items-center mb-2">
             <p class="text-sm text-gray-600 font-bold">吃了多少？</p>
@@ -186,9 +180,7 @@
           </div>
 
           <div v-if="form.foodRecordType === 'grams'">
-            <div v-if="!selectedFood.weight" class="text-xs text-red-500 mb-2">
-              ⚠️ 請先至設定補充此食物的「每份克數」才能轉換熱量喔！
-            </div>
+            <div v-if="!selectedFood.weight" class="text-xs text-red-500 mb-2">⚠️ 請先至設定補充此食物的「每份克數」才能轉換熱量喔！</div>
             <div class="flex items-center gap-2">
               <input type="number" inputmode="decimal" step="0.1" v-model="form.foodGrams" placeholder="輸入克數" class="input-field text-center font-bold text-orange-600 w-24">
               <span class="text-sm text-gray-600">克 (g)</span>
@@ -215,7 +207,6 @@
     </div>
 
     <div v-show="currentTab === 'chart'">
-      
       <div class="mb-4">
         <div class="grid grid-cols-3 gap-2 mb-3">
           <div class="bg-pink-50 p-2 rounded-xl border border-pink-100 text-center shadow-sm">
@@ -275,9 +266,7 @@
           <button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0">🐟 飲食紀錄</button>
         </div>
 
-        <div v-if="filteredGroupedRecords.length === 0" class="text-center text-gray-400 py-8 bg-white rounded-2xl border border-dashed border-gray-200">
-          在這個分類下目前沒有紀錄喔！
-        </div>
+        <div v-if="filteredGroupedRecords.length === 0" class="text-center text-gray-400 py-8 bg-white rounded-2xl border border-dashed border-gray-200">在這個分類下目前沒有紀錄喔！</div>
         
         <div v-for="day in filteredGroupedRecords" :key="day.date" class="card !p-0 overflow-hidden border border-[#FFE4E1]">
           <div class="bg-[#FFF0F5] px-4 py-3 font-bold text-[#D87093] flex flex-col gap-1">
@@ -304,15 +293,11 @@
                       {{ rec.glucose }} <span v-if="rec.glucose !== 'HI' && rec.glucose !== 'LO'" class="text-xs font-normal text-gray-400">mg/dL</span>
                     </span>
                     <span v-if="rec.device === '羅氏(人用)' && rec.glucose !== 'HI' && rec.glucose !== 'LO'" class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded shadow-sm border border-blue-200">
-                      換算約 {{ Math.round(parseFloat(rec.glucose) * 1.3) }}
+                      估算約 {{ Math.round(parseFloat(rec.glucose) * 1.3) }}
                     </span>
-                    <span v-if="rec.glucose !== 'HI' && rec.glucose !== 'LO' && parseFloat(rec.glucose) >= 80 && parseFloat(rec.glucose) <= 150" class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm inline-flex items-center">
-                      🌟 漂亮
-                    </span>
+                    <span v-if="rec.glucose !== 'HI' && rec.glucose !== 'LO' && parseFloat(rec.glucose) >= 80 && parseFloat(rec.glucose) <= 150" class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm inline-flex items-center">🌟 漂亮</span>
                   </div>
-                  <div class="text-xs text-gray-400 pl-1 font-bold">
-                    儀器: {{ rec.device || '未設定' }}
-                  </div>
+                  <div class="text-xs text-gray-400 pl-1 font-bold">儀器: {{ rec.device || '未設定' }}</div>
                 </div>
                 <div class="flex gap-2 shrink-0">
                   <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
@@ -458,6 +443,20 @@
 
       <div class="card !bg-white border-2 border-[#FFE4E1] mb-8">
         <h3 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">📥 匯出資料給醫生</h3>
+        <p class="text-xs text-gray-500 mb-3">選擇資料區間與項目，產生 CSV 報表檔。</p>
+        
+        <div class="mb-3">
+          <select v-model="exportRange" class="input-field !p-2 text-sm font-bold mb-2">
+            <option value="all">全部紀錄</option>
+            <option value="custom">自訂區間</option>
+          </select>
+          <div v-if="exportRange === 'custom'" class="flex items-center justify-between gap-2 bg-pink-50 p-2 rounded-lg border border-pink-100">
+            <input type="date" v-model="exportStartDate" class="bg-white border border-pink-200 rounded p-1 text-xs w-full outline-none text-[#5D4037]">
+            <span class="text-[#D87093] font-bold">~</span>
+            <input type="date" v-model="exportEndDate" class="bg-white border border-pink-200 rounded p-1 text-xs w-full outline-none text-[#5D4037]">
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
           <label class="flex items-center gap-2 bg-pink-50 p-2 rounded-lg border border-pink-100"><input type="checkbox" v-model="exportOptions.glucose" class="w-4 h-4 chk-glucose"> 🩸 血糖</label>
           <label class="flex items-center gap-2 bg-blue-50 p-2 rounded-lg border border-blue-100"><input type="checkbox" v-model="exportOptions.insulin" class="w-4 h-4 chk-insulin"> 💉 胰島素</label>
@@ -621,6 +620,7 @@
             weight: '', notes: ''
           },
           
+          exportRange: 'all', exportStartDate: getPastDateString(30), exportEndDate: getLocalDateString(),
           exportOptions: { glucose: true, insulin: true, food: true, other: true },
           editingRecord: null, editForm: {},
           editingSettingFood: null, editSettingFoodForm: {},
@@ -644,7 +644,6 @@
             return Math.round(amt * this.selectedFood.kcal);
           }
         },
-        // 🌟 智能計算：若為人用血糖機，自動換算出參考貓咪血糖
         convertedGlucose() {
           if (this.form.device !== '羅氏(人用)') return null;
           let v = parseFloat(this.form.glucose);
@@ -702,7 +701,11 @@
           let min = Math.min(...vals);
           let avg = Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length);
           
-          return { avg: avg, max: max === 500 ? 'HI' : max, min: min === 20 ? 'LO' : min };
+          return { 
+            avg: avg, 
+            max: max === 500 ? 'HI' : max, 
+            min: min === 20 ? 'LO' : min 
+          };
         },
 
         todayStats() {
@@ -963,6 +966,7 @@
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = ''; this.updateTime();
         },
         
+        // 🌟 匯出的程式碼中加上強制觸發下載的解決方案
         exportCSV() {
           const selectedTypes = [];
           if (this.exportOptions.glucose) selectedTypes.push('glucose');
@@ -970,8 +974,13 @@
           if (this.exportOptions.food) selectedTypes.push('food');
           if (this.exportOptions.other) selectedTypes.push('other');
 
-          const recordsToExport = this.sortedRecords.filter(r => selectedTypes.includes(r.type));
-          if (recordsToExport.length === 0) return alert('沒有紀錄可匯出喔！');
+          let recordsToExport = this.sortedRecords.filter(r => selectedTypes.includes(r.type));
+          
+          if (this.exportRange === 'custom') {
+            recordsToExport = recordsToExport.filter(r => r.date >= this.exportStartDate && r.date <= this.exportEndDate);
+          }
+
+          if (recordsToExport.length === 0) return alert('這個區間與項目沒有紀錄可匯出喔！');
           
           let csvContent = "\uFEFF日期,時間,類別,血糖值,測量儀器,施打時段,施打劑量,食物名稱,份量,攝取熱量(kcal),體重(kg),備註\n";
           recordsToExport.forEach(r => {
@@ -991,11 +1000,21 @@
             csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${dev},${r.insulinTime||''},${r.insulinDose||''},${fName},${fAmount},${fKcal},${r.weight||''},"${notesSafe}"\n`;
           });
           
-          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(blob);
-          link.download = `普普健康日記_${getLocalDateString()}.csv`;
-          link.click();
+          try {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `普普健康日記_${getLocalDateString()}.csv`;
+            
+            // 修正 iOS PWA 下載無反應的問題
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert('✅ 報表產生成功！\n\n(若您使用 iPhone 並將 APP 加在主畫面，檔案會自動存入手機的「檔案」APP 裡的「下載項目」資料夾喔！)');
+          } catch(e) {
+            alert('❌ 發生錯誤，您的裝置可能不支援下載功能。');
+          }
         },
         
         renderChart() {
