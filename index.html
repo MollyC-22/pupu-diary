@@ -21,19 +21,20 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    body { font-family: 'Nunito', 'M PLUS Rounded 1c', sans-serif; background-color: #FFF0F5; color: #5D4037; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+    /* 🌟 全新日系手帳風格：柔棉紙張紋理與柔和櫻花色系 */
+    body { font-family: 'M PLUS Rounded 1c', sans-serif; background-color: #FFF5EE; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEVubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm7/N2b7AAAAG3RSTlMAMFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEAQXhAAAAFCSURBVDjLrdVbe4MwDAVgg9mBAwQJ8f6vNo54wF2WfH9N8U3TNNN8uTBNM82XCy3SLLvYf9VZZpH5V51llpl/Vp5lPjNfLsz8NfPlwv5b5mvm75pvF6b5duH6X5i/Nf+vGfP9O/M9GvM9GvM9GvM9GvM9GvM9Ove/Mre/Mre/Mre/OvuZ+az5rvm75ruFmW+XfDnz9cyfN//P/GfzX5q/Z75XmO/Xmf9u/rf5XmbmlbllvneYf2V+Xpjvq5mZmev+3+Y/N79VmWVfWVb+b3Vvme+rmXnmPzK//w/XU76G422F7QAAAABJRU5ErkJggg=='); background-opacity: 0.1; color: #5D4037; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
     input:not([type="checkbox"]):not([type="radio"]), textarea, select { -webkit-user-select: text !important; user-select: text !important; -webkit-appearance: none !important; appearance: none !important; cursor: text !important; }
     input[type="checkbox"] { -webkit-appearance: checkbox !important; appearance: auto !important; }
 
-    .card { background-color: #FFFFFF; border-radius: 20px; box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3); padding: 16px 20px; margin-bottom: 20px; }
-    .btn-save { background-color: #FFB6C1; color: white; border-radius: 12px; padding: 8px 16px; font-weight: bold; width: 100%; margin-top: 12px; transition: transform 0.1s, background-color 0.2s; cursor: pointer; }
+    /* 全新超圓角與柔和陰影 */
+    .card { background-color: #FFFFFF; border-radius: 25px; box-shadow: 0 6px 20px rgba(255, 182, 193, 0.2); padding: 18px 22px; margin-bottom: 22px; }
+    .btn-save { background-color: #FFB6C1; color: white; border-radius: 999px; padding: 10px 20px; font-weight: bold; width: 100%; margin-top: 15px; transition: transform 0.1s, background-color 0.2s; cursor: pointer; border: 2px solid white; box-shadow: 0 3px 5px rgba(0,0,0,0.1); }
     .btn-save:active { background-color: #FF9AA2; transform: scale(0.96); }
     .btn-outline { background-color: white; color: #D87093; border: 2px solid #FFB6C1; border-radius: 9999px; padding: 10px 20px; font-weight: bold; transition: transform 0.1s, background-color 0.2s; width: 100%; cursor: pointer;}
     .btn-outline:active { background-color: #FFF0F5; transform: scale(0.96); }
-    .input-field { width: 100%; background-color: #FFF9FA; border: 2px solid #FFE4E1; border-radius: 12px; padding: 10px; outline: none; }
+    .input-field { width: 100%; background-color: #FFF9FA; border: 2px solid #FFE4E1; border-radius: 15px; padding: 12px; outline: none; }
     .input-field:focus { border-color: #FFB6C1; }
-    .radio-pill { display: inline-block; padding: 6px 12px; border-radius: 20px; background: #f3f4f6; color: #6b7280; font-size: 0.875rem; margin: 4px; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s;}
-    .radio-pill:active { transform: scale(0.95); }
+    .radio-pill { display: inline-block; padding: 7px 14px; border-radius: 99px; background: #f3f4f6; color: #6b7280; font-size: 0.875rem; margin: 4px; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s;}
     input[type="radio"]:checked + .radio-pill { background: #FFE4E1; color: #D87093; border-color: #FFB6C1; font-weight: bold; }
     .chk-glucose { accent-color: #D87093; } .chk-insulin { accent-color: #3B82F6; } .chk-food { accent-color: #F97316; } .chk-other { accent-color: #6B7280; }
   </style>
@@ -46,84 +47,89 @@
       <p class="text-sm mt-1 text-gray-500">專業血糖與熱量管理</p>
     </div>
 
-    <div class="flex justify-around mb-6 bg-white rounded-full shadow-sm p-1">
-      <button @click="currentTab = 'home'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'home' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">🏠 主頁</button>
-      <button @click="currentTab = 'record'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'record' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">📝 紀錄</button>
-      <button @click="currentTab = 'chart'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'chart' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">📈 圖表</button>
-      <button @click="currentTab = 'settings'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'settings' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">⚙️ 設定</button>
+    <div class="flex justify-around mb-8 bg-white rounded-full shadow-sm p-1 border-2 border-[#FFE4E1]">
+      <button @click="currentTab = 'home'" class="flex-1 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-1" :class="currentTab === 'home' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">🏠 主頁</button>
+      <button @click="currentTab = 'record'" class="flex-1 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-1" :class="currentTab === 'record' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">📝 紀錄</button>
+      <button @click="currentTab = 'chart'" class="flex-1 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-1" :class="currentTab === 'chart' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">📈 圖表</button>
+      <button @click="currentTab = 'settings'" class="flex-1 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-1" :class="currentTab === 'settings' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">⚙️ 設定</button>
     </div>
 
     <div v-show="currentTab === 'home'">
       
-      <div class="card bg-gradient-to-br from-pink-100 to-pink-50 !border-0">
-        <div class="flex justify-between items-start mb-2">
+      <div class="card bg-white !border-2 !border-[#FFE4E1] relative mb-10 mt-10">
+        <div class="flex items-center gap-4">
+          <div class="w-20 h-20 bg-[#FFF0F5] border-4 border-[#FFB6C1] rounded-full flex items-center justify-center text-4xl shrink-0">🐈</div>
           <div>
-            <h2 class="text-xl font-bold text-[#D87093] mb-1">{{ homeStatus.greeting }}</h2>
-            <p class="text-sm text-gray-600">今天普普精神好嗎？🐈</p>
+            <div class="bg-blue-50 px-3 py-1.5 rounded-md -rotate-2 inline-block border border-blue-100 shadow-sm mb-2">
+              <h2 class="text-lg font-bold text-blue-800">{{ homeStatus.greeting }}</h2>
+            </div>
+            <p class="text-sm text-gray-600 pl-1">普普精神好嗎？幫我記一下日記喔🐈</p>
           </div>
-          <div class="bg-white px-3 py-1.5 rounded-xl shadow-sm text-center">
-            <div class="text-[10px] text-gray-400 font-bold">目前體重</div>
-            <div class="text-sm font-bold text-[#5D4037]">{{ profile.weight || '?' }} kg</div>
-          </div>
+        </div>
+        <div class="absolute -top-6 -right-3 bg-orange-100 border-2 border-orange-200 w-16 h-16 rounded-xl flex items-center justify-center text-center shadow-md rotate-6">
+          <div class="text-[10px] text-orange-400 font-bold">目前體重</div>
+          <div class="text-sm font-bold text-[#5D4037] mt-1">{{ profile.weight || '?' }} kg</div>
         </div>
       </div>
 
-      <h3 class="font-bold text-gray-600 mb-3 pl-2">🎯 今日健康任務</h3>
-      <div class="grid grid-cols-1 gap-3 mb-6">
+      <div class="flex justify-between items-center mb-4 pl-2">
+        <h3 class="font-bold text-gray-600 flex items-center gap-1">🖍️ 今日健康手帳</h3>
+        <div class="text-xs text-gray-400 font-bold bg-white px-2 py-1 rounded-full border border-gray-100">AI 助理</div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 mb-8">
         
-        <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4" :class="homeStatus.bgStatus.borderClass">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <span class="text-xl">🩸</span>
+        <div class="card !bg-white !border-4 !border-dashed !rounded-3xl relative overflow-hidden" :style="{ borderColor: homeStatus.bgStatus.dashColor }">
+          <div class="absolute -right-3 -bottom-3 text-7xl opacity-10">🩸</div>
+          <div class="flex justify-between items-center relative z-10">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-xl" :class="homeStatus.bgStatus.dotColor">{{ homeStatus.bgStatus.emoji }}</div>
               <div>
-                <div class="text-xs text-gray-500 font-bold">今日血糖狀況</div>
+                <div class="text-xs text-gray-500 font-bold">今日血糖</div>
                 <div class="font-bold text-sm" :class="homeStatus.bgStatus.textClass">{{ homeStatus.bgStatus.text }}</div>
               </div>
             </div>
             <div class="text-right">
-              <div class="text-lg font-bold" :class="homeStatus.bgStatus.textClass">{{ homeStatus.bgStatus.value }}</div>
+              <div class="text-3xl font-bold font-mono" :class="homeStatus.bgStatus.textClass">{{ homeStatus.bgStatus.value }}</div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4" :class="homeStatus.insulinStatus.borderClass">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <span class="text-xl">💉</span>
-              <div>
-                <div class="text-xs text-gray-500 font-bold">胰島素施打</div>
-                <div class="font-bold text-sm" :class="homeStatus.insulinStatus.textClass">{{ homeStatus.insulinStatus.text }}</div>
-              </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="card !rounded-2xl relative overflow-hidden" :class="homeStatus.insulinStatus.bgColor">
+            <div class="absolute -right-2 -bottom-2 text-6xl opacity-20">💉</div>
+            <div class="relative z-10">
+              <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-xl mb-3">🐱</div>
+              <div class="text-xs text-gray-500 font-bold">胰島素打針囉？</div>
+              <div class="font-bold text-sm" :class="homeStatus.insulinStatus.textClass">{{ homeStatus.insulinStatus.text }}</div>
             </div>
           </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4" :class="homeStatus.calStatus.borderClass">
-          <div class="flex justify-between items-center mb-2">
-            <div class="flex items-center gap-2">
-              <span class="text-xl">🐟</span>
-              <div>
-                <div class="text-xs text-gray-500 font-bold">熱量攝取進度</div>
-                <div class="font-bold text-sm" :class="homeStatus.calStatus.textClass">{{ homeStatus.calStatus.text }}</div>
-              </div>
-            </div>
-            <div class="text-right font-bold text-orange-500 text-sm">
-              {{ todayStats.total }} / {{ profile.targetKcal }} kcal
-            </div>
-          </div>
-          <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-            <div class="bg-orange-400 h-2 rounded-full transition-all duration-500" :style="{ width: Math.min(todayStats.percent, 100) + '%' }"></div>
+          
+          <div class="card !rounded-2xl relative overflow-hidden" :class="homeStatus.calStatus.bgColor">
+             <div class="absolute -right-2 -bottom-2 text-6xl opacity-20">🐟</div>
+             <div class="relative z-10">
+               <div class="text-right font-bold text-orange-500 text-xs mb-3">
+                 {{ todayStats.total }} / {{ profile.targetKcal }} kcal
+               </div>
+               <div class="text-xs text-gray-500 font-bold">今天吃了幾多？</div>
+               <div class="font-bold text-sm" :class="homeStatus.calStatus.textClass">{{ homeStatus.calStatus.text }}</div>
+               <div class="w-full bg-white/60 rounded-full h-2 overflow-hidden mt-3 border border-orange-100">
+                 <div class="bg-orange-400 h-2 rounded-full transition-all duration-500" :style="{ width: Math.min(todayStats.percent, 100) + '%' }"></div>
+               </div>
+             </div>
           </div>
         </div>
       </div>
 
-      <h3 class="font-bold text-gray-600 mb-3 pl-2">👩‍⚕️ 近 7 日趨勢分析小結</h3>
-      <div class="card !bg-[#FFF9FA] border border-[#FFE4E1]">
+      <h3 class="font-bold text-gray-600 mb-3 pl-2 flex items-center gap-1">📝 貓醫生分析 Memo</h3>
+      <div class="card !bg-[#FFF9FA] border-2 border-[#FFE4E1] relative shadow-inner !p-5">
+        <div class="absolute -top-3 left-4 text-3xl">📎</div>
         <p class="text-sm text-gray-700 leading-relaxed font-bold" v-html="trendAnalysisText"></p>
+        <div class="absolute bottom-2 right-2 text-lg text-pink-200 rotate-12">爪 ✨ Paw</div>
       </div>
 
-      <button @click="currentTab = 'record'; setNow();" class="w-full bg-[#D87093] text-white font-bold text-lg py-4 rounded-2xl shadow-lg active:scale-95 transition-all mt-2 flex justify-center items-center gap-2">
-        <span>➕</span> 幫普普記一筆！
+      <button @click="currentTab = 'record'; setNow();" class="w-full bg-[#D87093] text-white font-bold text-lg py-5 rounded-full shadow-lg active:scale-95 transition-all mt-4 flex justify-center items-center gap-2 border-4 border-white">
+        <span>🖍️</span> 幫普普記一筆健康手帳！
       </button>
 
     </div>
@@ -339,22 +345,22 @@
 
         <div v-if="filteredGroupedRecords.length === 0" class="text-center text-gray-400 py-8 bg-white rounded-2xl border border-dashed border-gray-200">在這個分類下目前沒有紀錄喔！</div>
         
-        <div v-for="day in filteredGroupedRecords" :key="day.date" class="card !p-0 overflow-hidden border border-[#FFE4E1]">
-          <div class="bg-[#FFF0F5] px-4 py-3 font-bold text-[#D87093] flex flex-col gap-1">
+        <div v-for="day in filteredGroupedRecords" :key="day.date" class="card !p-0 overflow-hidden border-2 border-[#FFE4E1] !rounded-3xl">
+          <div class="bg-[#FFF0F5] px-4 py-3 font-bold text-[#D87093] flex flex-col gap-1 border-b border-[#FFE4E1]">
             <div class="flex justify-between items-center">
               <span class="text-lg">{{ day.date }}</span>
-              <span v-if="day.status === 'danger'" class="text-xs bg-red-500 text-white px-2 py-1 rounded-full shadow-sm">🚨 異常注意</span>
-              <span v-else-if="day.status === 'perfect'" class="text-xs bg-green-500 text-white px-2 py-1 rounded-full shadow-sm">🌟 完美控制</span>
-              <span v-else class="text-xs bg-white text-gray-500 px-2 py-1 rounded-full shadow-sm">{{ day.events.length }} 筆</span>
+              <span v-if="day.status === 'danger'" class="text-xs bg-red-500 text-white px-3 py-1 rounded-full shadow-sm">🚨 異常注意</span>
+              <span v-else-if="day.status === 'perfect'" class="text-xs bg-green-500 text-white px-3 py-1 rounded-full shadow-sm">🌟 完美控制</span>
+              <span v-else class="text-xs bg-white text-gray-500 px-3 py-1 rounded-full shadow-sm border border-gray-100">{{ day.events.length }} 筆</span>
             </div>
-            <div class="text-xs text-gray-600 mt-1 bg-white/50 p-2 rounded-lg flex justify-between items-center">
+            <div class="text-xs text-gray-600 mt-1 bg-white/50 p-2 rounded-xl flex justify-between items-center">
               <span>本日攝取熱量：<strong class="text-orange-500 text-sm">{{ day.totalKcal }}</strong> kcal</span>
               <span class="text-gray-400">目標: {{ profile.targetKcal }} kcal</span>
             </div>
           </div>
           
           <div class="p-4 flex flex-col gap-3">
-            <div v-if="getEventsByType(day.events, 'glucose').length > 0" class="bg-[#FFF9FA] border border-[#FFB6C1] rounded-xl p-3">
+            <div v-if="getEventsByType(day.events, 'glucose').length > 0" class="bg-[#FFF9FA] border border-[#FFB6C1] rounded-2xl p-3">
               <h4 class="font-bold text-[#D87093] mb-2 text-sm">🩸 血糖</h4>
               <div v-for="rec in getEventsByType(day.events, 'glucose')" :key="rec.id" class="flex justify-between items-center border-b border-pink-50 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0">
                 <div class="flex flex-col gap-1">
@@ -377,7 +383,7 @@
               </div>
             </div>
 
-            <div v-if="getEventsByType(day.events, 'insulin').length > 0" class="bg-blue-50 border border-blue-200 rounded-xl p-3">
+            <div v-if="getEventsByType(day.events, 'insulin').length > 0" class="bg-blue-50 border border-blue-200 rounded-2xl p-3">
               <h4 class="font-bold text-blue-500 mb-2 text-sm">💉 胰島素</h4>
               <div v-for="rec in getEventsByType(day.events, 'insulin')" :key="rec.id" class="flex justify-between items-center border-b border-blue-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
                 <div class="flex items-center gap-2">
@@ -391,7 +397,7 @@
               </div>
             </div>
 
-            <div v-if="getEventsByType(day.events, 'food').length > 0" class="bg-orange-50 border border-orange-200 rounded-xl p-3">
+            <div v-if="getEventsByType(day.events, 'food').length > 0" class="bg-orange-50 border border-orange-200 rounded-2xl p-3">
               <h4 class="font-bold text-orange-500 mb-2 text-sm">🐟 飲食</h4>
               <div v-for="rec in getEventsByType(day.events, 'food')" :key="rec.id" class="flex justify-between items-center border-b border-orange-100 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0 text-sm">
                 <div class="flex flex-col gap-1">
@@ -412,7 +418,7 @@
               </div>
             </div>
 
-            <div v-if="getEventsByType(day.events, 'other').length > 0" class="bg-gray-50 border border-gray-200 rounded-xl p-3">
+            <div v-if="getEventsByType(day.events, 'other').length > 0" class="bg-gray-50 border border-gray-200 rounded-2xl p-3">
               <h4 class="font-bold text-gray-500 mb-2 text-sm">🩺 其他</h4>
               <div v-for="rec in getEventsByType(day.events, 'other')" :key="rec.id" class="flex justify-between items-center border-b border-gray-100 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0 text-sm">
                 <div class="flex-1">
@@ -539,10 +545,10 @@
     </div>
 
     <div v-if="fallbackData" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-      <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl flex flex-col max-h-[85vh]">
-        <h3 class="font-bold text-[#D87093] mb-2 flex items-center gap-2">📋 取得資料成功</h3>
+      <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl flex flex-col max-h-[85vh] border-4 border-[#FFB6C1]">
+        <h3 class="font-bold text-[#D87093] mb-2 flex items-center gap-2 text-lg">📋 取得資料成功囉！</h3>
         <p class="text-xs text-gray-600 mb-3">由於蘋果系統限制無法直接下載，請點擊下方按鈕將內容<strong class="text-red-500">複製並貼上到「備忘錄」或「LINE」儲存。</strong></p>
-        <textarea id="fallbackTextArea" readonly class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-mono text-gray-500 mb-3 overflow-y-auto" v-model="fallbackData"></textarea>
+        <textarea id="fallbackTextArea" readonly class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-2xl p-3 text-[10px] font-mono text-gray-500 mb-3 overflow-y-auto" v-model="fallbackData"></textarea>
         <div class="flex gap-3 shrink-0 mt-2">
           <button @click="fallbackData = null" class="btn-outline flex-1 !py-3 text-sm active:scale-95 transition-all">關閉</button>
           <button @click="copyFallback" class="btn-save flex-1 !mt-0 !py-3 shadow-md text-sm bg-blue-500 active:scale-95 transition-all">一鍵複製全部</button>
@@ -551,10 +557,10 @@
     </div>
 
     <div v-if="showPasteImport" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-      <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl flex flex-col max-h-[85vh]">
-        <h3 class="font-bold text-blue-600 mb-2 flex items-center gap-2">📥 貼上文字還原</h3>
+      <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl flex flex-col max-h-[85vh] border-4 border-[#FFB6C1]">
+        <h3 class="font-bold text-blue-600 mb-2 flex items-center gap-2 text-lg">📥 貼上文字還原</h3>
         <p class="text-xs text-gray-600 mb-3">請將先前複製在備忘錄裡的備份碼<strong class="text-red-500">完整貼在下方框框內</strong>：</p>
-        <textarea class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs font-mono text-gray-700 mb-3 overflow-y-auto" rows="8" v-model="pasteData" placeholder='在此長按並貼上...'></textarea>
+        <textarea class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-2xl p-3 text-xs font-mono text-gray-700 mb-3 overflow-y-auto" rows="8" v-model="pasteData" placeholder='在此長按並貼上...'></textarea>
         <div class="flex gap-3 shrink-0">
           <button @click="showPasteImport = false; pasteData = ''" class="btn-outline flex-1 !py-3 text-sm active:scale-95 transition-all">取消</button>
           <button @click="importFromPaste" class="btn-save !bg-blue-500 flex-1 !mt-0 !py-3 shadow-md text-sm active:scale-95 transition-all">執行還原</button>
@@ -563,7 +569,7 @@
     </div>
 
     <div v-if="editingSettingFood" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl">
+      <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border-4 border-[#FFE4E1]">
         <h3 class="font-bold text-[#D87093] mb-4 flex items-center gap-2">✏️ 編輯食物資料</h3>
         <label class="text-sm text-gray-500 block mb-1">食物名稱</label>
         <input type="text" v-model="editSettingFoodForm.name" class="input-field mb-3">
@@ -580,7 +586,7 @@
     </div>
 
     <div v-if="editingSettingInsulin" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl">
+      <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border-4 border-[#FFE4E1]">
         <h3 class="font-bold text-blue-600 mb-4 flex items-center gap-2">✏️ 編輯劑量級距</h3>
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div><label class="text-xs text-gray-500 block mb-1">血糖下限</label><input type="number" inputmode="decimal" v-model="editSettingInsulinForm.min" class="input-field !p-2 text-sm"></div>
@@ -598,7 +604,7 @@
     </div>
 
     <div v-if="editingRecord" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto border-4 border-[#FFE4E1]">
         <h3 class="font-bold text-[#D87093] mb-4 flex items-center gap-2">✏️ 編輯健康紀錄</h3>
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div><label class="text-xs text-gray-500 mb-1 block">日期</label><input type="date" v-model="editForm.date" class="input-field !p-2 text-sm"></div>
@@ -683,7 +689,7 @@
     createApp({
       data() {
         return {
-          currentTab: 'home', // 🌟 預設開啟主頁
+          currentTab: 'home', // 預設開啟主頁
           chartRange: '7',
           customStartDate: getPastDateString(7), customEndDate: getLocalDateString(),   
           logFilter: 'all', 
@@ -728,67 +734,67 @@
         }
       },
       computed: {
-        // 🌟 新增：主頁的各種狀態計算
+        // 🌟 主頁狀態計算：優化為更活潑的手帳語氣與視覺
         homeStatus() {
           const today = getLocalDateString();
           const hr = new Date().getHours();
-          let greeting = '午安';
-          if (hr >= 5 && hr < 12) greeting = '早安';
-          else if (hr >= 18 || hr < 5) greeting = '晚安';
+          let greeting = '午安日記';
+          if (hr >= 5 && hr < 12) greeting = '早安日記';
+          else if (hr >= 18 || hr < 5) greeting = '晚安日記';
 
           const todayRecs = this.records.filter(r => r.date === today);
           
-          // 血糖狀態
-          let bgStatus = { text: '尚未測量', value: '--', borderClass: 'border-gray-300', textClass: 'text-gray-500' };
+          // 🩸 血糖任務貼紙狀態
+          let bgStatus = { text: '尚未量血糖喔 👀', value: '--', emoji: '🧐', dashColor: '#e0e0e0', textClass: 'text-gray-500', dotColor: 'bg-gray-100' };
           const bgRecs = todayRecs.filter(r => r.type === 'glucose').sort((a,b) => b.time.localeCompare(a.time));
           if (bgRecs.length > 0) {
             const latest = bgRecs[0].glucose;
-            bgStatus.value = latest + (latest !== 'HI' && latest !== 'LO' ? ' mg/dL' : '');
+            bgStatus.value = latest;
             
             if (latest === 'HI' || parseFloat(latest) >= 250) {
-              bgStatus.text = '偏高注意 📈'; bgStatus.borderClass = 'border-purple-400'; bgStatus.textClass = 'text-purple-600';
+              bgStatus.text = '偏高注意囉 📈'; bgStatus.emoji = '😿'; bgStatus.dashColor = '#d1d5db'; bgStatus.textClass = 'text-gray-700'; bgStatus.dotColor = 'bg-gray-200';
             } else if (latest === 'LO' || parseFloat(latest) < 80) {
-              bgStatus.text = '低血糖警報 ⚠️'; bgStatus.borderClass = 'border-red-500'; bgStatus.textClass = 'text-red-600';
+              bgStatus.text = '低血糖警告 🆘'; bgStatus.emoji = '🆘'; bgStatus.dashColor = '#ef4444'; bgStatus.textClass = 'text-red-600'; bgStatus.dotColor = 'bg-red-100';
             } else if (parseFloat(latest) >= 80 && parseFloat(latest) <= 150) {
-              bgStatus.text = '完美控制 🌟'; bgStatus.borderClass = 'border-green-400'; bgStatus.textClass = 'text-green-600';
+              bgStatus.text = '完美控制中 🌟'; bgStatus.emoji = '😸'; bgStatus.dashColor = '#10b981'; bgStatus.textClass = 'text-green-600'; bgStatus.dotColor = 'bg-green-100';
             } else {
-              bgStatus.text = '稍微偏高 👀'; bgStatus.borderClass = 'border-yellow-400'; bgStatus.textClass = 'text-yellow-600';
+              bgStatus.text = '稍微偏高 👀'; bgStatus.emoji = '😺'; bgStatus.dashColor = '#fbbf24'; bgStatus.textClass = 'text-yellow-700'; bgStatus.dotColor = 'bg-yellow-100';
             }
           }
 
-          // 胰島素狀態
-          let insulinStatus = { text: '今天還沒打針喔！', borderClass: 'border-gray-300', textClass: 'text-gray-500' };
+          // 💉 胰島素任務便利貼狀態
+          let insulinStatus = { text: '今天忘記打針？😱', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' };
           const insRecs = todayRecs.filter(r => r.type === 'insulin');
           const hasMorning = insRecs.some(r => r.insulinTime === '早');
           const hasEvening = insRecs.some(r => r.insulinTime === '晚');
           
           if (hasMorning && hasEvening) {
-            insulinStatus = { text: '早晚針都打完囉！👍', borderClass: 'border-blue-400', textClass: 'text-blue-600' };
+            insulinStatus = { text: '早晚針都OK囉！👍', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' };
           } else if (hasMorning) {
-            insulinStatus = { text: '早上已打，別忘了晚針！', borderClass: 'border-blue-300', textClass: 'text-blue-500' };
+            insulinStatus = { text: '早上已打，晚針預備！', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
           } else if (hasEvening) {
-            insulinStatus = { text: '晚上已打！', borderClass: 'border-blue-300', textClass: 'text-blue-500' };
+            insulinStatus = { text: '晚上已施打！', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
           }
 
-          // 熱量狀態
-          let calStatus = { text: '尚未進食', borderClass: 'border-gray-300', textClass: 'text-gray-500' };
+          // 🐟 熱量任務便利貼狀態
+          let calStatus = { text: '主子尚未進食 🤔', bgColor: 'bg-gray-50 border-gray-100', textClass: 'text-gray-500' };
           let diff = (this.profile.targetKcal || 200) - this.todayStats.total;
           if (this.todayStats.total > 0) {
             if (diff <= 0) {
-              calStatus = { text: '今日已達標！🎉', borderClass: 'border-orange-400', textClass: 'text-orange-600' };
+              calStatus = { text: '今日熱量達標！🎉', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
             } else {
-              calStatus = { text: `還差 ${diff} kcal 喔！🐟`, borderClass: 'border-orange-300', textClass: 'text-orange-500' };
+              calStatus = { text: `還差 ${diff} kcal 喔！🐟`, bgColor: 'bg-orange-50 border-orange-100', textClass: 'text-orange-700' };
             }
           }
 
           return { greeting, bgStatus, insulinStatus, calStatus };
         },
 
-        // 🌟 新增：AI 趨勢分析
+        // 🌟 AI 趨勢分析：手帳Memo風
         trendAnalysisText() {
           const past7 = getPastDateString(7);
           const recs = this.records.filter(r => r.type === 'glucose' && r.date >= past7);
-          if (recs.length === 0) return '過去 7 天還沒有測量紀錄，無法分析喔！趕快幫普普量個血糖吧！';
+          if (recs.length === 0) return '過去 7 天還沒有測量紀錄喔！趕快幫普普記一筆健康手帳吧！';
           
           let vals = recs.map(r => {
             if (r.glucose === 'HI') return 500;
@@ -800,16 +806,16 @@
           let lowCount = vals.filter(v => v < 80).length;
           let hiCount = vals.filter(v => v >= 250).length;
 
-          let text = `過去一週平均血糖為 <span class="text-[#D87093]">${avg} mg/dL</span>。<br>`;
+          let text = `親愛的普普家長，這週的平均血糖大約是 <span class="text-[#D87093]">${avg} mg/dL</span>。<br>`;
           
           if (lowCount > 0) {
-            text += `<span class="text-red-500 mt-1 block">⚠️ 注意：這週出現了 ${lowCount} 次低血糖 (<80)！請特別注意普普的食慾與精神，必要時請與醫師討論是否調降劑量。</span>`;
+            text += `<span class="text-red-500 mt-2 block">⚠️ 重要 Memo：出現了 ${lowCount} 次低血糖 (<80)！這很危險，請務必密切留意主子的精神，並盡快與醫生討論劑量喔！</span>`;
           } else if (avg >= 80 && avg <= 150) {
-            text += `<span class="text-green-600 mt-1 block">🌟 太棒了！普普這週的血糖控制得非常完美，請繼續保持這個節奏喔！</span>`;
+            text += `<span class="text-green-600 mt-2 block">🌟 太棒了！本週血糖控制在完美區間，您照顧得超好的！請繼續保持主子愉快的心情與穩定的飲食喔！😺</span>`;
           } else if (hiCount > 3) {
-            text += `<span class="text-purple-600 mt-1 block">📈 整體偏高：這週有較多次高血糖的情況。如果飲水量也有增加，回診時記得給醫師看圖表喔！</span>`;
+            text += `<span class="text-purple-600 mt-2 block">📈 觀察 Memo：這週高血糖的情況比較頻繁（${hiCount}次）。回診時記得把圖表拿給醫生看，看看是否需要調整飲食或劑量喔！別太灰心，普普很棒的！</span>`;
           } else {
-            text += `<span class="text-gray-600 mt-1 block">控制得還算平穩！記得每天定時定量吃飯打針喔！</span>`;
+            text += `<span class="text-gray-600 mt-2 block">整體還算穩定的手帳紀錄！記得定時定量吃飯與打針，多陪伴普普喔！加油！</span>`;
           }
           return text;
         },
@@ -993,7 +999,7 @@
         exportBackup() {
           const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, exportDate: new Date().toISOString() };
           const jsonString = JSON.stringify(backupData);
-          this.fallbackData = jsonString; // 🌟 100% 絕對彈出複製視窗
+          this.fallbackData = jsonString; 
         },
         
         importFromPaste() {
@@ -1050,7 +1056,7 @@
             csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${dev},${r.insulinTime||''},${r.insulinDose||''},${fName},${fAmount},${fKcal},${r.weight||''},"${notesSafe}"\n`;
           });
           
-          this.fallbackData = csvContent; // 🌟 100% 絕對彈出複製視窗
+          this.fallbackData = csvContent; 
         },
 
         startEditInsulin(rule) { this.editingSettingInsulin = rule; this.editSettingInsulinForm = JSON.parse(JSON.stringify(rule)); },
