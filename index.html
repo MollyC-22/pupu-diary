@@ -47,6 +47,7 @@
     .radio-pill { display: inline-block; padding: 6px 12px; border-radius: 99px; background: #f3f4f6; color: #6b7280; font-size: 0.8rem; margin: 4px 4px 4px 0; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s;}
     .radio-pill:active { transform: scale(0.95); }
     input[type="radio"]:checked + .radio-pill { background: #FFE4E1; color: #D87093; border-color: #FFB6C1; font-weight: bold; }
+    .chk-glucose { accent-color: #D87093; } .chk-insulin { accent-color: #3B82F6; } .chk-food { accent-color: #F97316; } .chk-other { accent-color: #6B7280; }
   </style>
 </head>
 <body class="pb-20" ontouchstart="">
@@ -91,7 +92,10 @@
       </div>
 
       <div class="grid grid-cols-1 gap-4 mb-10">
-        <div class="card !bg-white !border-4 !border-dashed !rounded-3xl !p-5 overflow-hidden transition-all" :style="{ borderColor: homeStatus.bgStatus.dashColor, boxShadow: `0 8px 20px ${homeStatus.bgStatus.dashColor}33` }">
+        <div class="card !bg-white !border-2 !border-solid !rounded-3xl !p-5 overflow-hidden transition-all relative" :style="{ borderColor: homeStatus.bgStatus.dashColor, boxShadow: `0 6px 16px ${homeStatus.bgStatus.dashColor}33` }">
+          
+          <div class="absolute inset-[5px] border-[1.5px] border-dashed rounded-[22px] pointer-events-none opacity-50" :style="{ borderColor: homeStatus.bgStatus.dashColor }"></div>
+
           <div class="absolute -right-4 -bottom-4 text-8xl opacity-5">🩸</div>
           <div class="flex justify-between items-center relative z-10">
             <div class="flex items-center gap-3">
@@ -305,8 +309,22 @@
     </div>
 
     <div v-show="currentTab === 'chart'">
-      
-      <div class="card !p-5 mb-8">
+      <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="bg-white p-3 rounded-2xl border-2 border-pink-100 text-center shadow-sm">
+          <div class="text-xs text-gray-500 mb-1 font-bold">平均血糖</div>
+          <div class="text-xl font-bold text-[#D87093]">{{ chartStats.avg }}</div>
+        </div>
+        <div class="bg-white p-3 rounded-2xl border-2 border-red-100 text-center shadow-sm">
+          <div class="text-xs text-gray-500 mb-1 font-bold">最高</div>
+          <div class="text-xl font-bold text-red-500">{{ chartStats.max }}</div>
+        </div>
+        <div class="bg-white p-3 rounded-2xl border-2 border-blue-100 text-center shadow-sm">
+          <div class="text-xs text-gray-500 mb-1 font-bold">最低</div>
+          <div class="text-xl font-bold text-blue-500">{{ chartStats.min }}</div>
+        </div>
+      </div>
+
+      <div class="card !p-5">
         <div class="flex justify-between items-center mb-4">
           <h2 class="font-bold text-lg highlighter">📉 血糖趨勢</h2>
           <select v-model="chartRange" @change="renderChart" class="bg-pink-50 border border-pink-200 rounded-xl p-1.5 text-xs font-bold shadow-sm outline-none">
@@ -315,6 +333,7 @@
             <option value="all">全部</option>
           </select>
         </div>
+        <p class="text-[11px] text-gray-400 text-center mb-3 font-bold bg-gray-50 rounded-full py-1">💡 綠色區塊為安全範圍 (80~150)</p>
         <div style="position: relative; height: 260px; width: 100%;">
           <canvas id="glucoseChart"></canvas>
         </div>
@@ -550,9 +569,7 @@
         const parsed = JSON.parse(data);
         if (Array.isArray(defaultVal) && !Array.isArray(parsed)) return defaultVal;
         return parsed;
-      } catch(e) {
-        return defaultVal;
-      }
+      } catch(e) { return defaultVal; }
     }
 
     function getLocalDateString() {
@@ -572,10 +589,7 @@
       data() {
         return {
           currentTab: 'home', chartRange: '7', customStartDate: getPastDateString(7), customEndDate: getLocalDateString(), logFilter: 'all', recordFoodTab: 'staple', 
-          
-          records: safeParse('pupu_records', []),
-          profile: safeParse('pupu_profile', { weight: '', targetKcal: 200 }),
-          avatar: localStorage.getItem('pupu_avatar') || '',
+          records: safeParse('pupu_records', []), profile: safeParse('pupu_profile', { weight: '', targetKcal: 200 }), avatar: localStorage.getItem('pupu_avatar') || '',
           foods: safeParse('pupu_foods', [
             { id: 1, name: '汪喵罐頭', unit: '罐', weight: 80, kcal: 110, category: 'staple' },
             { id: 2, name: '小怪獸罐頭', unit: '罐', weight: 82, kcal: 115, category: 'staple' },
@@ -586,7 +600,6 @@
             { id: 1, min: 0, max: 149, dose: '0 (不打)' }, { id: 2, min: 150, max: 199, dose: '0.01' },
             { id: 3, min: 200, max: 300, dose: '0.015' }, { id: 4, min: 301, max: 999, dose: '0.02' }
           ]),
-          
           newFood: { name: '', unit: '', weight: '', kcal: '', category: 'staple' },
           form: { date: getLocalDateString(), time: getLocalTimeString(), glucose: '', device: 'CGM', actualInsulinDose: '', insulinTime: new Date().getHours() < 15 ? '早' : '晚', selectedFoodId: null, foodRecordType: 'amount', foodAmount: '', foodGrams: '', weight: '', notes: '' },
           exportRange: 'all', exportStartDate: getPastDateString(30), exportEndDate: getLocalDateString(), exportOptions: { glucose: true, insulin: true, food: true, other: true },
@@ -833,6 +846,7 @@
         getEventsByType(evs, type) { return (evs || []).filter(e => e.type === type); },
         calculateTargetKcal() { this.profile.targetKcal = Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2); this.saveProfile(); },
         
+        // 🌟 最終純淨版圖表渲染：移除 X軸圖標，保留綠色通道
         renderChart() {
           if (typeof Chart === 'undefined') return;
           const ctx = document.getElementById('glucoseChart'); if(!ctx) return;
@@ -854,6 +868,7 @@
              return '#D87093'; 
           });
 
+          // 🌟 綠色安全區塊 Plugin (80-150)
           const safeZonePlugin = {
             id: 'safeZone',
             beforeDraw: (chart) => {
