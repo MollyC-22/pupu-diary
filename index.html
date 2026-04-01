@@ -21,15 +21,11 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    /* 手帳背景與基礎字體 */
-    body { font-family: 'M PLUS Rounded 1c', sans-serif; background-color: #FFFDF9; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEVubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm7/N2b7AAAAG3RSTlMAMFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEAQXhAAAAFCSURBVDjLrdVbe4MwDAVgg9mBAwQJ8f6vNo54wF2WfH9N8U3TNNN8uTBNM82XCy3SLLvYf9VZZpH5V51llpl/Vp5lPjNfLsz8NfPlwv5b5mvm75pvF6b5duH6X5i/Nf+vGfP9O/M9GvM9GvM9GvM9GvM9GvM9Ove/Mre/Mre/Mre/OvuZ+az5rvm75ruFmW+XfDnz9cyfN//P/GfzX5q/Z75XmO/Xmf9u/rf5XmbmlbllvneYf2V+Xpjvq5mZmev+3+Y/N79VmWVfWVb+b3Vvme+rmXnmPzK//w/XU76G422F7QAAAABJRU5ErkJggg=='); color: #5D4037; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Nunito', 'M PLUS Rounded 1c', sans-serif; background-color: #FFFDF9; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEVubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm7/N2b7AAAAG3RSTlMAMFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEAQXhAAAAFCSURBVDjLrdVbe4MwDAVgg9mBAwQJ8f6vNo54wF2WfH9N8U3TNNN8uTBNM82XCy3SLLvYf9VZZpH5V51llpl/Vp5lPjNfLsz8NfPlwv5b5mvm75pvF6b5duH6X5i/Nf+vGfP9O/M9GvM9GvM9GvM9GvM9GvM9Ove/Mre/Mre/Mre/OvuZ+az5rvm75ruFmW+XfDnz9cyfN//P/GfzX5q/Z75XmO/Xmf9u/rf5XmbmlbllvneYf2V+Xpjvq5mZmev+3+Y/N79VmWVfWVb+b3Vvme+rmXnmPzK//w/XU76G422F7QAAAABJRU5ErkJggg=='); color: #5D4037; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
     input:not([type="checkbox"]):not([type="radio"]), textarea, select { -webkit-user-select: text !important; user-select: text !important; -webkit-appearance: none !important; appearance: none !important; cursor: text !important; }
     input[type="checkbox"] { -webkit-appearance: checkbox !important; appearance: auto !important; }
 
-    /* 通用卡片與圓角 */
     .card { background-color: #FFFFFF; border-radius: 28px; box-shadow: 0 8px 25px rgba(255, 182, 193, 0.25); padding: 20px 24px; margin-bottom: 24px; position: relative; }
-    
-    /* 🌟 全新精緻手帳特效類別 */
     .washi-tape { position: absolute; width: 90px; height: 26px; background-color: rgba(255, 192, 203, 0.85); top: -10px; left: 50%; transform: translateX(-50%) rotate(-2deg); box-shadow: 1px 2px 4px rgba(0,0,0,0.08); border-radius: 2px; z-index: 10; backdrop-filter: blur(2px); }
     .washi-tape.blue { background-color: rgba(186, 230, 253, 0.85); transform: translateX(-50%) rotate(2deg); }
     .washi-tape.yellow { background-color: rgba(253, 230, 138, 0.85); transform: translateX(-50%) rotate(-1deg); }
@@ -38,14 +34,14 @@
     .btn-chunky { background-color: #D87093; color: white; border-radius: 999px; padding: 16px 20px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 6px 0 #B75070; transition: all 0.1s; cursor: pointer; border: 3px solid #FFF; }
     .btn-chunky:active { transform: translateY(6px); box-shadow: 0 0 0 #B75070; }
 
-    /* 原本的按鈕與輸入框 */
     .btn-save { background-color: #FFB6C1; color: white; border-radius: 16px; padding: 10px 20px; font-weight: bold; width: 100%; margin-top: 15px; transition: transform 0.1s, background-color 0.2s; cursor: pointer; border: 2px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.08); }
     .btn-save:active { background-color: #FF9AA2; transform: scale(0.96); }
     .btn-outline { background-color: white; color: #D87093; border: 2px solid #FFB6C1; border-radius: 9999px; padding: 10px 20px; font-weight: bold; transition: transform 0.1s, background-color 0.2s; width: 100%; cursor: pointer;}
     .btn-outline:active { background-color: #FFF0F5; transform: scale(0.96); }
     .input-field { width: 100%; background-color: #FFF9FA; border: 2px solid #FFE4E1; border-radius: 16px; padding: 12px; outline: none; transition: border-color 0.2s;}
     .input-field:focus { border-color: #FFB6C1; }
-    .radio-pill { display: inline-block; padding: 8px 16px; border-radius: 99px; background: #f3f4f6; color: #6b7280; font-size: 0.875rem; margin: 4px; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s;}
+    /* 🌟 微調食物標籤大小 */
+    .radio-pill { display: inline-block; padding: 6px 12px; border-radius: 99px; background: #f3f4f6; color: #6b7280; font-size: 0.8rem; margin: 4px 4px 4px 0; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s;}
     .radio-pill:active { transform: scale(0.95); }
     input[type="radio"]:checked + .radio-pill { background: #FFE4E1; color: #D87093; border-color: #FFB6C1; font-weight: bold; }
     .chk-glucose { accent-color: #D87093; } .chk-insulin { accent-color: #3B82F6; } .chk-food { accent-color: #F97316; } .chk-other { accent-color: #6B7280; }
@@ -67,21 +63,19 @@
     </div>
 
     <div v-show="currentTab === 'home'">
-      
       <div class="card bg-white !border-2 !border-[#FFE4E1] mb-10 mt-8 pt-8">
-        <div class="washi-tape"></div> <div class="flex items-center gap-5">
+        <div class="washi-tape"></div>
+        <div class="flex items-center gap-5">
           <label class="w-24 h-24 bg-[#FFF0F5] border-4 border-[#FFB6C1] rounded-[2rem] flex items-center justify-center text-5xl shrink-0 cursor-pointer relative overflow-hidden bg-cover bg-center shadow-md rotate-[-3deg]" :style="avatar ? `background-image: url(${avatar})` : ''">
             <span v-if="!avatar">🐈</span>
             <div class="absolute bottom-0 w-full bg-black/50 text-white text-[10px] text-center py-1 font-bold leading-none transition-all opacity-90 backdrop-blur-sm">換照片</div>
             <input type="file" accept="image/*" class="hidden" @change="uploadAvatar">
           </label>
-
           <div class="flex-1">
             <div class="inline-block mb-1">
               <h2 class="text-xl font-bold text-[#D87093] highlighter">{{ homeStatus.greeting }}</h2>
             </div>
             <p class="text-sm text-gray-500 font-bold mb-2">今天普普精神好嗎？🐱</p>
-            
             <div class="bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-2 shadow-sm">
               <span class="text-[11px] text-orange-400 font-bold">目前體重</span>
               <span class="text-sm font-bold text-[#5D4037]">{{ profile.weight || '?' }} kg</span>
@@ -95,7 +89,6 @@
       </div>
 
       <div class="grid grid-cols-1 gap-4 mb-10">
-        
         <div class="card !bg-white !border-4 !border-dashed !rounded-3xl !p-5 overflow-hidden transition-all" :style="{ borderColor: homeStatus.bgStatus.dashColor, boxShadow: `0 8px 20px ${homeStatus.bgStatus.dashColor}33` }">
           <div class="absolute -right-4 -bottom-4 text-8xl opacity-5">🩸</div>
           <div class="flex justify-between items-center relative z-10">
@@ -252,10 +245,10 @@
         
         <div class="mb-3" v-else>
           <label class="text-sm text-gray-500 font-bold mb-2 block">請選擇食物/點心：</label>
-          <div class="flex flex-wrap gap-1">
+          <div class="flex flex-wrap gap-1.5">
             <label v-for="f in foods" :key="f.id">
               <input type="radio" v-model="form.selectedFoodId" :value="f.id" class="hidden">
-              <span class="radio-pill shadow-sm border border-gray-100">{{ f.name }}</span>
+              <span class="radio-pill shadow-sm border border-gray-100 !text-[13px] !px-3 !py-1.5">{{ f.name }}</span>
             </label>
           </div>
         </div>
@@ -271,10 +264,10 @@
           
           <div v-if="form.foodRecordType === 'amount'">
             <div class="flex flex-wrap gap-2 mb-3">
-              <button @click="form.foodAmount = 1" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-2 rounded-xl active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">1 {{ selectedFood.unit }} (全吃)</button>
-              <button @click="form.foodAmount = 0.5" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-2 rounded-xl active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">0.5 {{ selectedFood.unit }}</button>
-              <button @click="form.foodAmount = 0.33" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-2 rounded-xl active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">1/3 {{ selectedFood.unit }}</button>
-              <button @click="form.foodAmount = 0.25" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-2 rounded-xl active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">1/4 {{ selectedFood.unit }}</button>
+              <button @click="form.foodAmount = 1" class="text-xs bg-white text-orange-600 border border-orange-200 px-2.5 py-1.5 rounded-lg active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">1 {{ selectedFood.unit }} (全)</button>
+              <button @click="form.foodAmount = 0.5" class="text-xs bg-white text-orange-600 border border-orange-200 px-2.5 py-1.5 rounded-lg active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">0.5 {{ selectedFood.unit }}</button>
+              <button @click="form.foodAmount = 0.33" class="text-xs bg-white text-orange-600 border border-orange-200 px-2.5 py-1.5 rounded-lg active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">1/3 {{ selectedFood.unit }}</button>
+              <button @click="form.foodAmount = 0.25" class="text-xs bg-white text-orange-600 border border-orange-200 px-2.5 py-1.5 rounded-lg active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">1/4 {{ selectedFood.unit }}</button>
             </div>
             <div class="flex items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-orange-100">
               <input type="number" inputmode="decimal" step="0.01" v-model="form.foodAmount" placeholder="份數" class="input-field !border-0 !bg-transparent text-center font-bold text-orange-600 text-lg w-20 !p-0">
@@ -398,10 +391,10 @@
                   </div>
                   <div class="text-[10px] text-gray-400 pl-1 font-bold">儀器: {{ rec.device || '未設定' }}</div>
                 </div>
-                <div class="flex gap-2 shrink-0 bg-white rounded-lg shadow-sm border border-gray-50 p-1">
-                  <button @click="startEdit(rec)" class="text-gray-400 hover:text-blue-500 text-lg p-1.5 transition-all active:scale-75">✏️</button>
-                  <div class="w-px bg-gray-100"></div>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-400 hover:text-red-500 text-lg p-1.5 transition-all active:scale-75">🗑️</button>
+                <div class="flex gap-1 shrink-0 bg-white rounded-lg shadow-sm border border-gray-50 p-0.5 ml-2">
+                  <button @click="startEdit(rec)" class="text-gray-400 hover:text-blue-500 text-base p-1 transition-all active:scale-75">✏️</button>
+                  <div class="w-px bg-gray-100 my-1"></div>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-400 hover:text-red-500 text-base p-1 transition-all active:scale-75">🗑️</button>
                 </div>
               </div>
             </div>
@@ -414,10 +407,10 @@
                   <span class="text-xs bg-white px-2 py-1 rounded-md text-blue-500 font-bold border border-blue-100 shadow-sm">🕒 {{ rec.time }}</span>
                   <span class="text-[#5D4037] font-bold">{{ rec.insulinTime }}針 <span class="text-blue-600 bg-white px-2 py-0.5 rounded-md shadow-sm ml-1">{{ rec.insulinDose }}</span></span>
                 </div>
-                <div class="flex gap-2 shrink-0 bg-white rounded-lg shadow-sm border border-gray-50 p-1">
-                  <button @click="startEdit(rec)" class="text-gray-400 hover:text-blue-500 text-lg p-1.5 transition-all active:scale-75">✏️</button>
-                  <div class="w-px bg-gray-100"></div>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-400 hover:text-red-500 text-lg p-1.5 transition-all active:scale-75">🗑️</button>
+                <div class="flex gap-1 shrink-0 bg-white rounded-lg shadow-sm border border-gray-50 p-0.5 ml-2">
+                  <button @click="startEdit(rec)" class="text-gray-400 hover:text-blue-500 text-base p-1 transition-all active:scale-75">✏️</button>
+                  <div class="w-px bg-gray-100 my-1"></div>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-400 hover:text-red-500 text-base p-1 transition-all active:scale-75">🗑️</button>
                 </div>
               </div>
             </div>
@@ -429,18 +422,18 @@
                 <div class="flex flex-col gap-1.5">
                   <div class="flex items-center gap-2">
                     <span class="text-xs bg-white px-2 py-1 rounded-md text-orange-500 font-bold border border-orange-100 shadow-sm">🕒 {{ rec.time }}</span>
-                    <span class="font-bold text-[#5D4037]">{{ rec.foodName || rec.foodType }}</span>
+                    <span class="font-bold text-[#5D4037] text-sm">{{ rec.foodName || rec.foodType }}</span>
                   </div>
-                  <div class="text-gray-600 pl-1 text-sm bg-white/50 p-1.5 rounded-lg inline-block w-max">
+                  <div class="text-gray-600 pl-1 text-[11px] bg-white/50 p-1 rounded-md inline-block w-max mt-0.5">
                     <span v-if="rec.foodRecordType === 'grams'" class="font-bold">{{ rec.foodGrams }} 克</span>
                     <span v-else class="font-bold">{{ rec.foodAmount }} {{ rec.unit || '' }}</span>
-                    <span v-if="rec.kcal" class="text-orange-500 font-bold ml-2 bg-white px-1.5 rounded shadow-sm">{{ rec.kcal }} kcal</span>
+                    <span v-if="rec.kcal" class="text-orange-500 font-bold ml-1.5 bg-white px-1 py-0.5 rounded shadow-sm">{{ rec.kcal }} kcal</span>
                   </div>
                 </div>
-                <div class="flex gap-2 shrink-0 bg-white rounded-lg shadow-sm border border-gray-50 p-1">
-                  <button @click="startEdit(rec)" class="text-gray-400 hover:text-blue-500 text-lg p-1.5 transition-all active:scale-75">✏️</button>
-                  <div class="w-px bg-gray-100"></div>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-400 hover:text-red-500 text-lg p-1.5 transition-all active:scale-75">🗑️</button>
+                <div class="flex gap-1 shrink-0 bg-white rounded-lg shadow-sm border border-gray-50 p-0.5 ml-2">
+                  <button @click="startEdit(rec)" class="text-gray-400 hover:text-blue-500 text-base p-1 transition-all active:scale-75">✏️</button>
+                  <div class="w-px bg-gray-100 my-1"></div>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-400 hover:text-red-500 text-base p-1 transition-all active:scale-75">🗑️</button>
                 </div>
               </div>
             </div>
@@ -451,14 +444,14 @@
                 <div class="flex-1">
                   <div class="flex items-center gap-2 mb-2">
                     <span class="text-xs bg-white px-2 py-1 rounded-md text-gray-500 font-bold border border-gray-200 shadow-sm">🕒 {{ rec.time }}</span>
-                    <span v-if="rec.weight" class="font-bold bg-orange-50 text-orange-600 px-2 py-0.5 rounded-md border border-orange-100">⚖️ {{ rec.weight }} kg</span>
+                    <span v-if="rec.weight" class="font-bold bg-orange-50 text-orange-600 px-2 py-0.5 rounded-md border border-orange-100 text-sm">⚖️ {{ rec.weight }} kg</span>
                   </div>
                   <div v-if="rec.notes" class="text-gray-600 text-sm bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm">📝 {{ rec.notes }}</div>
                 </div>
-                <div class="flex gap-2 shrink-0 bg-white rounded-lg shadow-sm border border-gray-50 p-1 ml-2">
-                  <button @click="startEdit(rec)" class="text-gray-400 hover:text-blue-500 text-lg p-1.5 transition-all active:scale-75">✏️</button>
-                  <div class="w-px bg-gray-100"></div>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-400 hover:text-red-500 text-lg p-1.5 transition-all active:scale-75">🗑️</button>
+                <div class="flex gap-1 shrink-0 bg-white rounded-lg shadow-sm border border-gray-50 p-0.5 ml-2">
+                  <button @click="startEdit(rec)" class="text-gray-400 hover:text-blue-500 text-base p-1 transition-all active:scale-75">✏️</button>
+                  <div class="w-px bg-gray-100 my-1"></div>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-400 hover:text-red-500 text-base p-1 transition-all active:scale-75">🗑️</button>
                 </div>
               </div>
             </div>
@@ -507,10 +500,10 @@
             <div class="text-[#5D4037] text-sm">
               血糖 <span class="font-bold text-lg">{{rule.min}}</span> ~ <span class="font-bold text-lg">{{rule.max}}</span> ➔ 打 <span class="text-blue-600 font-bold text-lg bg-white px-2 py-0.5 rounded shadow-sm ml-1">{{rule.dose}}</span>
             </div>
-            <div class="flex gap-2 shrink-0 bg-white p-1 rounded-xl shadow-sm">
-              <button @click="startEditInsulin(rule)" class="text-gray-400 hover:text-blue-500 text-lg p-1.5 active:scale-75 transition-all">✏️</button>
-              <div class="w-px bg-gray-100"></div>
-              <button @click="deleteInsulinRule(rule.id)" class="text-gray-400 hover:text-red-500 text-lg p-1.5 active:scale-75 transition-all">🗑️</button>
+            <div class="flex gap-1 shrink-0 bg-white p-1 rounded-xl shadow-sm">
+              <button @click="startEditInsulin(rule)" class="text-gray-400 hover:text-blue-500 text-base p-1 active:scale-75 transition-all">✏️</button>
+              <div class="w-px bg-gray-100 my-1"></div>
+              <button @click="deleteInsulinRule(rule.id)" class="text-gray-400 hover:text-red-500 text-base p-1 active:scale-75 transition-all">🗑️</button>
             </div>
           </div>
         </div>
@@ -527,10 +520,10 @@
                 1 {{ f.unit }} <span v-if="f.weight" class="text-orange-400">({{ f.weight }}g)</span> = <span class="text-orange-500">{{ f.kcal }} kcal</span>
               </div>
             </div>
-            <div class="flex gap-2 shrink-0 bg-white p-1 rounded-xl shadow-sm border border-gray-100">
-              <button @click="startEditFood(f)" class="text-gray-400 hover:text-blue-500 text-lg p-1.5 active:scale-75 transition-all">✏️</button>
-              <div class="w-px bg-gray-100"></div>
-              <button @click="deleteFood(f.id)" class="text-gray-400 hover:text-red-500 text-lg p-1.5 active:scale-75 transition-all">🗑️</button>
+            <div class="flex gap-1 shrink-0 bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+              <button @click="startEditFood(f)" class="text-gray-400 hover:text-blue-500 text-base p-1 active:scale-75 transition-all">✏️</button>
+              <div class="w-px bg-gray-100 my-1"></div>
+              <button @click="deleteFood(f.id)" class="text-gray-400 hover:text-red-500 text-base p-1 active:scale-75 transition-all">🗑️</button>
             </div>
           </div>
         </div>
@@ -842,21 +835,21 @@
             insulinStatus = { text: '早上已打！', emoji: '😺', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
           } else if (hasMorning && isEveningNow) {
              if (!currentNeedShot) {
-               insulinStatus = { text: '血糖漂亮，晚針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
+               insulinStatus = { text: '血糖漂亮免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
              } else {
-               insulinStatus = { text: '早上已打，晚針預備！', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
+               insulinStatus = { text: '晚針預備中！', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
              }
           } else if (!hasMorning && !isEveningNow) {
              if (!currentNeedShot && latestBgRecord) {
-               insulinStatus = { text: '血糖漂亮，早針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
+               insulinStatus = { text: '早針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
              } else {
                insulinStatus = { text: '早上忘記打針？😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' };
              }
           } else if (!hasMorning && isEveningNow && hasEvening) {
-             insulinStatus = { text: '晚上已打！(早針未記)', emoji: '😺', bgColor: 'bg-yellow-50 border-yellow-100', textClass: 'text-yellow-700' };
+             insulinStatus = { text: '晚上已打！(缺早)', emoji: '😺', bgColor: 'bg-yellow-50 border-yellow-100', textClass: 'text-yellow-700' };
           } else if (!hasMorning && isEveningNow && !hasEvening) {
              if (!currentNeedShot && latestBgRecord) {
-               insulinStatus = { text: '血糖漂亮，晚針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
+               insulinStatus = { text: '晚針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
              } else {
                insulinStatus = { text: '今天尚未打針喔！😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' };
              }
@@ -868,7 +861,7 @@
             if (diff <= 0) {
               calStatus = { text: '今日熱量達標！🎉', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
             } else {
-              calStatus = { text: `還差 ${diff} kcal 喔！🐟`, bgColor: 'bg-orange-50 border-orange-100', textClass: 'text-orange-700' };
+              calStatus = { text: `還差 ${diff} kcal 喔！`, bgColor: 'bg-orange-50 border-orange-100', textClass: 'text-orange-700' };
             }
           }
 
