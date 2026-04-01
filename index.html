@@ -29,6 +29,12 @@
     input:not([type="checkbox"]):not([type="radio"]), textarea, select { -webkit-user-select: text !important; user-select: text !important; -webkit-appearance: none !important; appearance: none !important; cursor: text !important; }
     input[type="checkbox"] { -webkit-appearance: checkbox !important; appearance: auto !important; }
 
+    /* 🌟 新增：全域美化專屬櫻花粉捲軸，讓滑動區塊一眼可見！ */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #FFF0F5; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #FFB6C1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #FF9AA2; }
+
     .card { background-color: #FFFFFF; border-radius: 28px; box-shadow: 0 8px 25px rgba(255, 182, 193, 0.25); padding: 20px 24px; margin-bottom: 24px; position: relative; }
     .washi-tape { position: absolute; width: 90px; height: 26px; background-color: rgba(255, 192, 203, 0.85); top: -10px; left: 50%; transform: translateX(-50%) rotate(-2deg); box-shadow: 1px 2px 4px rgba(0,0,0,0.08); border-radius: 2px; z-index: 10; backdrop-filter: blur(2px); }
     .washi-tape.blue { background-color: rgba(186, 230, 253, 0.85); transform: translateX(-50%) rotate(2deg); }
@@ -47,7 +53,6 @@
     .radio-pill { display: inline-block; padding: 6px 12px; border-radius: 99px; background: #f3f4f6; color: #6b7280; font-size: 0.8rem; margin: 4px 4px 4px 0; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s;}
     .radio-pill:active { transform: scale(0.95); }
     input[type="radio"]:checked + .radio-pill { background: #FFE4E1; color: #D87093; border-color: #FFB6C1; font-weight: bold; }
-    .chk-glucose { accent-color: #D87093; } .chk-insulin { accent-color: #3B82F6; } .chk-food { accent-color: #F97316; } .chk-other { accent-color: #6B7280; }
   </style>
 </head>
 <body class="pb-20" ontouchstart="">
@@ -93,9 +98,7 @@
 
       <div class="grid grid-cols-1 gap-4 mb-10">
         <div class="card !bg-white !border-2 !border-solid !rounded-3xl !p-5 overflow-hidden transition-all relative" :style="{ borderColor: homeStatus.bgStatus.dashColor, boxShadow: `0 6px 16px ${homeStatus.bgStatus.dashColor}33` }">
-          
           <div class="absolute inset-[5px] border-[1.5px] border-dashed rounded-[22px] pointer-events-none opacity-50" :style="{ borderColor: homeStatus.bgStatus.dashColor }"></div>
-
           <div class="absolute -right-4 -bottom-4 text-8xl opacity-5">🩸</div>
           <div class="flex justify-between items-center relative z-10">
             <div class="flex items-center gap-3">
@@ -264,8 +267,8 @@
           <div class="flex justify-between items-center mb-3">
             <p class="text-sm text-gray-600 font-bold">吃了多少？</p>
             <div class="flex bg-white rounded-lg p-1 border border-orange-200 shadow-sm">
-              <button @click="form.foodRecordType = 'amount'" :class="form.foodRecordType === 'amount' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all active:scale-95">依份數</button>
-              <button @click="form.foodRecordType = 'grams'" :class="form.foodRecordType === 'grams' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all active:scale-95">依克數</button>
+              <button @click="form.foodRecordType = 'amount'" :class="form.foodRecordType === 'amount' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all">依份數</button>
+              <button @click="form.foodRecordType = 'grams'" :class="form.foodRecordType === 'grams' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all">依克數</button>
             </div>
           </div>
           
@@ -342,7 +345,7 @@
       <div class="mb-4">
         <div class="flex justify-between items-center mb-3 pl-2"><h3 class="font-bold text-gray-600 text-lg highlighter">📅 歷史健康手帳</h3></div>
         
-        <div class="flex gap-2 mb-5 overflow-x-auto pb-2 pl-1 scrollbar-hide">
+        <div class="flex gap-2 mb-5 overflow-x-auto pb-2 pl-1">
           <button @click="logFilter = 'all'" :class="logFilter === 'all' ? 'bg-[#D87093] text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">全部</button>
           <button @click="logFilter = 'medical'" :class="logFilter === 'medical' ? 'bg-blue-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">🩸 醫療</button>
           <button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">🐟 飲食</button>
@@ -370,13 +373,13 @@
                   <template v-if="rec.type === 'glucose'">
                     <div class="flex items-center gap-2 flex-wrap">
                       <span class="text-[11px] bg-white px-2 py-1 rounded-md text-gray-500 font-bold border border-pink-100 shadow-sm">🕒 {{ rec.time }}</span>
-                      <span class="font-bold text-base" :class="rec.glucose === 'HI' ? 'text-purple-600' : (rec.glucose === 'LO' || parseFloat(rec.glucose) < 80 ? 'text-red-600' : 'text-[#5D4037]')">
+                      <span class="font-bold text-base" :class="rec.glucose === 'HI' ? 'text-purple-600' : (rec.glucose === 'LO' || getEvaluatedGlucose(rec) < 80 ? 'text-red-600' : 'text-[#5D4037]')">
                          🩸 {{ rec.glucose }}
                       </span>
                       <span v-if="rec.device === '羅氏(人用)' && rec.glucose !== 'HI' && rec.glucose !== 'LO'" class="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-md shadow-sm border border-blue-100 font-bold">
-                        換算約 {{ Math.round(parseFloat(rec.glucose) * 1.3) }}
+                        換算約 {{ getEvaluatedGlucose(rec) }}
                       </span>
-                      <span v-if="rec.glucose !== 'HI' && rec.glucose !== 'LO' && parseFloat(rec.glucose) >= 80 && parseFloat(rec.glucose) <= 150" class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm inline-flex items-center">🌟 漂亮</span>
+                      <span v-if="rec.glucose !== 'HI' && rec.glucose !== 'LO' && getEvaluatedGlucose(rec) >= 80 && getEvaluatedGlucose(rec) <= 150" class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm inline-flex items-center">🌟 漂亮</span>
                     </div>
                     <div class="text-[10px] text-gray-400 pl-1 font-bold">儀器: {{ rec.device || '未設定' }}</div>
                   </template>
@@ -455,6 +458,7 @@
             </div>
           </div>
         </div>
+
         <div class="bg-pink-50 p-5 rounded-[2rem] border-2 border-pink-100 shadow-inner">
           <h4 class="font-bold text-sm text-[#D87093] mb-3">➕ 新增食物/點心</h4>
           <input type="text" v-model="newFood.name" placeholder="名稱" class="input-field !p-3 text-sm mb-3 font-bold text-center">
@@ -488,8 +492,28 @@
       </div>
       
       <div class="card !bg-[#FFF5EE] border-2 border-[#FFE4E1] mb-8 !rounded-[2rem]">
-        <h3 class="font-bold mb-3 text-[#D87093] border-b-2 border-pink-100 pb-2 text-lg highlighter">📤 匯出資料</h3>
-        <button @click="exportCSV" class="btn-save !mt-0 !py-4 flex justify-center items-center gap-2 text-lg shadow-md">📤 產生文字報表</button>
+        <h3 class="font-bold mb-3 text-[#D87093] border-b-2 border-pink-100 pb-2 text-lg highlighter">📤 匯出資料給醫生</h3>
+        
+        <div class="mb-4">
+          <select v-model="exportRange" class="input-field !p-3 text-base font-bold mb-3 bg-white shadow-sm border-0">
+            <option value="all">全部紀錄</option>
+            <option value="custom">自訂區間</option>
+          </select>
+          <div v-if="exportRange === 'custom'" class="flex items-center justify-between gap-2 bg-pink-50 p-3 rounded-2xl border border-pink-100 shadow-inner">
+            <input type="date" v-model="exportStartDate" class="bg-white border border-pink-200 rounded-xl p-2 text-xs w-full outline-none text-[#5D4037] font-bold">
+            <span class="text-[#D87093] font-bold">~</span>
+            <input type="date" v-model="exportEndDate" class="bg-white border border-pink-200 rounded-xl p-2 text-xs w-full outline-none text-[#5D4037] font-bold">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-5 text-sm font-bold">
+          <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-pink-100 shadow-sm"><input type="checkbox" v-model="exportOptions.glucose" class="w-5 h-5 chk-glucose"> 🩸 血糖</label>
+          <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-blue-100 shadow-sm"><input type="checkbox" v-model="exportOptions.insulin" class="w-5 h-5 chk-insulin"> 💉 胰島素</label>
+          <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-orange-100 shadow-sm"><input type="checkbox" v-model="exportOptions.food" class="w-5 h-5 chk-food"> 🐟 飲食</label>
+          <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-gray-200 shadow-sm"><input type="checkbox" v-model="exportOptions.other" class="w-5 h-5 chk-other"> 🩺 其他</label>
+        </div>
+
+        <button @click="exportCSV" class="btn-save !mt-0 !py-4 flex justify-center items-center gap-2 text-lg shadow-md active:scale-95 transition-all">📤 產生文字報表</button>
       </div>
     </div>
 
@@ -618,10 +642,11 @@
           
           let latestBgRecord = null;
           if (bgRecs.length > 0) {
-            latestBgRecord = bgRecs[0]; const latestRaw = latestBgRecord.glucose;
-            let val = latestRaw === 'HI' ? 500 : (latestRaw === 'LO' ? 20 : parseFloat(latestRaw));
-            if (latestBgRecord.device === '羅氏(人用)' && val !== 500 && val !== 20) { val = Math.round(val * 1.3); bgStatus.isEst = true; }
-            bgStatus.value = bgStatus.isEst ? `${val}` : latestRaw;
+            latestBgRecord = bgRecs[0]; 
+            let val = this.getEvaluatedGlucose(latestBgRecord);
+            bgStatus.isEst = (latestBgRecord.device === '羅氏(人用)' && latestBgRecord.glucose !== 'HI' && latestBgRecord.glucose !== 'LO');
+            bgStatus.value = bgStatus.isEst ? `${val}` : latestBgRecord.glucose;
+            
             if (val >= 250) { bgStatus.text = '偏高注意 📈'; bgStatus.emoji = '😿'; bgStatus.dashColor = '#d1d5db'; bgStatus.textClass = 'text-gray-700'; bgStatus.dotColor = 'bg-gray-200'; }
             else if (val < 80) { bgStatus.text = '低血糖警告 🆘'; bgStatus.emoji = '🆘'; bgStatus.dashColor = '#ef4444'; bgStatus.textClass = 'text-red-600'; bgStatus.dotColor = 'bg-red-100'; }
             else if (val >= 80 && val <= 150) { bgStatus.text = '完美控制 🌟'; bgStatus.emoji = '😸'; bgStatus.dashColor = '#10b981'; bgStatus.textClass = 'text-green-600'; bgStatus.dotColor = 'bg-green-100'; }
@@ -632,8 +657,7 @@
           const hasMorning = insRecs.some(r => r.insulinTime === '早'); const hasEvening = insRecs.some(r => r.insulinTime === '晚');
           const isEveningNow = new Date().getHours() >= 15; let currentNeedShot = true;
           if (latestBgRecord) {
-             let val = latestBgRecord.glucose === 'HI' ? 500 : (latestBgRecord.glucose === 'LO' ? 20 : parseFloat(latestBgRecord.glucose));
-             if (latestBgRecord.device === '羅氏(人用)' && val !== 500 && val !== 20) val = Math.round(val * 1.3);
+             let val = this.getEvaluatedGlucose(latestBgRecord);
              let matchedRule = this.insulinRules.find(r => val >= r.min && val <= r.max);
              if (!matchedRule && val === 500) matchedRule = this.insulinRules.reduce((prev, current) => (prev.max > current.max) ? prev : current, this.insulinRules[0]);
              if (matchedRule && (String(matchedRule.dose) === '0' || String(matchedRule.dose).includes('不') || val === 20)) currentNeedShot = false;
@@ -653,20 +677,28 @@
         },
         trendAnalysisText() {
           const past7 = getPastDateString(7); const recs = this.records.filter(r => r.type === 'glucose' && r.date >= past7);
-          if (recs.length === 0) return '過去 7 天還沒有測量紀錄喔！';
-          let vals = recs.map(r => {
-            let v = r.glucose === 'HI' ? 500 : (r.glucose === 'LO' ? 20 : parseFloat(r.glucose));
-            if (r.device === '羅氏(人用)' && v !== 500 && v !== 20) v = Math.round(v * 1.3);
-            return v;
-          }).filter(v => !isNaN(v));
-          if(vals.length === 0) return '數值讀取中...';
+          if (recs.length === 0) return '過去 7 天還沒有測量紀錄喔！<br>辛苦家長了，趕快幫普普記下第一筆健康手帳，讓我來幫您分析吧！🐈💕';
+          
+          let vals = recs.map(r => this.getEvaluatedGlucose(r)).filter(v => !isNaN(v));
+          if(vals.length === 0) return '資料讀取中...';
+          
           let avg = Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length);
-          let lowCount = vals.filter(v => v < 80).length; let hiCount = vals.filter(v => v >= 250).length;
-          let text = `平均預估血糖約 <strong class="text-[#D87093]">${avg}</strong> mg/dL。<br>`;
-          if (lowCount > 0) text += `<span class="text-red-500 mt-2 block font-bold">⚠️ 注意：有 ${lowCount} 次低血糖！請留意普普狀況。</span>`;
-          else if (avg >= 80 && avg <= 150) text += `<span class="text-green-600 mt-2 block font-bold">🌟 太棒了！本週血糖控制得非常完美！😺</span>`;
-          else if (hiCount > 3) text += `<span class="text-purple-600 mt-2 block font-bold">📈 趨勢偏高：建議回診給醫生看報表喔。</span>`;
-          else text += `<span class="text-gray-600 mt-2 block font-bold">目前紀錄平穩，普普很棒！加油！💪</span>`;
+          let lowCount = vals.filter(v => v < 80).length; 
+          let hiCount = vals.filter(v => v >= 250).length;
+          let perfectCount = vals.filter(v => v >= 80 && v <= 150).length;
+          let totalCount = vals.length;
+          
+          let text = `<span class="block mb-2">親愛的普普家長，您這週辛苦了！☕<br>近期普普的平均血糖大約落在 <strong class="text-[#D87093] text-lg">${avg}</strong> mg/dL。</span>`;
+          
+          if (lowCount > 0) {
+            text += `<span class="text-red-500 mt-2 block font-bold leading-relaxed border-l-4 border-red-400 pl-2">⚠️ 溫馨急訊：這週出現了 ${lowCount} 次低血糖 (<80)！低血糖對貓咪非常危險，請密切留意普普的精神食慾，必要時立刻給予糖水，並建議盡快與醫生討論是否需調降劑量喔！</span>`;
+          } else if (avg >= 80 && avg <= 150 && perfectCount >= totalCount * 0.5) {
+            text += `<span class="text-green-600 mt-2 block font-bold leading-relaxed border-l-4 border-green-400 pl-2">🌟 太棒了！本週超過一半的紀錄都落在完美的綠色區間，您真的照顧得超級用心！普普一定覺得很幸福～請繼續保持這個節奏喔！😺✨</span>`;
+          } else if (hiCount >= 3) {
+            text += `<span class="text-purple-600 mt-2 block font-bold leading-relaxed border-l-4 border-purple-400 pl-2">📈 觀察 Memo：這週高血糖的情況比較頻繁（大於250有 ${hiCount} 次）。天氣變化或壓力都有可能影響，記得多讓普普喝水。下次帶普普回診時，別忘了把報表拿給醫生看喔！💪</span>`;
+          } else {
+            text += `<span class="text-[#5D4037] mt-2 block font-bold leading-relaxed border-l-4 border-[#FFB6C1] pl-2">🍀 目前血糖紀錄看起來平穩，普普表現得很棒！日常照護是一場馬拉松，家長也別忘了照顧好自己，開心地度過每一天喔！🐾</span>`;
+          }
           return text;
         },
         selectedFood() { return this.foods.find(f => f.id === this.form.selectedFoodId); },
@@ -711,7 +743,7 @@
         chartStats() {
           const recs = this.filteredChartRecords.filter(r => r.type === 'glucose');
           if (recs.length === 0) return { avg: '-', max: '-', min: '-' };
-          let vals = recs.map(r => r.glucose === 'HI' ? 500 : (r.glucose === 'LO' ? 20 : parseFloat(r.glucose))).filter(v => !isNaN(v));
+          let vals = recs.map(r => this.getEvaluatedGlucose(r)).filter(v => !isNaN(v));
           if (vals.length === 0) return { avg: '-', max: '-', min: '-' };
           let max = Math.max(...vals); let min = Math.min(...vals); let avg = Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length);
           return { avg, max: max === 500 ? 'HI' : max, min: min === 20 ? 'LO' : min };
@@ -737,9 +769,10 @@
             let hasDanger = false; let allPerfect = true; let hasGlucose = false;
             groups[date].allEvents.forEach(rec => {
               if(rec.type === 'glucose') {
-                hasGlucose = true; let val = rec.glucose;
-                if (val === 'HI' || val === 'LO' || parseFloat(val) >= 500 || parseFloat(val) < 60) hasDanger = true;
-                if (val === 'HI' || val === 'LO' || parseFloat(val) > 150 || parseFloat(val) < 80) allPerfect = false;
+                hasGlucose = true; 
+                let val = this.getEvaluatedGlucose(rec);
+                if (val >= 250 || val <= 40) hasDanger = true;
+                if (val > 150 || val < 80) allPerfect = false;
               }
             });
             finalResult.push({ date, events: groups[date].allEvents.sort((a,b) => String(a.time||'').localeCompare(String(b.time||''))), totalKcal: Math.round(groups[date].totalKcal), status: hasDanger ? 'danger' : (hasGlucose && allPerfect ? 'perfect' : 'normal') });
@@ -752,6 +785,16 @@
         chartRange() { this.$nextTick(() => { this.renderChart(); }); },
       },
       methods: {
+        // 🌟 核心小幫手：全域羅氏智能換算器
+        getEvaluatedGlucose(rec) {
+          if (!rec || !rec.glucose) return NaN;
+          if (rec.glucose === 'HI') return 500;
+          if (rec.glucose === 'LO') return 20;
+          let v = parseFloat(rec.glucose);
+          if (rec.device === '羅氏(人用)' && !isNaN(v)) return Math.round(v * 1.3);
+          return v;
+        },
+
         uploadAvatar(e) {
           const file = e.target.files[0];
           if (!file) return;
@@ -787,8 +830,18 @@
           } catch (err) { alert('❌ 解析失敗，請確定貼上的是備份碼！'); }
         },
         exportCSV() {
+          const selectedTypes = [];
+          if (this.exportOptions.glucose) selectedTypes.push('glucose');
+          if (this.exportOptions.insulin) selectedTypes.push('insulin');
+          if (this.exportOptions.food) selectedTypes.push('food');
+          if (this.exportOptions.other) selectedTypes.push('other');
+
+          let recordsToExport = this.sortedRecords.filter(r => selectedTypes.includes(r.type));
+          if (this.exportRange === 'custom') recordsToExport = recordsToExport.filter(r => r.date >= this.exportStartDate && r.date <= this.exportEndDate);
+          if (recordsToExport.length === 0) return alert('這個區間與項目沒有紀錄可匯出喔！');
+
           let csv = "\uFEFF日期,時間,類別,數值,儀器,劑量,食物,熱量\n";
-          this.records.forEach(r => { csv += `${r.date||''},${r.time||''},${r.type||''},${r.glucose||''},${r.device||''},${r.insulinDose||''},${r.foodName||''},${r.kcal||''}\n`; });
+          recordsToExport.forEach(r => { csv += `${r.date||''},${r.time||''},${r.type||''},${r.glucose||''},${r.device||''},${r.insulinDose||''},${r.foodName||''},${r.kcal||''}\n`; });
           this.fallbackData = csv;
         },
         saveToLocal() { localStorage.setItem('pupu_records', JSON.stringify(this.records)); },
@@ -846,7 +899,6 @@
         getEventsByType(evs, type) { return (evs || []).filter(e => e.type === type); },
         calculateTargetKcal() { this.profile.targetKcal = Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2); this.saveProfile(); },
         
-        // 🌟 最終純淨版圖表渲染：移除 X軸圖標，保留綠色通道
         renderChart() {
           if (typeof Chart === 'undefined') return;
           const ctx = document.getElementById('glucoseChart'); if(!ctx) return;
@@ -855,11 +907,7 @@
           const glucoseRecords = filtered.filter(r => r.type === 'glucose');
           if(glucoseRecords.length === 0) return;
 
-          const dataVals = glucoseRecords.map(g => {
-            let v = g.glucose === 'HI' ? 500 : (g.glucose === 'LO' ? 20 : parseFloat(g.glucose));
-            if (g.device === '羅氏(人用)' && v !== 500 && v !== 20) v = Math.round(v * 1.3);
-            return v;
-          });
+          const dataVals = glucoseRecords.map(g => this.getEvaluatedGlucose(g));
 
           const pointColors = dataVals.map(val => {
              if (val === 500) return '#9333EA'; 
@@ -868,7 +916,6 @@
              return '#D87093'; 
           });
 
-          // 🌟 綠色安全區塊 Plugin (80-150)
           const safeZonePlugin = {
             id: 'safeZone',
             beforeDraw: (chart) => {
