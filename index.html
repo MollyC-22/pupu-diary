@@ -21,23 +21,26 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    body { font-family: 'Nunito', 'M PLUS Rounded 1c', sans-serif; background-color: #FFF0F5; color: #5D4037; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+    /* 加入了防止點擊閃爍的優化 */
+    body { font-family: 'Nunito', 'M PLUS Rounded 1c', sans-serif; background-color: #FFF0F5; color: #5D4037; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
     input:not([type="checkbox"]):not([type="radio"]), textarea, select { -webkit-user-select: text !important; user-select: text !important; -webkit-appearance: none !important; appearance: none !important; cursor: text !important; }
     input[type="checkbox"] { -webkit-appearance: checkbox !important; appearance: auto !important; }
 
     .card { background-color: #FFFFFF; border-radius: 20px; box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3); padding: 16px 20px; margin-bottom: 20px; }
-    .btn-save { background-color: #FFB6C1; color: white; border-radius: 12px; padding: 8px 16px; font-weight: bold; width: 100%; margin-top: 12px; transition: all 0.2s; }
-    .btn-save:active { background-color: #FF9AA2; transform: scale(0.98); }
-    .btn-outline { background-color: white; color: #D87093; border: 2px solid #FFB6C1; border-radius: 9999px; padding: 10px 20px; font-weight: bold; transition: all 0.2s; width: 100%; }
-    .btn-outline:active { background-color: #FFF0F5; transform: scale(0.98); }
+    .btn-save { background-color: #FFB6C1; color: white; border-radius: 12px; padding: 8px 16px; font-weight: bold; width: 100%; margin-top: 12px; transition: transform 0.1s, background-color 0.2s; cursor: pointer; }
+    /* 優化按下去的瞬間回饋 */
+    .btn-save:active { background-color: #FF9AA2; transform: scale(0.96); }
+    .btn-outline { background-color: white; color: #D87093; border: 2px solid #FFB6C1; border-radius: 9999px; padding: 10px 20px; font-weight: bold; transition: transform 0.1s, background-color 0.2s; width: 100%; cursor: pointer;}
+    .btn-outline:active { background-color: #FFF0F5; transform: scale(0.96); }
     .input-field { width: 100%; background-color: #FFF9FA; border: 2px solid #FFE4E1; border-radius: 12px; padding: 10px; outline: none; }
     .input-field:focus { border-color: #FFB6C1; }
-    .radio-pill { display: inline-block; padding: 6px 12px; border-radius: 20px; background: #f3f4f6; color: #6b7280; font-size: 0.875rem; margin: 4px; border: 2px solid transparent; cursor: pointer; }
+    .radio-pill { display: inline-block; padding: 6px 12px; border-radius: 20px; background: #f3f4f6; color: #6b7280; font-size: 0.875rem; margin: 4px; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s;}
+    .radio-pill:active { transform: scale(0.95); }
     input[type="radio"]:checked + .radio-pill { background: #FFE4E1; color: #D87093; border-color: #FFB6C1; font-weight: bold; }
     .chk-glucose { accent-color: #D87093; } .chk-insulin { accent-color: #3B82F6; } .chk-food { accent-color: #F97316; } .chk-other { accent-color: #6B7280; }
   </style>
 </head>
-<body class="pb-20">
+<body class="pb-20" ontouchstart="">
   <div id="app" class="max-w-md mx-auto p-4 relative">
     
     <div class="text-center my-6">
@@ -46,9 +49,9 @@
     </div>
 
     <div class="flex justify-around mb-6 bg-white rounded-full shadow-sm p-1">
-      <button @click="currentTab = 'record'" class="flex-1 py-2 rounded-full text-sm" :class="currentTab === 'record' ? 'bg-[#FFB6C1] text-white font-bold' : 'text-gray-400'">📝 紀錄</button>
-      <button @click="currentTab = 'chart'" class="flex-1 py-2 rounded-full text-sm" :class="currentTab === 'chart' ? 'bg-[#FFB6C1] text-white font-bold' : 'text-gray-400'">📈 圖表</button>
-      <button @click="currentTab = 'settings'" class="flex-1 py-2 rounded-full text-sm" :class="currentTab === 'settings' ? 'bg-[#FFB6C1] text-white font-bold' : 'text-gray-400'">⚙️ 設定</button>
+      <button @click="currentTab = 'record'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'record' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">📝 紀錄</button>
+      <button @click="currentTab = 'chart'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'chart' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">📈 圖表</button>
+      <button @click="currentTab = 'settings'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95" :class="currentTab === 'settings' ? 'bg-[#FFB6C1] text-white' : 'text-gray-400'">⚙️ 設定</button>
     </div>
 
     <div v-show="currentTab === 'record'">
@@ -60,7 +63,7 @@
             <input type="date" v-model="form.date" class="input-field !bg-white">
             <input type="time" v-model="form.time" class="input-field !bg-white">
           </div>
-          <button @click="setNow" class="bg-white text-[#D87093] border-2 border-[#FFB6C1] font-bold py-2 rounded-xl active:bg-pink-50 transition-all text-sm shadow-sm flex items-center justify-center gap-1">✨ 一鍵填入現在時間</button>
+          <button @click="setNow" class="bg-white text-[#D87093] border-2 border-[#FFB6C1] font-bold py-2 rounded-xl active:bg-pink-50 active:scale-95 transition-all text-sm shadow-sm flex items-center justify-center gap-1">✨ 一鍵填入現在時間</button>
         </div>
       </div>
 
@@ -77,8 +80,8 @@
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-1">
             <input type="text" inputmode="decimal" v-model="form.glucose" placeholder="輸入數值" class="input-field text-lg text-center font-bold flex-1">
-            <button @click="form.glucose = 'LO'" class="bg-red-50 text-red-600 border-2 border-red-200 font-bold py-2.5 px-3 rounded-xl active:bg-red-100 transition-all text-sm">LO</button>
-            <button @click="form.glucose = 'HI'" class="bg-purple-50 text-purple-600 border-2 border-purple-200 font-bold py-2.5 px-3 rounded-xl active:bg-purple-100 transition-all text-sm">HI</button>
+            <button @click="form.glucose = 'LO'" class="bg-red-50 text-red-600 border-2 border-red-200 font-bold py-2.5 px-3 rounded-xl active:bg-red-100 active:scale-95 transition-all text-sm">LO</button>
+            <button @click="form.glucose = 'HI'" class="bg-purple-50 text-purple-600 border-2 border-purple-200 font-bold py-2.5 px-3 rounded-xl active:bg-purple-100 active:scale-95 transition-all text-sm">HI</button>
           </div>
           
           <div v-if="form.device === '羅氏(人用)' && convertedGlucose" class="mt-2 p-3 bg-blue-50 border-2 border-blue-200 rounded-xl text-blue-800 text-sm shadow-sm">
@@ -145,6 +148,7 @@
       <div class="card">
         <h2 class="font-bold mb-3 flex items-center gap-2">🐟 飲食與熱量紀錄</h2>
         <div v-if="foods.length === 0" class="text-sm text-red-500 mb-3 bg-red-50 p-2 rounded">⚠️ 請先到「⚙️ 設定」分頁建立食物資料庫喔！</div>
+        
         <div class="mb-3" v-else>
           <label class="text-sm text-gray-500 mb-1 block">請選擇食物/點心：</label>
           <div class="flex flex-wrap">
@@ -154,21 +158,22 @@
             </label>
           </div>
         </div>
+
         <div class="mb-2 mt-3 p-3 bg-orange-50 rounded-xl border border-orange-100" v-if="selectedFood">
           <div class="flex justify-between items-center mb-2">
             <p class="text-sm text-gray-600 font-bold">吃了多少？</p>
             <div class="flex bg-white rounded-lg p-0.5 border border-orange-200">
-              <button @click="form.foodRecordType = 'amount'" :class="form.foodRecordType === 'amount' ? 'bg-orange-100 text-orange-700 font-bold' : 'text-gray-400'" class="text-xs px-2 py-1 rounded-md transition-all">依份數</button>
-              <button @click="form.foodRecordType = 'grams'" :class="form.foodRecordType === 'grams' ? 'bg-orange-100 text-orange-700 font-bold' : 'text-gray-400'" class="text-xs px-2 py-1 rounded-md transition-all">依克數</button>
+              <button @click="form.foodRecordType = 'amount'" :class="form.foodRecordType === 'amount' ? 'bg-orange-100 text-orange-700 font-bold' : 'text-gray-400'" class="text-xs px-2 py-1 rounded-md transition-all active:scale-95">依份數</button>
+              <button @click="form.foodRecordType = 'grams'" :class="form.foodRecordType === 'grams' ? 'bg-orange-100 text-orange-700 font-bold' : 'text-gray-400'" class="text-xs px-2 py-1 rounded-md transition-all active:scale-95">依克數</button>
             </div>
           </div>
           
           <div v-if="form.foodRecordType === 'amount'">
             <div class="flex flex-wrap gap-2 mb-3">
-              <button @click="form.foodAmount = 1" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100 font-bold shadow-sm">1 {{ selectedFood.unit }} (全吃)</button>
-              <button @click="form.foodAmount = 0.5" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100 font-bold shadow-sm">0.5 {{ selectedFood.unit }}</button>
-              <button @click="form.foodAmount = 0.33" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100 font-bold shadow-sm">1/3 {{ selectedFood.unit }}</button>
-              <button @click="form.foodAmount = 0.25" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100 font-bold shadow-sm">1/4 {{ selectedFood.unit }}</button>
+              <button @click="form.foodAmount = 1" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">1 {{ selectedFood.unit }} (全吃)</button>
+              <button @click="form.foodAmount = 0.5" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">0.5 {{ selectedFood.unit }}</button>
+              <button @click="form.foodAmount = 0.33" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">1/3 {{ selectedFood.unit }}</button>
+              <button @click="form.foodAmount = 0.25" class="text-xs bg-white text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg active:bg-orange-100 active:scale-95 font-bold shadow-sm transition-all">1/4 {{ selectedFood.unit }}</button>
             </div>
             <div class="flex items-center gap-2">
               <input type="number" inputmode="decimal" step="0.01" v-model="form.foodAmount" placeholder="手動份數" class="input-field text-center font-bold text-orange-600 w-24">
@@ -181,7 +186,7 @@
           </div>
 
           <div v-if="form.foodRecordType === 'grams'">
-            <div v-if="!selectedFood.weight" class="text-xs text-red-500 mb-2">⚠️ 請先至設定補充此食物的「每份克數」才能轉換熱量喔！</div>
+            <div v-if="!selectedFood.weight" class="text-xs text-red-500 mb-2">⚠️ 請至設定補充此食物的「每份克數」才能轉換熱量喔！</div>
             <div class="flex items-center gap-2">
               <input type="number" inputmode="decimal" step="0.1" v-model="form.foodGrams" placeholder="輸入克數" class="input-field text-center font-bold text-orange-600 w-24">
               <span class="text-sm text-gray-600">克 (g)</span>
@@ -192,7 +197,7 @@
             </div>
           </div>
         </div>
-        <button @click="saveFood" class="btn-save" :disabled="foods.length === 0">儲存飲食紀錄</button>
+        <button @click="saveFood" class="btn-save">儲存飲食紀錄</button>
       </div>
 
       <div class="card">
@@ -237,7 +242,7 @@
       <div class="card">
         <div class="flex justify-between items-center mb-3">
           <h2 class="font-bold">📉 血糖趨勢圖</h2>
-          <select v-model="chartRange" @change="renderChart" class="bg-gray-50 border border-gray-200 rounded p-1 text-sm outline-none text-[#5D4037]">
+          <select v-model="chartRange" @change="renderChart" class="bg-gray-50 border border-gray-200 rounded p-1 text-sm outline-none text-[#5D4037] font-bold">
             <option value="7">近7天</option>
             <option value="30">近30天</option>
             <option value="custom">自訂區間</option>
@@ -262,9 +267,9 @@
         </div>
         
         <div class="flex gap-2 mb-4 overflow-x-auto pb-1 pl-1">
-          <button @click="logFilter = 'all'" :class="logFilter === 'all' ? 'bg-[#D87093] text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0">全部紀錄</button>
-          <button @click="logFilter = 'medical'" :class="logFilter === 'medical' ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0">🩸 醫療 (血糖/胰島素)</button>
-          <button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0">🐟 飲食紀錄</button>
+          <button @click="logFilter = 'all'" :class="logFilter === 'all' ? 'bg-[#D87093] text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95">全部紀錄</button>
+          <button @click="logFilter = 'medical'" :class="logFilter === 'medical' ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95">🩸 醫療</button>
+          <button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200'" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95">🐟 飲食</button>
         </div>
 
         <div v-if="filteredGroupedRecords.length === 0" class="text-center text-gray-400 py-8 bg-white rounded-2xl border border-dashed border-gray-200">在這個分類下目前沒有紀錄喔！</div>
@@ -301,8 +306,8 @@
                   <div class="text-xs text-gray-400 pl-1 font-bold">儀器: {{ rec.device || '未設定' }}</div>
                 </div>
                 <div class="flex gap-2 shrink-0">
-                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1 transition-all active:scale-75">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1 transition-all active:scale-75">🗑️</button>
                 </div>
               </div>
             </div>
@@ -315,8 +320,8 @@
                   <span class="text-[#5D4037] text-sm">{{ rec.insulinTime }} ({{ rec.insulinDose }})</span>
                 </div>
                 <div class="flex gap-2 shrink-0">
-                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1 transition-all active:scale-75">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1 transition-all active:scale-75">🗑️</button>
                 </div>
               </div>
             </div>
@@ -336,8 +341,8 @@
                   </div>
                 </div>
                 <div class="flex gap-2 shrink-0">
-                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1 transition-all active:scale-75">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1 transition-all active:scale-75">🗑️</button>
                 </div>
               </div>
             </div>
@@ -353,8 +358,8 @@
                   <div v-if="rec.notes" class="text-gray-500 text-xs bg-white p-2 rounded border border-gray-100 inline-block">📝 {{ rec.notes }}</div>
                 </div>
                 <div class="flex gap-2 shrink-0 ml-2">
-                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1">✏️</button>
-                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1">🗑️</button>
+                  <button @click="startEdit(rec)" class="text-gray-300 active:text-blue-500 text-lg p-1 transition-all active:scale-75">✏️</button>
+                  <button @click="deleteRecord(rec.id)" class="text-gray-300 active:text-red-500 text-lg p-1 transition-all active:scale-75">🗑️</button>
                 </div>
               </div>
             </div>
@@ -368,19 +373,13 @@
       
       <div class="card !bg-white border-2 border-blue-100">
         <h3 class="font-bold mb-3 text-blue-600 border-b border-blue-100 pb-2">💾 系統備份與還原</h3>
-        <p class="text-xs text-gray-500 mb-3">請定期點擊「備份資料」並將文字複製到您的備忘錄中保管。換手機時只要貼上即可一鍵還原！</p>
-        <div class="flex gap-2">
-          <button @click="exportBackup" class="bg-blue-500 text-white font-bold py-2 px-2 rounded-lg flex-1 text-[13px] shadow-sm active:bg-blue-600 transition-all flex items-center justify-center gap-1">
+        <p class="text-xs text-gray-500 mb-3">請定期備份。若系統阻擋檔案下載，會自動彈出「文字備份」供您複製保存。</p>
+        <div class="flex gap-3">
+          <button @click="exportBackup" class="bg-blue-500 text-white font-bold py-2.5 px-3 rounded-lg flex-1 text-sm shadow-md active:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-1">
             📥 備份資料
           </button>
-          
-          <label class="bg-white text-blue-500 border-2 border-blue-200 font-bold py-2 px-2 rounded-lg flex-1 text-[13px] text-center shadow-sm active:bg-blue-50 transition-all cursor-pointer flex items-center justify-center gap-1">
-            📤 讀取檔案
-            <input type="file" accept=".json" @change="importBackup" class="hidden">
-          </label>
-          
-          <button @click="showPasteImport = true" class="bg-white text-blue-500 border-2 border-blue-200 font-bold py-2 px-2 rounded-lg flex-1 text-[13px] text-center shadow-sm active:bg-blue-50 transition-all flex items-center justify-center gap-1">
-            📋 文字還原
+          <button @click="showPasteImport = true" class="bg-white text-blue-500 border-2 border-blue-200 font-bold py-2.5 px-3 rounded-lg flex-1 text-sm text-center shadow-sm active:bg-blue-50 active:scale-95 transition-all flex items-center justify-center gap-1">
+            📋 還原紀錄
           </button>
         </div>
       </div>
@@ -410,16 +409,17 @@
               血糖 <span class="font-bold">{{rule.min}}</span> ~ <span class="font-bold">{{rule.max}}</span> ➔ 打 <span class="text-blue-600 font-bold">{{rule.dose}}</span>
             </div>
             <div class="flex gap-2 shrink-0">
-              <button @click="startEditInsulin(rule)" class="text-gray-400 hover:text-blue-500 text-lg p-1">✏️</button>
-              <button @click="deleteInsulinRule(rule.id)" class="text-gray-400 hover:text-red-500 text-lg p-1">🗑️</button>
+              <button @click="startEditInsulin(rule)" class="text-gray-400 hover:text-blue-500 text-lg p-1 active:scale-75 transition-all">✏️</button>
+              <button @click="deleteInsulinRule(rule.id)" class="text-gray-400 hover:text-red-500 text-lg p-1 active:scale-75 transition-all">🗑️</button>
             </div>
           </div>
         </div>
-        <button @click="addInsulinRule" class="bg-blue-100 text-blue-600 font-bold py-2 px-4 rounded-lg w-full text-sm active:bg-blue-200 transition-all shadow-sm">➕ 新增一個級距</button>
+        <button @click="addInsulinRule" class="bg-blue-100 text-blue-600 font-bold py-2 px-4 rounded-lg w-full text-sm active:bg-blue-200 active:scale-95 transition-all shadow-sm">➕ 新增一個級距</button>
       </div>
 
       <div class="card">
         <h2 class="font-bold mb-3 text-[#D87093] border-b border-pink-100 pb-2">🥫 自訂食物庫</h2>
+        
         <div class="flex flex-col gap-2 mb-4">
           <div v-for="f in foods" :key="f.id" class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
             <div>
@@ -429,8 +429,8 @@
               </div>
             </div>
             <div class="flex gap-2 shrink-0">
-              <button @click="startEditFood(f)" class="text-gray-400 hover:text-blue-500 text-lg p-1">✏️</button>
-              <button @click="deleteFood(f.id)" class="text-gray-400 hover:text-red-500 text-lg p-1">🗑️</button>
+              <button @click="startEditFood(f)" class="text-gray-400 hover:text-blue-500 text-lg p-1 active:scale-75 transition-all">✏️</button>
+              <button @click="deleteFood(f.id)" class="text-gray-400 hover:text-red-500 text-lg p-1 active:scale-75 transition-all">🗑️</button>
             </div>
           </div>
         </div>
@@ -443,7 +443,7 @@
             <input type="number" inputmode="decimal" v-model="newFood.weight" placeholder="總重(g)" class="input-field !p-2 text-sm">
             <input type="number" inputmode="decimal" v-model="newFood.kcal" placeholder="總熱量" class="input-field !p-2 text-sm">
           </div>
-          <button @click="addFood" class="bg-[#D87093] text-white font-bold py-2 px-4 rounded-lg w-full text-sm active:bg-pink-600 transition-all shadow-sm">儲存到資料庫</button>
+          <button @click="addFood" class="bg-[#D87093] text-white font-bold py-2 px-4 rounded-lg w-full text-sm active:bg-pink-600 active:scale-95 transition-all shadow-sm">儲存到資料庫</button>
         </div>
       </div>
 
@@ -468,31 +468,31 @@
           <label class="flex items-center gap-2 bg-orange-50 p-2 rounded-lg border border-orange-100"><input type="checkbox" v-model="exportOptions.food" class="w-4 h-4 chk-food"> 🐟 飲食</label>
           <label class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200"><input type="checkbox" v-model="exportOptions.other" class="w-4 h-4 chk-other"> 🩺 其他</label>
         </div>
-        <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center gap-2 text-lg shadow-sm">📥 產生報表檔</button>
+        <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center gap-2 text-lg shadow-sm active:scale-95 transition-all">📥 產生報表檔</button>
       </div>
 
     </div>
 
     <div v-if="fallbackData" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl flex flex-col max-h-[85vh]">
-        <h3 class="font-bold text-[#D87093] mb-2 flex items-center gap-2">⚠️ 系統安全限制</h3>
-        <p class="text-xs text-gray-600 mb-3">由於蘋果系統限制無法直接下載檔案，請點擊下方按鈕將內容<strong class="text-red-500">複製並貼上到「備忘錄」儲存</strong>，或是直接傳給醫生！</p>
-        <textarea readonly class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-mono text-gray-500 mb-3 overflow-y-auto" v-model="fallbackData"></textarea>
-        <div class="flex gap-3 shrink-0">
-          <button @click="fallbackData = null" class="btn-outline flex-1 !py-2 text-sm">關閉</button>
-          <button @click="copyFallback" class="btn-save flex-1 !mt-0 !py-2 shadow-md text-sm bg-blue-500">一鍵複製全部</button>
+        <h3 class="font-bold text-[#D87093] mb-2 flex items-center gap-2">📋 取得資料成功</h3>
+        <p class="text-xs text-gray-600 mb-3">由於蘋果系統限制無法直接下載，請點擊下方按鈕將內容<strong class="text-red-500">複製並貼上到「備忘錄」或「LINE」儲存。</strong></p>
+        <textarea id="fallbackTextArea" readonly class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-mono text-gray-500 mb-3 overflow-y-auto" v-model="fallbackData"></textarea>
+        <div class="flex gap-3 shrink-0 mt-2">
+          <button @click="fallbackData = null" class="btn-outline flex-1 !py-3 text-sm active:scale-95 transition-all">關閉</button>
+          <button @click="copyFallback" class="btn-save flex-1 !mt-0 !py-3 shadow-md text-sm bg-blue-500 active:scale-95 transition-all">一鍵複製全部</button>
         </div>
       </div>
     </div>
 
     <div v-if="showPasteImport" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl flex flex-col max-h-[85vh]">
-        <h3 class="font-bold text-blue-600 mb-2 flex items-center gap-2">📋 貼上備份文字還原</h3>
-        <p class="text-xs text-gray-600 mb-3">請將先前複製在備忘錄裡的密碼內容<strong class="text-red-500">完整貼在下方框框內</strong>：</p>
-        <textarea class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-[10px] font-mono text-gray-700 mb-3 overflow-y-auto" rows="8" v-model="pasteData" placeholder='在此貼上 {"records": [...]}'></textarea>
+        <h3 class="font-bold text-blue-600 mb-2 flex items-center gap-2">📥 貼上文字還原</h3>
+        <p class="text-xs text-gray-600 mb-3">請將先前複製在備忘錄裡的備份碼<strong class="text-red-500">完整貼在下方框框內</strong>：</p>
+        <textarea class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs font-mono text-gray-700 mb-3 overflow-y-auto" rows="8" v-model="pasteData" placeholder='在此長按並貼上...'></textarea>
         <div class="flex gap-3 shrink-0">
-          <button @click="showPasteImport = false; pasteData = ''" class="btn-outline flex-1 !py-2 text-sm">取消</button>
-          <button @click="importFromPaste" class="btn-save !bg-blue-500 flex-1 !mt-0 !py-2 shadow-md text-sm">執行還原</button>
+          <button @click="showPasteImport = false; pasteData = ''" class="btn-outline flex-1 !py-3 text-sm active:scale-95 transition-all">取消</button>
+          <button @click="importFromPaste" class="btn-save !bg-blue-500 flex-1 !mt-0 !py-3 shadow-md text-sm active:scale-95 transition-all">執行還原</button>
         </div>
       </div>
     </div>
@@ -624,12 +624,14 @@
           
           records: JSON.parse(localStorage.getItem('pupu_records')) || [],
           profile: JSON.parse(localStorage.getItem('pupu_profile')) || { weight: '', targetKcal: 200 },
+          
           foods: JSON.parse(localStorage.getItem('pupu_foods')) || [
             { id: 1, name: '汪喵罐頭', unit: '罐', weight: 80, kcal: 110 },
             { id: 2, name: '小怪獸罐頭', unit: '罐', weight: 82, kcal: 115 },
             { id: 3, name: '皇家濕糧', unit: '包', weight: 85, kcal: 85 },
             { id: 4, name: '純肉泥', unit: '條', weight: 15, kcal: 15 }
           ],
+          
           insulinRules: JSON.parse(localStorage.getItem('pupu_insulin_rules')) || [
             { id: 1, min: 0, max: 149, dose: '0 (不打)' },
             { id: 2, min: 150, max: 199, dose: '0.01' },
@@ -654,7 +656,6 @@
           editingSettingFood: null, editSettingFoodForm: {},
           editingSettingInsulin: null, editSettingInsulinForm: {},
           
-          // 🌟 Fallback 狀態變數
           fallbackData: null,
           showPasteImport: false,
           pasteData: ''
@@ -811,82 +812,44 @@
         }
       },
       methods: {
-        // 🌟 處理蘋果擋下載的核心法寶
-        downloadDataOrFallback(content, fileName, mimeType) {
-          const isIOSPWA = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+        // 🌟 防彈機制：處理蘋果阻擋下載的核心函數
+        async handleExport(content, fileName, mimeType) {
           const file = new File([content], fileName, { type: mimeType });
-
-          // 嘗試 1：系統原生分享/存檔 (成功率 80%)
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            navigator.share({
-              files: [file],
-              title: fileName
-            }).catch(err => {
-              if (err.name !== 'AbortError') {
-                this.fallbackData = content; // 失敗跳強制視窗
-              }
-            });
-          } 
-          // 嘗試 2：傳統下載 (Android 或電腦 100% 成功)
-          else if (!isIOSPWA) {
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-          } 
-          // 嘗試 3：蘋果死不給過，直接彈出強制複製視窗 (成功率 100%)
-          else {
+          try {
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                files: [file],
+                title: fileName
+              });
+            } else {
+              throw new Error('Share API not supported');
+            }
+          } catch (err) {
+            // 用戶手動取消分享，就不做事
+            if (err.name === 'AbortError') return;
+            // 否則觸發終極防彈：強制顯示文字視窗
             this.fallbackData = content;
           }
         },
 
         copyFallback() {
-          navigator.clipboard.writeText(this.fallbackData).then(() => {
-            alert('✅ 複製成功！\n請將內容貼到「備忘錄」保存，或直接傳送給醫師。');
+          const textArea = document.getElementById("fallbackTextArea");
+          textArea.select();
+          try {
+            document.execCommand('copy');
+            alert('✅ 複製成功！\n請將內容貼到「備忘錄」保存，或直接傳給醫師。');
             this.fallbackData = null;
-          }).catch(err => {
+          } catch (err) {
             alert('❌ 複製失敗，請長按文字框手動全選複製。');
-          });
+          }
         },
 
         exportBackup() {
           const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, exportDate: new Date().toISOString() };
           const jsonString = JSON.stringify(backupData);
-          this.downloadDataOrFallback(jsonString, `普普健康日記_備份_${getLocalDateString()}.json`, 'application/json');
+          this.handleExport(jsonString, `普普健康日記_備份_${getLocalDateString()}.json`, 'application/json');
         },
         
-        importBackup(event) {
-          const file = event.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            try {
-              const data = JSON.parse(e.target.result);
-              if (data.records && Array.isArray(data.records)) {
-                if (confirm('⚠️ 警告：還原將會覆蓋目前的所有的紀錄與設定！確定要繼續嗎？')) {
-                  this.records = data.records;
-                  if (data.profile) this.profile = data.profile;
-                  if (data.foods) this.foods = data.foods;
-                  if (data.insulinRules) this.insulinRules = data.insulinRules;
-                  this.saveToLocal(); this.saveProfile();
-                  localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
-                  localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules));
-                  alert('🎉 備份還原成功！');
-                  if (this.currentTab === 'chart') this.$nextTick(() => { this.renderChart(); });
-                }
-              } else alert('❌ 檔案格式不正確！');
-            } catch (err) { alert('❌ 讀取檔案失敗！'); }
-          };
-          reader.readAsText(file);
-          event.target.value = ''; 
-        },
-
-        // 🌟 新增：從文字直接還原
         importFromPaste() {
           try {
             const data = JSON.parse(this.pasteData);
@@ -941,7 +904,7 @@
             csvContent += `${r.date},${r.time},${typeMap[r.type] || ''},${r.glucose||''},${dev},${r.insulinTime||''},${r.insulinDose||''},${fName},${fAmount},${fKcal},${r.weight||''},"${notesSafe}"\n`;
           });
           
-          this.downloadDataOrFallback(csvContent, `普普健康日記_${getLocalDateString()}.csv`, 'text/csv;charset=utf-8;');
+          this.handleExport(csvContent, `普普健康日記_${getLocalDateString()}.csv`, 'text/csv;charset=utf-8;');
         },
 
         startEditInsulin(rule) { this.editingSettingInsulin = rule; this.editSettingInsulinForm = JSON.parse(JSON.stringify(rule)); },
