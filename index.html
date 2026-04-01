@@ -21,12 +21,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    /* 🌟 全新日系手帳風格：柔棉紙張紋理與柔和櫻花色系 */
-    body { font-family: 'M PLUS Rounded 1c', sans-serif; background-color: #FFF5EE; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEVubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm7/N2b7AAAAG3RSTlMAMFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEAQXhAAAAFCSURBVDjLrdVbe4MwDAVgg9mBAwQJ8f6vNo54wF2WfH9N8U3TNNN8uTBNM82XCy3SLLvYf9VZZpH5V51llpl/Vp5lPjNfLsz8NfPlwv5b5mvm75pvF6b5duH6X5i/Nf+vGfP9O/M9GvM9GvM9GvM9GvM9GvM9Ove/Mre/Mre/Mre/OvuZ+az5rvm75ruFmW+XfDnz9cyfN//P/GfzX5q/Z75XmO/Xmf9u/rf5XmbmlbllvneYf2V+Xpjvq5mZmev+3+Y/N79VmWVfWVb+b3Vvme+rmXnmPzK//w/XU76G422F7QAAAABJRU5ErkJggg=='); background-opacity: 0.1; color: #5D4037; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Nunito', 'M PLUS Rounded 1c', sans-serif; background-color: #FFF5EE; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEVubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm7/N2b7AAAAG3RSTlMAMFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEAQXhAAAAFCSURBVDjLrdVbe4MwDAVgg9mBAwQJ8f6vNo54wF2WfH9N8U3TNNN8uTBNM82XCy3SLLvYf9VZZpH5V51llpl/Vp5lPjNfLsz8NfPlwv5b5mvm75pvF6b5duH6X5i/Nf+vGfP9O/M9GvM9GvM9GvM9GvM9GvM9Ove/Mre/Mre/Mre/OvuZ+az5rvm75ruFmW+XfDnz9cyfN//P/GfzX5q/Z75XmO/Xmf9u/rf5XmbmlbllvneYf2V+Xpjvq5mZmev+3+Y/N79VmWVfWVb+b3Vvme+rmXnmPzK//w/XU76G422F7QAAAABJRU5ErkJggg=='); color: #5D4037; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
     input:not([type="checkbox"]):not([type="radio"]), textarea, select { -webkit-user-select: text !important; user-select: text !important; -webkit-appearance: none !important; appearance: none !important; cursor: text !important; }
     input[type="checkbox"] { -webkit-appearance: checkbox !important; appearance: auto !important; }
 
-    /* 全新超圓角與柔和陰影 */
     .card { background-color: #FFFFFF; border-radius: 25px; box-shadow: 0 6px 20px rgba(255, 182, 193, 0.2); padding: 18px 22px; margin-bottom: 22px; }
     .btn-save { background-color: #FFB6C1; color: white; border-radius: 999px; padding: 10px 20px; font-weight: bold; width: 100%; margin-top: 15px; transition: transform 0.1s, background-color 0.2s; cursor: pointer; border: 2px solid white; box-shadow: 0 3px 5px rgba(0,0,0,0.1); }
     .btn-save:active { background-color: #FF9AA2; transform: scale(0.96); }
@@ -35,6 +33,7 @@
     .input-field { width: 100%; background-color: #FFF9FA; border: 2px solid #FFE4E1; border-radius: 15px; padding: 12px; outline: none; }
     .input-field:focus { border-color: #FFB6C1; }
     .radio-pill { display: inline-block; padding: 7px 14px; border-radius: 99px; background: #f3f4f6; color: #6b7280; font-size: 0.875rem; margin: 4px; border: 2px solid transparent; cursor: pointer; transition: transform 0.1s;}
+    .radio-pill:active { transform: scale(0.95); }
     input[type="radio"]:checked + .radio-pill { background: #FFE4E1; color: #D87093; border-color: #FFB6C1; font-weight: bold; }
     .chk-glucose { accent-color: #D87093; } .chk-insulin { accent-color: #3B82F6; } .chk-food { accent-color: #F97316; } .chk-other { accent-color: #6B7280; }
   </style>
@@ -58,7 +57,13 @@
       
       <div class="card bg-white !border-2 !border-[#FFE4E1] relative mb-10 mt-10">
         <div class="flex items-center gap-4">
-          <div class="w-20 h-20 bg-[#FFF0F5] border-4 border-[#FFB6C1] rounded-full flex items-center justify-center text-4xl shrink-0">🐈</div>
+          
+          <label class="w-20 h-20 bg-[#FFF0F5] border-4 border-[#FFB6C1] rounded-full flex items-center justify-center text-4xl shrink-0 cursor-pointer relative overflow-hidden bg-cover bg-center shadow-inner" :style="avatar ? `background-image: url(${avatar})` : ''">
+            <span v-if="!avatar">🐈</span>
+            <div class="absolute bottom-0 w-full bg-black/40 text-white text-[8px] text-center py-0.5 leading-none transition-all opacity-80">換照片</div>
+            <input type="file" accept="image/*" class="hidden" @change="uploadAvatar">
+          </label>
+
           <div>
             <div class="bg-blue-50 px-3 py-1.5 rounded-md -rotate-2 inline-block border border-blue-100 shadow-sm mb-2">
               <h2 class="text-lg font-bold text-blue-800">{{ homeStatus.greeting }}</h2>
@@ -85,7 +90,7 @@
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-full flex items-center justify-center text-xl" :class="homeStatus.bgStatus.dotColor">{{ homeStatus.bgStatus.emoji }}</div>
               <div>
-                <div class="text-xs text-gray-500 font-bold">今日血糖</div>
+                <div class="text-xs text-gray-500 font-bold">今日血糖 <span v-if="homeStatus.bgStatus.isEst" class="text-[10px] text-blue-400">(換算後)</span></div>
                 <div class="font-bold text-sm" :class="homeStatus.bgStatus.textClass">{{ homeStatus.bgStatus.text }}</div>
               </div>
             </div>
@@ -99,7 +104,7 @@
           <div class="card !rounded-2xl relative overflow-hidden" :class="homeStatus.insulinStatus.bgColor">
             <div class="absolute -right-2 -bottom-2 text-6xl opacity-20">💉</div>
             <div class="relative z-10">
-              <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-xl mb-3">🐱</div>
+              <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-xl mb-3">{{ homeStatus.insulinStatus.emoji }}</div>
               <div class="text-xs text-gray-500 font-bold">胰島素打針囉？</div>
               <div class="font-bold text-sm" :class="homeStatus.insulinStatus.textClass">{{ homeStatus.insulinStatus.text }}</div>
             </div>
@@ -211,7 +216,7 @@
             <span class="text-lg font-bold text-gray-400">{{ suggestedInsulin }}</span>
           </div>
           <div v-if="form.device === '羅氏(人用)' && referenceGlucose && referenceGlucose !== 'HI' && referenceGlucose !== 'LO'" class="text-[11px] text-orange-500 bg-orange-50 p-2 rounded-lg mb-3 text-center">
-            ⚠️ 提醒：系統建議是以您輸入的「{{ referenceGlucose }}」來計算。若醫師指示是以「貓咪實際估算值」對照表來打針，請自行調整劑量！
+            ⚠️ 提醒：系統建議是以「實際估算值」對照表來計算。請確認劑量！
           </div>
           <div>
             <label class="text-sm text-[#D87093] font-bold block mb-1 text-center">💉 實際施打劑量</label>
@@ -307,6 +312,15 @@
             <div class="text-xs text-gray-500 mb-1">最低數值</div>
             <div class="text-lg font-bold text-blue-500">{{ chartStats.min }}</div>
           </div>
+        </div>
+        <div class="bg-white p-3 rounded-xl border border-orange-100 shadow-sm">
+           <div class="flex justify-between items-end mb-2">
+             <span class="text-xs font-bold text-orange-600 flex items-center gap-1">🎯 今日熱量達成率</span>
+             <span class="text-sm font-bold text-orange-500">{{ todayStats.total }} / {{ profile.targetKcal }} <span class="text-xs">kcal</span></span>
+           </div>
+           <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+             <div class="bg-orange-400 h-3 rounded-full transition-all duration-500" :style="{ width: Math.min(todayStats.percent, 100) + '%' }"></div>
+           </div>
         </div>
       </div>
 
@@ -689,13 +703,16 @@
     createApp({
       data() {
         return {
-          currentTab: 'home', // 預設開啟主頁
+          currentTab: 'home', 
           chartRange: '7',
           customStartDate: getPastDateString(7), customEndDate: getLocalDateString(),   
           logFilter: 'all', 
           
           records: JSON.parse(localStorage.getItem('pupu_records')) || [],
           profile: JSON.parse(localStorage.getItem('pupu_profile')) || { weight: '', targetKcal: 200 },
+          
+          // 🌟 頭貼資料綁定
+          avatar: localStorage.getItem('pupu_avatar') || '',
           
           foods: JSON.parse(localStorage.getItem('pupu_foods')) || [
             { id: 1, name: '汪喵罐頭', unit: '罐', weight: 80, kcal: 110 },
@@ -734,7 +751,7 @@
         }
       },
       computed: {
-        // 🌟 主頁狀態計算：優化為更活潑的手帳語氣與視覺
+        // 🌟 主頁狀態計算：羅氏誤差換算與免打針判定
         homeStatus() {
           const today = getLocalDateString();
           const hr = new Date().getHours();
@@ -744,39 +761,85 @@
 
           const todayRecs = this.records.filter(r => r.date === today);
           
-          // 🩸 血糖任務貼紙狀態
-          let bgStatus = { text: '尚未量血糖喔 👀', value: '--', emoji: '🧐', dashColor: '#e0e0e0', textClass: 'text-gray-500', dotColor: 'bg-gray-100' };
+          let bgStatus = { text: '尚未量血糖喔 👀', value: '--', emoji: '🧐', dashColor: '#e0e0e0', textClass: 'text-gray-500', dotColor: 'bg-gray-100', isEst: false };
           const bgRecs = todayRecs.filter(r => r.type === 'glucose').sort((a,b) => b.time.localeCompare(a.time));
+          
+          let latestBgRecord = null;
+
           if (bgRecs.length > 0) {
-            const latest = bgRecs[0].glucose;
-            bgStatus.value = latest;
+            latestBgRecord = bgRecs[0];
+            const latestRaw = latestBgRecord.glucose;
             
-            if (latest === 'HI' || parseFloat(latest) >= 250) {
+            // 🌟 核心：算出「真實評估值」
+            let val = latestRaw === 'HI' ? 500 : (latestRaw === 'LO' ? 20 : parseFloat(latestRaw));
+            let isRoche = latestBgRecord.device === '羅氏(人用)';
+            
+            if (isRoche && val !== 500 && val !== 20) {
+              val = Math.round(val * 1.3); // 羅氏換算
+              bgStatus.isEst = true;
+            }
+
+            bgStatus.value = isRoche && latestRaw !== 'HI' && latestRaw !== 'LO' ? `${val}` : latestRaw;
+            
+            // 🌟 根據「真實評估值(val)」來給評語
+            if (val >= 250) {
               bgStatus.text = '偏高注意囉 📈'; bgStatus.emoji = '😿'; bgStatus.dashColor = '#d1d5db'; bgStatus.textClass = 'text-gray-700'; bgStatus.dotColor = 'bg-gray-200';
-            } else if (latest === 'LO' || parseFloat(latest) < 80) {
+            } else if (val < 80) {
               bgStatus.text = '低血糖警告 🆘'; bgStatus.emoji = '🆘'; bgStatus.dashColor = '#ef4444'; bgStatus.textClass = 'text-red-600'; bgStatus.dotColor = 'bg-red-100';
-            } else if (parseFloat(latest) >= 80 && parseFloat(latest) <= 150) {
+            } else if (val >= 80 && val <= 150) {
               bgStatus.text = '完美控制中 🌟'; bgStatus.emoji = '😸'; bgStatus.dashColor = '#10b981'; bgStatus.textClass = 'text-green-600'; bgStatus.dotColor = 'bg-green-100';
             } else {
               bgStatus.text = '稍微偏高 👀'; bgStatus.emoji = '😺'; bgStatus.dashColor = '#fbbf24'; bgStatus.textClass = 'text-yellow-700'; bgStatus.dotColor = 'bg-yellow-100';
             }
           }
 
-          // 💉 胰島素任務便利貼狀態
-          let insulinStatus = { text: '今天忘記打針？😱', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' };
+          // 🌟 智能胰島素判斷
+          let insulinStatus = { text: '今天忘記打針？😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' };
           const insRecs = todayRecs.filter(r => r.type === 'insulin');
           const hasMorning = insRecs.some(r => r.insulinTime === '早');
           const hasEvening = insRecs.some(r => r.insulinTime === '晚');
+          const isEveningNow = new Date().getHours() >= 15;
           
-          if (hasMorning && hasEvening) {
-            insulinStatus = { text: '早晚針都OK囉！👍', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' };
-          } else if (hasMorning) {
-            insulinStatus = { text: '早上已打，晚針預備！', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
-          } else if (hasEvening) {
-            insulinStatus = { text: '晚上已施打！', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
+          let currentNeedShot = true;
+          if (latestBgRecord) {
+             let val = latestBgRecord.glucose === 'HI' ? 500 : (latestBgRecord.glucose === 'LO' ? 20 : parseFloat(latestBgRecord.glucose));
+             if (latestBgRecord.device === '羅氏(人用)' && val !== 500 && val !== 20) val = Math.round(val * 1.3);
+             
+             let matchedRule = this.insulinRules.find(r => val >= r.min && val <= r.max);
+             if (!matchedRule && val === 500) matchedRule = this.insulinRules.reduce((prev, current) => (prev.max > current.max) ? prev : current, this.insulinRules[0]);
+             
+             // 如果對照表寫 0，或者寫不打，或者血糖 LO，就不需打針
+             if (matchedRule && (matchedRule.dose === '0' || matchedRule.dose.includes('不') || val === 20)) {
+                 currentNeedShot = false;
+             }
           }
 
-          // 🐟 熱量任務便利貼狀態
+          if (hasMorning && hasEvening) {
+            insulinStatus = { text: '早晚針都OK囉！👍', emoji: '😺', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' };
+          } else if (hasMorning && !isEveningNow) {
+            insulinStatus = { text: '早上已打！', emoji: '😺', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
+          } else if (hasMorning && isEveningNow) {
+             if (!currentNeedShot) {
+               insulinStatus = { text: '血糖漂亮，晚針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
+             } else {
+               insulinStatus = { text: '早上已打，晚針預備！', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
+             }
+          } else if (!hasMorning && !isEveningNow) {
+             if (!currentNeedShot && latestBgRecord) {
+               insulinStatus = { text: '血糖漂亮，早針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
+             } else {
+               insulinStatus = { text: '早上忘記打針？😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' };
+             }
+          } else if (!hasMorning && isEveningNow && hasEvening) {
+             insulinStatus = { text: '晚上已打！(早針未記)', emoji: '😺', bgColor: 'bg-yellow-50 border-yellow-100', textClass: 'text-yellow-700' };
+          } else if (!hasMorning && isEveningNow && !hasEvening) {
+             if (!currentNeedShot && latestBgRecord) {
+               insulinStatus = { text: '血糖漂亮，晚針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
+             } else {
+               insulinStatus = { text: '今天尚未打針喔！😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' };
+             }
+          }
+
           let calStatus = { text: '主子尚未進食 🤔', bgColor: 'bg-gray-50 border-gray-100', textClass: 'text-gray-500' };
           let diff = (this.profile.targetKcal || 200) - this.todayStats.total;
           if (this.todayStats.total > 0) {
@@ -790,30 +853,30 @@
           return { greeting, bgStatus, insulinStatus, calStatus };
         },
 
-        // 🌟 AI 趨勢分析：手帳Memo風
+        // 🌟 AI 分析也納入羅氏換算
         trendAnalysisText() {
           const past7 = getPastDateString(7);
           const recs = this.records.filter(r => r.type === 'glucose' && r.date >= past7);
           if (recs.length === 0) return '過去 7 天還沒有測量紀錄喔！趕快幫普普記一筆健康手帳吧！';
           
           let vals = recs.map(r => {
-            if (r.glucose === 'HI') return 500;
-            if (r.glucose === 'LO') return 20;
-            return parseFloat(r.glucose);
+            let v = r.glucose === 'HI' ? 500 : (r.glucose === 'LO' ? 20 : parseFloat(r.glucose));
+            if (r.device === '羅氏(人用)' && v !== 500 && v !== 20) v = Math.round(v * 1.3);
+            return v;
           }).filter(v => !isNaN(v));
 
           let avg = Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length);
           let lowCount = vals.filter(v => v < 80).length;
           let hiCount = vals.filter(v => v >= 250).length;
 
-          let text = `親愛的普普家長，這週的平均血糖大約是 <span class="text-[#D87093]">${avg} mg/dL</span>。<br>`;
+          let text = `這週的平均預估血糖大約是 <span class="text-[#D87093]">${avg} mg/dL</span>。<br>`;
           
           if (lowCount > 0) {
             text += `<span class="text-red-500 mt-2 block">⚠️ 重要 Memo：出現了 ${lowCount} 次低血糖 (<80)！這很危險，請務必密切留意主子的精神，並盡快與醫生討論劑量喔！</span>`;
           } else if (avg >= 80 && avg <= 150) {
             text += `<span class="text-green-600 mt-2 block">🌟 太棒了！本週血糖控制在完美區間，您照顧得超好的！請繼續保持主子愉快的心情與穩定的飲食喔！😺</span>`;
           } else if (hiCount > 3) {
-            text += `<span class="text-purple-600 mt-2 block">📈 觀察 Memo：這週高血糖的情況比較頻繁（${hiCount}次）。回診時記得把圖表拿給醫生看，看看是否需要調整飲食或劑量喔！別太灰心，普普很棒的！</span>`;
+            text += `<span class="text-purple-600 mt-2 block">📈 觀察 Memo：這週高血糖的情況比較頻繁（${hiCount}次）。回診時記得把圖表拿給醫生看，看看是否需要調整喔！</span>`;
           } else {
             text += `<span class="text-gray-600 mt-2 block">整體還算穩定的手帳紀錄！記得定時定量吃飯與打針，多陪伴普普喔！加油！</span>`;
           }
@@ -984,6 +1047,18 @@
         }
       },
       methods: {
+        // 🌟 新增：上傳與儲存大頭貼
+        uploadAvatar(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            this.avatar = event.target.result;
+            localStorage.setItem('pupu_avatar', this.avatar);
+          };
+          reader.readAsDataURL(file);
+        },
+
         copyFallback() {
           const textArea = document.getElementById("fallbackTextArea");
           textArea.select();
@@ -997,7 +1072,7 @@
         },
 
         exportBackup() {
-          const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, exportDate: new Date().toISOString() };
+          const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, avatar: this.avatar, exportDate: new Date().toISOString() };
           const jsonString = JSON.stringify(backupData);
           this.fallbackData = jsonString; 
         },
@@ -1011,6 +1086,10 @@
                 if (data.profile) this.profile = data.profile;
                 if (data.foods) this.foods = data.foods;
                 if (data.insulinRules) this.insulinRules = data.insulinRules;
+                if (data.avatar) {
+                  this.avatar = data.avatar;
+                  localStorage.setItem('pupu_avatar', this.avatar);
+                }
                 this.saveToLocal(); this.saveProfile();
                 localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
                 localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules));
