@@ -80,9 +80,9 @@
           </label>
           <div class="flex-1">
             <div class="inline-block mb-1">
-              <h2 class="text-xl font-bold text-[#D87093] highlighter">{{ homeStatus.greeting }}</h2>
+              <h2 class="text-xl font-bold text-[#D87093] highlighter">{{ homeStatus.greeting.title }}</h2>
             </div>
-            <p class="text-sm text-gray-500 font-bold mb-2">今天普普精神好嗎？🐱</p>
+            <p class="text-sm text-gray-500 font-bold mb-2">{{ homeStatus.greeting.sub }}</p>
             <div class="bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg inline-flex items-center gap-2 shadow-sm">
               <span class="text-[11px] text-orange-400 font-bold">目前體重</span>
               <span class="text-sm font-bold text-[#5D4037]">{{ profile.weight || '?' }} kg</span>
@@ -137,7 +137,7 @@
             <div class="relative z-10 flex flex-col items-center text-center mt-2">
               <div class="w-10 h-10 bg-white/80 rounded-full flex items-center justify-center text-2xl mb-2 shadow-sm">{{ homeStatus.insulinStatus.emoji }}</div>
               <div class="text-[11px] text-gray-500 font-bold mb-1">胰島素施打</div>
-              <div class="font-bold text-sm leading-snug" :class="homeStatus.insulinStatus.textClass">{{ homeStatus.insulinStatus.text }}</div>
+              <div class="font-bold text-[13px] leading-snug" :class="homeStatus.insulinStatus.textClass">{{ homeStatus.insulinStatus.text }}</div>
             </div>
           </div>
           
@@ -349,14 +349,8 @@
           <select v-model="chartRange" @change="renderChart" class="bg-pink-50 border border-pink-200 rounded-xl p-1.5 text-xs font-bold shadow-sm outline-none">
             <option value="7">近7天</option>
             <option value="30">近30天</option>
-            <option value="custom">自訂區間</option>
             <option value="all">全部</option>
           </select>
-        </div>
-        <div v-if="chartRange === 'custom'" class="flex items-center justify-between gap-2 mb-4 bg-pink-50 p-2 rounded-xl border border-pink-100 shadow-inner">
-          <input type="date" v-model="customStartDate" @change="renderChart" class="bg-white border border-pink-200 rounded-lg p-1.5 text-xs w-full outline-none text-[#5D4037] font-bold">
-          <span class="text-[#D87093] font-bold">~</span>
-          <input type="date" v-model="customEndDate" @change="renderChart" class="bg-white border border-pink-200 rounded-lg p-1.5 text-xs w-full outline-none text-[#5D4037] font-bold">
         </div>
         <p class="text-[11px] text-gray-400 text-center mb-3 font-bold bg-gray-50 rounded-full py-1">💡 綠色區塊為安全範圍 (80~150)</p>
         <div style="position: relative; height: 260px; width: 100%;">
@@ -373,7 +367,7 @@
           <button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">🐟 飲食</button>
         </div>
 
-        <div v-if="filteredGroupedRecords.length === 0" class="text-center text-gray-400 py-10 bg-white rounded-[2rem] border-4 border-dashed border-pink-100 font-bold">這段期間沒有手帳紀錄喔！</div>
+        <div v-if="filteredGroupedRecords.length === 0" class="text-center text-gray-400 py-10 bg-white rounded-[2rem] border-4 border-dashed border-pink-100 font-bold">這段期間沒有指定的紀錄喔！</div>
         
         <div v-for="day in filteredGroupedRecords" :key="day.date" class="card !p-0 overflow-hidden border-2 border-[#FFE4E1] !rounded-[2rem] shadow-md mb-6">
           <div class="bg-[#FFF0F5] px-5 py-4 font-bold text-[#D87093] flex flex-col gap-2 border-b-2 border-[#FFE4E1]">
@@ -438,7 +432,6 @@
                 
                 <div class="flex gap-1 shrink-0 bg-white border border-gray-100 rounded-lg p-0.5 shadow-sm">
                    <button @click="startEdit(rec)" class="text-gray-400 hover:text-blue-500 text-base p-1.5 active:scale-75 transition-all">✏️</button>
-                   <div class="w-px bg-gray-100 my-1"></div>
                    <button @click="deleteRecord(rec.id)" class="text-gray-400 hover:text-red-500 text-base p-1.5 active:scale-75 transition-all">🗑️</button>
                 </div>
              </div>
@@ -630,6 +623,30 @@
 
     createApp({
       data() {
+        // 動態打招呼
+        const hr = new Date().getHours();
+        let greetings = [];
+        if (hr >= 5 && hr < 12) {
+          greetings = [
+            { title: '早安！☀️', sub: '昨晚普普睡得好嗎？🐾' },
+            { title: '早安日記 🌸', sub: '新的一天也要活力滿滿喔！' },
+            { title: '早安家長！☕', sub: '今天也要準時吃飯打針喔！' }
+          ];
+        } else if (hr >= 12 && hr < 18) {
+          greetings = [
+            { title: '午安！☁️', sub: '記得多讓普普喝水喔💧' },
+            { title: '午後時光 ☕', sub: '普普在睡午覺了嗎？💤' },
+            { title: '午安日記 🧶', sub: '來陪普普玩一下逗貓棒吧！' }
+          ];
+        } else {
+          greetings = [
+            { title: '晚安！🌙', sub: '今天辛苦了，早點休息喔✨' },
+            { title: '晚安日記 🦉', sub: '普普吃過宵夜了嗎？🐟' },
+            { title: '夜深了 💤', sub: '跟普普一起做個好夢吧！' }
+          ];
+        }
+        const todayGreeting = greetings[new Date().getDate() % greetings.length];
+
         return {
           currentTab: 'home', chartRange: '7', customStartDate: getPastDateString(7), customEndDate: getLocalDateString(), logFilter: 'all', recordFoodTab: 'staple', 
           records: safeParse('pupu_records', []), profile: safeParse('pupu_profile', { weight: '', targetKcal: 200 }), avatar: localStorage.getItem('pupu_avatar') || '',
@@ -646,24 +663,23 @@
           newFood: { name: '', unit: '', weight: '', kcal: '', category: 'staple' },
           form: { date: getLocalDateString(), time: getLocalTimeString(), glucose: '', device: 'CGM', actualInsulinDose: '', insulinTime: new Date().getHours() < 15 ? '早' : '晚', selectedFoodId: null, foodRecordType: 'amount', foodAmount: '', foodGrams: '', weight: '', notes: '' },
           exportRange: 'all', exportStartDate: getPastDateString(30), exportEndDate: getLocalDateString(), exportOptions: { glucose: true, insulin: true, food: true, other: true },
-          editingRecord: null, editForm: {}, editingSettingFood: null, editSettingFoodForm: {}, editingSettingInsulin: null, editSettingInsulinForm: {}, fallbackData: null, showPasteImport: false, pasteData: ''
+          editingRecord: null, editForm: {}, editingSettingFood: null, editSettingFoodForm: {}, editingSettingInsulin: null, editSettingInsulinForm: {}, fallbackData: null, showPasteImport: false, pasteData: '',
+          greetingObj: todayGreeting
         }
       },
       computed: {
         filteredFoodsByTab() { return this.foods.filter(f => f.category === this.recordFoodTab); },
-        
-        // 🌟 雙模態首頁血糖狀態判定
         homeStatus() {
-          const today = getLocalDateString(); const hr = new Date().getHours();
-          let greeting = '午安日記'; if (hr >= 5 && hr < 12) greeting = '早安日記'; else if (hr >= 18 || hr < 5) greeting = '晚安日記';
+          const today = getLocalDateString();
           const todayRecs = this.records.filter(r => r.date === today);
-          
           let bgStatus = { text: '尚未測量 👀', value: '--', emoji: '🧐', dashColor: '#e0e0e0', textClass: 'text-gray-500', dotColor: 'bg-gray-100', isEst: false, isCgm: false, hasData: false, morning: {val: '--', color: 'text-gray-400'}, evening: {val: '--', color: 'text-gray-400'} };
-          const bgRecs = todayRecs.filter(r => r.type === 'glucose').sort((a,b) => String(a.time || '').localeCompare(String(b.time || ''))); // 時間正序
           
+          const bgRecs = todayRecs.filter(r => r.type === 'glucose').sort((a,b) => String(a.time || '').localeCompare(String(b.time || ''))); 
+          
+          let latestBgRecord = null;
           if (bgRecs.length > 0) {
             bgStatus.hasData = true;
-            let latestBgRecord = bgRecs[bgRecs.length - 1]; // 最後一筆
+            latestBgRecord = bgRecs[bgRecs.length - 1]; 
             let val = this.getEvaluatedGlucose(latestBgRecord);
             bgStatus.isEst = (latestBgRecord.device === '羅氏(人用)' && latestBgRecord.glucose !== 'HI' && latestBgRecord.glucose !== 'LO');
             bgStatus.value = bgStatus.isEst ? `${val}` : latestBgRecord.glucose;
@@ -673,13 +689,11 @@
             else if (val >= 80 && val <= 150) { bgStatus.text = '完美控制 🌟'; bgStatus.emoji = '😸'; bgStatus.dashColor = '#10b981'; bgStatus.textClass = 'text-green-600'; bgStatus.dotColor = 'bg-green-100'; }
             else { bgStatus.text = '稍微偏高 👀'; bgStatus.emoji = '😺'; bgStatus.dashColor = '#fbbf24'; bgStatus.textClass = 'text-yellow-700'; bgStatus.dotColor = 'bg-yellow-100'; }
 
-            // 判斷是否為 CGM 模式 (>2筆 或 有一筆是CGM)
             bgStatus.isCgm = bgRecs.some(r => r.device === 'CGM') || bgRecs.length > 2;
 
             if (!bgStatus.isCgm) {
-              // 傳統模式：尋找早晚數值
-              let mRec = bgRecs.find(r => r.time < '15:00');
-              let eRec = bgRecs.slice().reverse().find(r => r.time >= '15:00');
+              let mRec = bgRecs.filter(r => r.time < '15:00').pop();
+              let eRec = bgRecs.filter(r => r.time >= '15:00').pop();
               const formatBg = (rec) => {
                 if(!rec) return { val: '--', color: 'text-gray-400' };
                 let v = this.getEvaluatedGlucose(rec);
@@ -692,30 +706,59 @@
             }
           }
 
-          let insulinStatus = { text: '今天打針沒？😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' };
+          let insulinStatus = { text: '', emoji: '', bgColor: '', textClass: '' };
           const insRecs = todayRecs.filter(r => r.type === 'insulin');
-          const hasMorning = insRecs.some(r => r.insulinTime === '早'); const hasEvening = insRecs.some(r => r.insulinTime === '晚');
-          const isEveningNow = new Date().getHours() >= 15; let currentNeedShot = true;
-          if (bgRecs.length > 0) {
-             let latestBgRecord = bgRecs[bgRecs.length - 1];
-             let val = this.getEvaluatedGlucose(latestBgRecord);
-             let matchedRule = this.insulinRules.find(r => val >= r.min && val <= r.max);
-             if (!matchedRule && val === 500) matchedRule = this.insulinRules.reduce((prev, current) => (prev.max > current.max) ? prev : current, this.insulinRules[0]);
-             if (matchedRule && (String(matchedRule.dose) === '0' || String(matchedRule.dose).includes('不') || val === 20)) currentNeedShot = false;
+          const hasMorning = insRecs.some(r => r.insulinTime === '早'); 
+          const hasEvening = insRecs.some(r => r.insulinTime === '晚');
+          const isEveningNow = new Date().getHours() >= 15; 
+          
+          const mBgRecs = bgRecs.filter(r => r.time < '15:00');
+          const eBgRecs = bgRecs.filter(r => r.time >= '15:00');
+          const mBgVal = mBgRecs.length > 0 ? this.getEvaluatedGlucose(mBgRecs[mBgRecs.length - 1]) : null;
+          const eBgVal = eBgRecs.length > 0 ? this.getEvaluatedGlucose(eBgRecs[eBgRecs.length - 1]) : null;
+
+          const checkNeed = (val) => {
+            if (val === null) return true; 
+            let matchedRule = this.insulinRules.find(r => val >= r.min && val <= r.max);
+            if (!matchedRule && val === 500) matchedRule = this.insulinRules.reduce((prev, current) => (prev.max > current.max) ? prev : current, this.insulinRules[0]);
+            if (matchedRule && (String(matchedRule.dose) === '0' || String(matchedRule.dose).includes('不') || val === 20)) return false;
+            return true;
+          };
+
+          const needMorning = checkNeed(mBgVal);
+          const needEvening = checkNeed(eBgVal);
+
+          if (isEveningNow) {
+            if (hasEvening) {
+              insulinStatus = { text: '晚針已打，今天辛苦囉！', emoji: '🌙', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' };
+            } else if (eBgVal !== null && !needEvening) {
+              insulinStatus = { text: '晚間血糖漂亮，免打針！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
+            } else if (eBgVal !== null && needEvening) {
+              insulinStatus = { text: '晚間血糖出爐，該打針囉！💉', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
+            } else {
+              insulinStatus = { text: '請先測量晚上血糖評估晚針喔！', emoji: '🧐', bgColor: 'bg-yellow-50 border-yellow-200', textClass: 'text-yellow-700' };
+            }
+          } else {
+            if (hasMorning) {
+              insulinStatus = { text: '早針已打！普普好棒！', emoji: '☀️', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' };
+            } else if (mBgVal !== null && !needMorning) {
+              insulinStatus = { text: '早上血糖漂亮，免打針！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
+            } else if (mBgVal !== null && needMorning) {
+              insulinStatus = { text: '早晨血糖出爐，該打針囉！💉', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
+            } else {
+              insulinStatus = { text: '早安！量個血糖看要不要打針？', emoji: '🧐', bgColor: 'bg-yellow-50 border-yellow-200', textClass: 'text-yellow-700' };
+            }
           }
-          if (hasMorning && hasEvening) { insulinStatus = { text: '全打完囉！👍', emoji: '😺', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' }; }
-          else if (hasMorning && !isEveningNow) { insulinStatus = { text: '早針已打！', emoji: '😺', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' }; }
-          else if (hasMorning && isEveningNow) { insulinStatus = currentNeedShot ? { text: '晚針預備！', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' } : { text: '晚針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' }; }
-          else if (!hasMorning && !isEveningNow) { insulinStatus = (bgRecs.length > 0 && !currentNeedShot) ? { text: '早針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' } : { text: '忘記早針？😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' }; }
-          else if (isEveningNow && !hasEvening) { insulinStatus = (bgRecs.length > 0 && !currentNeedShot) ? { text: '晚針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' } : { text: '尚未打針！😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' }; }
+
           let calStatus = { text: '主子還沒吃 🤔', bgColor: 'bg-gray-50 border-gray-100', textClass: 'text-gray-500' };
           let diff = (parseFloat(this.profile.weight) ? Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2) : 200) - this.todayStats.total;
           if (this.todayStats.total > 0) {
             if (diff <= 0) { calStatus = { text: '熱量達標！🎉', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' }; }
             else { calStatus = { text: `差 ${diff} kcal！`, bgColor: 'bg-orange-50 border-orange-100', textClass: 'text-orange-700' }; }
           }
-          return { greeting, bgStatus, insulinStatus, calStatus };
+          return { greeting: this.greetingObj, bgStatus, insulinStatus, calStatus };
         },
+
         trendAnalysisText() {
           const past7 = getPastDateString(7); const recs = this.records.filter(r => r.type === 'glucose' && r.date >= past7);
           if (recs.length === 0) return '過去 7 天還沒有測量紀錄喔！<br>辛苦家長了，趕快幫普普記下第一筆健康手帳，讓我來幫您分析吧！🐈💕';
@@ -742,6 +785,8 @@
           }
           return text;
         },
+
+        // 下面皆與上一版一致 (修復了按鈕提示與底層分離)
         selectedFood() { return this.foods.find(f => f.id === this.form.selectedFoodId); },
         calculatedKcal() {
           if (!this.selectedFood) return 0;
@@ -799,24 +844,32 @@
           const groups = {};
           this.records.forEach(rec => {
             if (!rec.date) return;
-            if (this.logFilter === 'medical' && rec.type !== 'glucose' && rec.type !== 'insulin') return;
-            if (this.logFilter === 'food' && rec.type !== 'food') return;
             if (!groups[rec.date]) groups[rec.date] = { allEvents: [], totalKcal: 0 };
             groups[rec.date].allEvents.push(rec);
             if (rec.type === 'food' && rec.kcal) groups[rec.date].totalKcal += parseFloat(rec.kcal);
           });
           const finalResult = [];
           Object.keys(groups).sort((a, b) => String(b).localeCompare(String(a))).forEach(date => {
+            let dayData = groups[date];
+            let displayEvents = [...dayData.allEvents];
+
+            if (this.logFilter === 'medical') {
+              displayEvents = displayEvents.filter(r => r.type === 'glucose' || r.type === 'insulin');
+            } else if (this.logFilter === 'food') {
+              displayEvents = displayEvents.filter(r => r.type === 'food');
+            }
+            if (displayEvents.length === 0) return;
+
             let hasDanger = false; let allPerfect = true; let hasGlucose = false;
-            groups[date].allEvents.forEach(rec => {
+            dayData.allEvents.forEach(rec => {
               if(rec.type === 'glucose') {
                 hasGlucose = true; 
-                let val = this.getEvaluatedGlucose(rec);
+                let val = this.getEvaluatedGlucose(rec); 
                 if (val >= 250 || val <= 40) hasDanger = true;
                 if (val > 150 || val < 80) allPerfect = false;
               }
             });
-            finalResult.push({ date, events: groups[date].allEvents.sort((a,b) => String(a.time||'').localeCompare(String(b.time||''))), totalKcal: Math.round(groups[date].totalKcal), status: hasDanger ? 'danger' : (hasGlucose && allPerfect ? 'perfect' : 'normal') });
+            finalResult.push({ date, events: displayEvents.sort((a,b) => String(a.time||'').localeCompare(String(b.time||''))), totalKcal: Math.round(dayData.totalKcal), status: hasDanger ? 'danger' : (hasGlucose && allPerfect ? 'perfect' : 'normal') });
           });
           return finalResult;
         }
@@ -894,11 +947,12 @@
         saveProfile() { localStorage.setItem('pupu_profile', JSON.stringify(this.profile)); },
         setNow() { this.form.date = getLocalDateString(); this.form.time = getLocalTimeString(); },
         addFood() {
+          if (!this.newFood.name) return alert('請填寫食物名稱喔！');
           this.foods.push({ id: Date.now(), ...this.newFood });
           localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
           this.newFood = { name: '', unit: '', weight: '', kcal: '', category: 'staple' };
         },
-        deleteFood(id) { this.foods = this.foods.filter(f => f.id !== id); localStorage.setItem('pupu_foods', JSON.stringify(this.foods)); },
+        deleteFood(id) { if(confirm('確定刪除這個食物嗎？')) { this.foods = this.foods.filter(f => f.id !== id); localStorage.setItem('pupu_foods', JSON.stringify(this.foods)); } },
         startEditFood(f) { this.editingSettingFood = f; this.editSettingFoodForm = JSON.parse(JSON.stringify(f)); },
         saveEditFood() {
           const idx = this.foods.findIndex(f => f.id === this.editSettingFoodForm.id);
@@ -911,6 +965,8 @@
         },
         addInsulinRule() { this.insulinRules.push({ id: Date.now(), min: 0, max: 0, dose: '0' }); },
         deleteInsulinRule(id) { this.insulinRules = this.insulinRules.filter(r => r.id !== id); localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules)); },
+        
+        // 🌟 修正：補回儲存紀錄時的視窗提示防呆
         saveGlucose() {
           if (!this.form.glucose) return alert('請先輸入血糖喔！');
           this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose, device: this.form.device });
@@ -932,6 +988,7 @@
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = '';
         },
+        
         startEdit(rec) { this.editingRecord = rec; this.editForm = JSON.parse(JSON.stringify(rec)); },
         cancelEdit() { this.editingRecord = null; },
         saveEdit() {
@@ -957,7 +1014,6 @@
         getEventsByType(evs, type) { return (evs || []).filter(e => e.type === type); },
         calculateTargetKcal() { this.profile.targetKcal = Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2); this.saveProfile(); },
         
-        // 🌟 渲染主頁的迷你曲線圖
         renderMiniChart() {
           if (typeof Chart === 'undefined') return;
           const ctx = document.getElementById('miniGlucoseChart'); if(!ctx) return;
