@@ -99,6 +99,7 @@
         <div class="card !bg-white !border-2 !border-solid !rounded-3xl !p-5 overflow-hidden transition-all relative" :style="{ borderColor: homeStatus.bgStatus.dashColor, boxShadow: `0 6px 16px ${homeStatus.bgStatus.dashColor}33` }">
           <div class="absolute inset-[5px] border-[1.5px] border-dashed rounded-[22px] pointer-events-none opacity-50" :style="{ borderColor: homeStatus.bgStatus.dashColor }"></div>
           <div class="absolute -right-4 -bottom-4 text-8xl opacity-5">🩸</div>
+          
           <div class="flex justify-between items-center relative z-10">
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner" :class="homeStatus.bgStatus.dotColor">{{ homeStatus.bgStatus.emoji }}</div>
@@ -107,8 +108,24 @@
                 <div class="font-bold text-base" :class="homeStatus.bgStatus.textClass">{{ homeStatus.bgStatus.text }}</div>
               </div>
             </div>
-            <div class="text-right">
+            <div class="text-right" v-show="!homeStatus.bgStatus.isCgm && !homeStatus.bgStatus.hasData">
               <div class="text-4xl font-bold font-mono tracking-tighter" :class="homeStatus.bgStatus.textClass">{{ homeStatus.bgStatus.value }}</div>
+            </div>
+          </div>
+
+          <div v-show="homeStatus.bgStatus.hasData" class="relative z-10">
+            <div v-show="homeStatus.bgStatus.isCgm" class="mt-4 h-16 w-full relative">
+              <canvas id="miniGlucoseChart"></canvas>
+            </div>
+            <div v-show="!homeStatus.bgStatus.isCgm" class="mt-4 flex gap-3">
+              <div class="flex-1 bg-gray-50 rounded-xl p-2.5 flex justify-between items-center border border-gray-100 shadow-sm">
+                <span class="text-xs font-bold text-gray-400">☀️ 早</span>
+                <span class="font-bold text-lg font-mono tracking-tighter" :class="homeStatus.bgStatus.morning.color">{{ homeStatus.bgStatus.morning.val }}</span>
+              </div>
+              <div class="flex-1 bg-gray-50 rounded-xl p-2.5 flex justify-between items-center border border-gray-100 shadow-sm">
+                <span class="text-xs font-bold text-gray-400">🌙 晚</span>
+                <span class="font-bold text-lg font-mono tracking-tighter" :class="homeStatus.bgStatus.evening.color">{{ homeStatus.bgStatus.evening.val }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -332,8 +349,14 @@
           <select v-model="chartRange" @change="renderChart" class="bg-pink-50 border border-pink-200 rounded-xl p-1.5 text-xs font-bold shadow-sm outline-none">
             <option value="7">近7天</option>
             <option value="30">近30天</option>
+            <option value="custom">自訂區間</option>
             <option value="all">全部</option>
           </select>
+        </div>
+        <div v-if="chartRange === 'custom'" class="flex items-center justify-between gap-2 mb-4 bg-pink-50 p-2 rounded-xl border border-pink-100 shadow-inner">
+          <input type="date" v-model="customStartDate" @change="renderChart" class="bg-white border border-pink-200 rounded-lg p-1.5 text-xs w-full outline-none text-[#5D4037] font-bold">
+          <span class="text-[#D87093] font-bold">~</span>
+          <input type="date" v-model="customEndDate" @change="renderChart" class="bg-white border border-pink-200 rounded-lg p-1.5 text-xs w-full outline-none text-[#5D4037] font-bold">
         </div>
         <p class="text-[11px] text-gray-400 text-center mb-3 font-bold bg-gray-50 rounded-full py-1">💡 綠色區塊為安全範圍 (80~150)</p>
         <div style="position: relative; height: 260px; width: 100%;">
@@ -491,7 +514,6 @@
       
       <div class="card !bg-[#FFF5EE] border-2 border-[#FFE4E1] mb-8 !rounded-[2rem]">
         <h3 class="font-bold mb-3 text-[#D87093] border-b-2 border-pink-100 pb-2 text-lg highlighter">📤 匯出資料給醫生</h3>
-        
         <div class="mb-4">
           <select v-model="exportRange" class="input-field !p-3 text-base font-bold mb-3 bg-white shadow-sm border-0">
             <option value="all">全部紀錄</option>
@@ -510,7 +532,6 @@
           <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-orange-100 shadow-sm"><input type="checkbox" v-model="exportOptions.food" class="w-5 h-5 chk-food"> 🐟 飲食</label>
           <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-gray-200 shadow-sm"><input type="checkbox" v-model="exportOptions.other" class="w-5 h-5 chk-other"> 🩺 其他</label>
         </div>
-
         <button @click="exportCSV" class="btn-save !mt-0 !py-4 flex justify-center items-center gap-2 text-lg shadow-md active:scale-95 transition-all">📤 產生文字報表</button>
       </div>
     </div>
@@ -630,17 +651,19 @@
       },
       computed: {
         filteredFoodsByTab() { return this.foods.filter(f => f.category === this.recordFoodTab); },
+        
+        // 🌟 雙模態首頁血糖狀態判定
         homeStatus() {
           const today = getLocalDateString(); const hr = new Date().getHours();
           let greeting = '午安日記'; if (hr >= 5 && hr < 12) greeting = '早安日記'; else if (hr >= 18 || hr < 5) greeting = '晚安日記';
           const todayRecs = this.records.filter(r => r.date === today);
-          let bgStatus = { text: '尚未測量 👀', value: '--', emoji: '🧐', dashColor: '#e0e0e0', textClass: 'text-gray-500', dotColor: 'bg-gray-100', isEst: false };
           
-          const bgRecs = todayRecs.filter(r => r.type === 'glucose').sort((a,b) => String(b.time || '').localeCompare(String(a.time || '')));
+          let bgStatus = { text: '尚未測量 👀', value: '--', emoji: '🧐', dashColor: '#e0e0e0', textClass: 'text-gray-500', dotColor: 'bg-gray-100', isEst: false, isCgm: false, hasData: false, morning: {val: '--', color: 'text-gray-400'}, evening: {val: '--', color: 'text-gray-400'} };
+          const bgRecs = todayRecs.filter(r => r.type === 'glucose').sort((a,b) => String(a.time || '').localeCompare(String(b.time || ''))); // 時間正序
           
-          let latestBgRecord = null;
           if (bgRecs.length > 0) {
-            latestBgRecord = bgRecs[0]; 
+            bgStatus.hasData = true;
+            let latestBgRecord = bgRecs[bgRecs.length - 1]; // 最後一筆
             let val = this.getEvaluatedGlucose(latestBgRecord);
             bgStatus.isEst = (latestBgRecord.device === '羅氏(人用)' && latestBgRecord.glucose !== 'HI' && latestBgRecord.glucose !== 'LO');
             bgStatus.value = bgStatus.isEst ? `${val}` : latestBgRecord.glucose;
@@ -649,12 +672,32 @@
             else if (val < 80) { bgStatus.text = '低血糖警告 🆘'; bgStatus.emoji = '🆘'; bgStatus.dashColor = '#ef4444'; bgStatus.textClass = 'text-red-600'; bgStatus.dotColor = 'bg-red-100'; }
             else if (val >= 80 && val <= 150) { bgStatus.text = '完美控制 🌟'; bgStatus.emoji = '😸'; bgStatus.dashColor = '#10b981'; bgStatus.textClass = 'text-green-600'; bgStatus.dotColor = 'bg-green-100'; }
             else { bgStatus.text = '稍微偏高 👀'; bgStatus.emoji = '😺'; bgStatus.dashColor = '#fbbf24'; bgStatus.textClass = 'text-yellow-700'; bgStatus.dotColor = 'bg-yellow-100'; }
+
+            // 判斷是否為 CGM 模式 (>2筆 或 有一筆是CGM)
+            bgStatus.isCgm = bgRecs.some(r => r.device === 'CGM') || bgRecs.length > 2;
+
+            if (!bgStatus.isCgm) {
+              // 傳統模式：尋找早晚數值
+              let mRec = bgRecs.find(r => r.time < '15:00');
+              let eRec = bgRecs.slice().reverse().find(r => r.time >= '15:00');
+              const formatBg = (rec) => {
+                if(!rec) return { val: '--', color: 'text-gray-400' };
+                let v = this.getEvaluatedGlucose(rec);
+                let c = 'text-[#5D4037]';
+                if(v>=250) c='text-gray-700'; else if(v<80) c='text-red-600'; else if(v<=150) c='text-green-600'; else c='text-yellow-700';
+                return { val: (rec.device==='羅氏(人用)' && rec.glucose!=='HI' && rec.glucose!=='LO') ? `${v}*` : rec.glucose, color: c };
+              };
+              bgStatus.morning = formatBg(mRec);
+              bgStatus.evening = formatBg(eRec);
+            }
           }
+
           let insulinStatus = { text: '今天打針沒？😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' };
           const insRecs = todayRecs.filter(r => r.type === 'insulin');
           const hasMorning = insRecs.some(r => r.insulinTime === '早'); const hasEvening = insRecs.some(r => r.insulinTime === '晚');
           const isEveningNow = new Date().getHours() >= 15; let currentNeedShot = true;
-          if (latestBgRecord) {
+          if (bgRecs.length > 0) {
+             let latestBgRecord = bgRecs[bgRecs.length - 1];
              let val = this.getEvaluatedGlucose(latestBgRecord);
              let matchedRule = this.insulinRules.find(r => val >= r.min && val <= r.max);
              if (!matchedRule && val === 500) matchedRule = this.insulinRules.reduce((prev, current) => (prev.max > current.max) ? prev : current, this.insulinRules[0]);
@@ -663,8 +706,8 @@
           if (hasMorning && hasEvening) { insulinStatus = { text: '全打完囉！👍', emoji: '😺', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' }; }
           else if (hasMorning && !isEveningNow) { insulinStatus = { text: '早針已打！', emoji: '😺', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' }; }
           else if (hasMorning && isEveningNow) { insulinStatus = currentNeedShot ? { text: '晚針預備！', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' } : { text: '晚針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' }; }
-          else if (!hasMorning && !isEveningNow) { insulinStatus = (latestBgRecord && !currentNeedShot) ? { text: '早針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' } : { text: '忘記早針？😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' }; }
-          else if (isEveningNow && !hasEvening) { insulinStatus = (latestBgRecord && !currentNeedShot) ? { text: '晚針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' } : { text: '尚未打針！😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' }; }
+          else if (!hasMorning && !isEveningNow) { insulinStatus = (bgRecs.length > 0 && !currentNeedShot) ? { text: '早針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' } : { text: '忘記早針？😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' }; }
+          else if (isEveningNow && !hasEvening) { insulinStatus = (bgRecs.length > 0 && !currentNeedShot) ? { text: '晚針免打！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' } : { text: '尚未打針！😱', emoji: '🙀', bgColor: 'bg-red-50 border-red-100', textClass: 'text-red-700' }; }
           let calStatus = { text: '主子還沒吃 🤔', bgColor: 'bg-gray-50 border-gray-100', textClass: 'text-gray-500' };
           let diff = (parseFloat(this.profile.weight) ? Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2) : 200) - this.todayStats.total;
           if (this.todayStats.total > 0) {
@@ -779,8 +822,14 @@
         }
       },
       watch: {
-        currentTab(newVal) { if (newVal === 'chart') this.$nextTick(() => { this.renderChart(); }); },
+        currentTab(newVal) { 
+          if (newVal === 'chart') this.$nextTick(() => { this.renderChart(); }); 
+          if (newVal === 'home') this.$nextTick(() => { this.renderMiniChart(); });
+        },
         chartRange() { this.$nextTick(() => { this.renderChart(); }); },
+      },
+      mounted() {
+        if(this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
       },
       methods: {
         getEvaluatedGlucose(rec) {
@@ -821,6 +870,7 @@
                 if (data.avatar) { this.avatar = data.avatar; localStorage.setItem('pupu_avatar', this.avatar); }
                 alert('🎉 還原成功！'); this.showPasteImport = false; this.pasteData = '';
                 if (this.currentTab === 'chart') this.$nextTick(() => { this.renderChart(); });
+                if (this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
               }
             } else { alert('❌ 內容缺少紀錄資料，請確定複製完整！'); }
           } catch (err) { alert('❌ 解析失敗，請確定貼上的是備份碼！'); }
@@ -865,6 +915,7 @@
           if (!this.form.glucose) return alert('請先輸入血糖喔！');
           this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose, device: this.form.device });
           this.saveToLocal(); alert('🩸 血糖已紀錄！'); this.form.glucose = '';
+          if(this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
         },
         saveInsulin() {
           if (!this.form.actualInsulinDose) return alert('請先輸入施打劑量喔！');
@@ -887,6 +938,7 @@
           const idx = this.records.findIndex(r => r.id === this.editForm.id);
           this.records[idx] = this.editForm; this.saveToLocal(); this.editingRecord = null;
           if (this.currentTab === 'chart') this.$nextTick(() => { this.renderChart(); });
+          if (this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
         },
         recalcEditFoodKcal() {
           const f = this.foods.find(food => food.name === this.editForm.foodName);
@@ -895,10 +947,62 @@
             else this.editForm.kcal = Math.round(parseFloat(this.editForm.foodAmount) * f.kcal);
           }
         },
-        deleteRecord(id) { if(confirm('確定要刪除這筆紀錄嗎？')) { this.records = this.records.filter(r => r.id !== id); this.saveToLocal(); } },
+        deleteRecord(id) { 
+          if(confirm('確定要刪除這筆紀錄嗎？')) { 
+            this.records = this.records.filter(r => r.id !== id); this.saveToLocal(); 
+            if(this.currentTab === 'chart') this.$nextTick(() => { this.renderChart(); });
+            if(this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
+          } 
+        },
         getEventsByType(evs, type) { return (evs || []).filter(e => e.type === type); },
         calculateTargetKcal() { this.profile.targetKcal = Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2); this.saveProfile(); },
         
+        // 🌟 渲染主頁的迷你曲線圖
+        renderMiniChart() {
+          if (typeof Chart === 'undefined') return;
+          const ctx = document.getElementById('miniGlucoseChart'); if(!ctx) return;
+          
+          if(window.miniChartInstance) window.miniChartInstance.destroy();
+          
+          const today = getLocalDateString();
+          const bgRecs = this.records.filter(r => r.date === today && r.type === 'glucose').sort((a,b) => String(a.time||'').localeCompare(String(b.time||'')));
+          if(bgRecs.length === 0) return;
+
+          const dataVals = bgRecs.map(g => this.getEvaluatedGlucose(g));
+          const pointColors = dataVals.map(val => {
+             if (val === 500) return '#9333EA'; 
+             if (val <= 40) return '#991B1B'; 
+             if (val < 80) return '#EF4444'; 
+             return '#D87093'; 
+          });
+
+          window.miniChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: bgRecs.map(r => r.time),
+              datasets: [{ 
+                data: dataVals, 
+                borderColor: '#FFB6C1', 
+                pointBackgroundColor: pointColors, 
+                pointRadius: 2,
+                borderWidth: 2,
+                fill: true, 
+                backgroundColor: 'rgba(255, 182, 193, 0.2)',
+                tension: 0.4 
+              }]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false,
+              plugins: { legend: { display: false }, tooltip: { enabled: false } },
+              scales: { 
+                x: { display: false }, 
+                y: { display: false, min: 0 } 
+              },
+              layout: { padding: {top: 5, bottom: 5, left: 5, right: 5} }
+            }
+          });
+        },
+
         renderChart() {
           if (typeof Chart === 'undefined') return;
           const ctx = document.getElementById('glucoseChart'); if(!ctx) return;
