@@ -29,7 +29,6 @@
     input:not([type="checkbox"]):not([type="radio"]), textarea, select { -webkit-user-select: text !important; user-select: text !important; -webkit-appearance: none !important; appearance: none !important; cursor: text !important; }
     input[type="checkbox"] { -webkit-appearance: checkbox !important; appearance: auto !important; }
 
-    /* 🌟 新增：全域美化專屬櫻花粉捲軸，讓滑動區塊一眼可見！ */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #FFF0F5; border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: #FFB6C1; border-radius: 10px; }
@@ -267,8 +266,8 @@
           <div class="flex justify-between items-center mb-3">
             <p class="text-sm text-gray-600 font-bold">吃了多少？</p>
             <div class="flex bg-white rounded-lg p-1 border border-orange-200 shadow-sm">
-              <button @click="form.foodRecordType = 'amount'" :class="form.foodRecordType === 'amount' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all">依份數</button>
-              <button @click="form.foodRecordType = 'grams'" :class="form.foodRecordType === 'grams' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all">依克數</button>
+              <button @click="form.foodRecordType = 'amount'" :class="form.foodRecordType === 'amount' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all active:scale-95">依份數</button>
+              <button @click="form.foodRecordType = 'grams'" :class="form.foodRecordType === 'grams' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all active:scale-95">依克數</button>
             </div>
           </div>
           
@@ -345,7 +344,7 @@
       <div class="mb-4">
         <div class="flex justify-between items-center mb-3 pl-2"><h3 class="font-bold text-gray-600 text-lg highlighter">📅 歷史健康手帳</h3></div>
         
-        <div class="flex gap-2 mb-5 overflow-x-auto pb-2 pl-1">
+        <div class="flex gap-2 mb-5 overflow-x-auto pb-2 pl-1 scrollbar-hide">
           <button @click="logFilter = 'all'" :class="logFilter === 'all' ? 'bg-[#D87093] text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">全部</button>
           <button @click="logFilter = 'medical'" :class="logFilter === 'medical' ? 'bg-blue-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">🩸 醫療</button>
           <button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">🐟 飲食</button>
@@ -458,7 +457,6 @@
             </div>
           </div>
         </div>
-
         <div class="bg-pink-50 p-5 rounded-[2rem] border-2 border-pink-100 shadow-inner">
           <h4 class="font-bold text-sm text-[#D87093] mb-3">➕ 新增食物/點心</h4>
           <input type="text" v-model="newFood.name" placeholder="名稱" class="input-field !p-3 text-sm mb-3 font-bold text-center">
@@ -785,7 +783,6 @@
         chartRange() { this.$nextTick(() => { this.renderChart(); }); },
       },
       methods: {
-        // 🌟 核心小幫手：全域羅氏智能換算器
         getEvaluatedGlucose(rec) {
           if (!rec || !rec.glucose) return NaN;
           if (rec.glucose === 'HI') return 500;
@@ -794,7 +791,6 @@
           if (rec.device === '羅氏(人用)' && !isNaN(v)) return Math.round(v * 1.3);
           return v;
         },
-
         uploadAvatar(e) {
           const file = e.target.files[0];
           if (!file) return;
@@ -866,20 +862,24 @@
         addInsulinRule() { this.insulinRules.push({ id: Date.now(), min: 0, max: 0, dose: '0' }); },
         deleteInsulinRule(id) { this.insulinRules = this.insulinRules.filter(r => r.id !== id); localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules)); },
         saveGlucose() {
+          if (!this.form.glucose) return alert('請先輸入血糖喔！');
           this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose, device: this.form.device });
-          this.saveToLocal(); this.form.glucose = '';
+          this.saveToLocal(); alert('🩸 血糖已紀錄！'); this.form.glucose = '';
         },
         saveInsulin() {
+          if (!this.form.actualInsulinDose) return alert('請先輸入施打劑量喔！');
           this.records.push({ id: Date.now(), type: 'insulin', date: this.form.date, time: this.form.time, insulinTime: this.form.insulinTime, insulinDose: this.form.actualInsulinDose });
-          this.saveToLocal();
+          this.saveToLocal(); alert('💉 胰島素已紀錄！'); this.form.actualInsulinDose = '';
         },
         saveFood() {
+          if (!this.selectedFood) return alert('請先選擇食物喔！');
           this.records.push({ id: Date.now(), type: 'food', date: this.form.date, time: this.form.time, foodName: this.selectedFood.name, foodRecordType: this.form.foodRecordType, foodAmount: this.form.foodAmount, foodGrams: this.form.foodGrams, kcal: this.calculatedKcal, unit: this.selectedFood.unit });
-          this.saveToLocal(); this.form.foodAmount = ''; this.form.foodGrams = '';
+          this.saveToLocal(); alert('🐟 飲食已紀錄！'); this.form.foodAmount = ''; this.form.foodGrams = '';
         },
         saveOther() {
+          if (!this.form.weight && !this.form.notes) return alert('請輸入體重或備註喔！');
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
-          this.saveToLocal();
+          this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = '';
         },
         startEdit(rec) { this.editingRecord = rec; this.editForm = JSON.parse(JSON.stringify(rec)); },
         cancelEdit() { this.editingRecord = null; },
@@ -895,7 +895,7 @@
             else this.editForm.kcal = Math.round(parseFloat(this.editForm.foodAmount) * f.kcal);
           }
         },
-        deleteRecord(id) { if(confirm('刪除？')) { this.records = this.records.filter(r => r.id !== id); this.saveToLocal(); } },
+        deleteRecord(id) { if(confirm('確定要刪除這筆紀錄嗎？')) { this.records = this.records.filter(r => r.id !== id); this.saveToLocal(); } },
         getEventsByType(evs, type) { return (evs || []).filter(e => e.type === type); },
         calculateTargetKcal() { this.profile.targetKcal = Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2); this.saveProfile(); },
         
