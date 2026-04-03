@@ -70,7 +70,27 @@
     </div>
 
     <div v-show="currentTab === 'home'">
-      <div class="card bg-white !border-2 !border-[#FFE4E1] mb-10 mt-8 pt-8">
+      
+      <div v-if="remissionDays > 0" class="card !border-2 !border-yellow-300 mb-8 !p-0 overflow-hidden shadow-lg relative" style="background: linear-gradient(135deg, #fffbeb, #fef3c7);">
+        <div class="absolute -right-4 -bottom-6 text-8xl opacity-20">🎉</div>
+        <div class="absolute -left-4 -top-4 text-6xl opacity-20">✨</div>
+        <div class="p-5 flex items-center gap-4 relative z-10">
+          <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-3xl shadow-sm border-4 border-yellow-200 shrink-0">
+             {{ remissionDays >= 30 ? '👑' : (remissionDays >= 14 ? '🏆' : '🌟') }}
+          </div>
+          <div>
+            <div class="text-xs text-yellow-600 font-bold mb-1 tracking-wide">超棒的健康里程碑！</div>
+            <div class="text-lg font-bold text-yellow-800">
+               已經停針 <span class="text-3xl text-red-500 mx-1">{{ remissionDays }}</span> 天囉！
+            </div>
+            <div class="text-[11px] text-yellow-700 font-bold mt-1.5 bg-yellow-100/50 p-1.5 rounded-lg inline-block">
+               {{ remissionDays >= 30 ? '奇蹟貓貓！超過一個月了，超級厲害！' : (remissionDays >= 14 ? '滿 14 天里程碑！繼續往一個月邁進！' : '好的開始！普普繼續保持喔！') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-white !border-2 !border-[#FFE4E1] mb-10 mt-2 pt-8">
         <div class="washi-tape"></div>
         <div class="flex items-center gap-5">
           <label class="w-24 h-24 bg-[#FFF0F5] border-4 border-[#FFB6C1] rounded-[2rem] flex items-center justify-center text-5xl shrink-0 cursor-pointer relative overflow-hidden bg-cover bg-center shadow-md rotate-[-3deg]" :style="avatar ? `background-image: url(${avatar})` : ''">
@@ -326,15 +346,15 @@
         <div class="mb-3 bg-pink-50 p-3 rounded-2xl border border-pink-100 shadow-inner">
           <label class="text-xs text-[#D87093] font-bold mb-2 block">快捷症狀紀錄 (點擊自動輸入)：</label>
           <div class="flex flex-wrap gap-2">
-            <button @click="addSymptom('🤮 嘔吐')" class="bg-white text-red-500 border border-red-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">🤮 嘔吐</button>
-            <button @click="addSymptom('🌾 吐毛球')" class="bg-white text-yellow-600 border border-yellow-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">🌾 吐毛球</button>
-            <button @click="addSymptom('💩 軟便/拉稀')" class="bg-white text-amber-700 border border-amber-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">💩 軟便/拉稀</button>
-            <button @click="addSymptom('💧 喝多尿多')" class="bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">💧 喝多尿多</button>
-            <button @click="addSymptom('😿 精神不佳')" class="bg-white text-gray-500 border border-gray-300 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">😿 精神不佳</button>
+            <button @click="addSymptom('嘔吐')" class="bg-white text-red-500 border border-red-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">🤮 嘔吐</button>
+            <button @click="addSymptom('吐毛球')" class="bg-white text-yellow-600 border border-yellow-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">🌾 吐毛球</button>
+            <button @click="addSymptom('軟便/拉稀')" class="bg-white text-amber-700 border border-amber-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">💩 軟便/拉稀</button>
+            <button @click="addSymptom('喝多尿多')" class="bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">💧 喝多尿多</button>
+            <button @click="addSymptom('精神不佳')" class="bg-white text-gray-500 border border-gray-300 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">😿 精神不佳</button>
           </div>
         </div>
 
-        <div><textarea v-model="form.notes" class="input-field" rows="2" placeholder="備註 (點擊上方標籤可快速輸入)"></textarea></div>
+        <div><textarea v-model="form.notes" class="input-field p-4 text-sm font-bold text-gray-600 leading-relaxed" rows="3" placeholder="備註"></textarea></div>
         <button @click="saveOther" class="btn-save py-3 text-lg">儲存其他紀錄</button>
       </div>
     </div>
@@ -474,6 +494,12 @@
         <div class="mt-4 p-4 bg-orange-50 rounded-2xl border-2 border-orange-100 shadow-inner">
           <label class="text-sm text-orange-600 font-bold block mb-2">每日目標熱量 (kcal)</label>
           <input type="number" inputmode="decimal" v-model="profile.targetKcal" @change="saveProfile" class="input-field !bg-white text-orange-500 font-bold text-xl text-center">
+        </div>
+        
+        <div class="mt-4 p-4 bg-yellow-50 rounded-2xl border-2 border-yellow-100 shadow-inner">
+          <label class="text-sm text-yellow-600 font-bold block mb-1">🎉 停針紀念日 (選填)</label>
+          <div class="text-[10px] text-yellow-500 mb-3 font-bold">若普普已停針，設定日期後首頁會為您慶祝喔！</div>
+          <input type="date" v-model="profile.remissionDate" @change="saveProfile" class="input-field !bg-white text-yellow-600 font-bold text-center !py-2">
         </div>
       </div>
 
@@ -644,11 +670,11 @@
           <div class="mb-3 bg-pink-50 p-3 rounded-2xl border border-pink-100 shadow-inner">
             <label class="text-xs text-[#D87093] font-bold mb-2 block">快捷症狀：</label>
             <div class="flex flex-wrap gap-2">
-              <button @click="editAddSymptom('🤮 嘔吐')" class="bg-white text-red-500 border border-red-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">🤮 嘔吐</button>
-              <button @click="editAddSymptom('🌾 吐毛球')" class="bg-white text-yellow-600 border border-yellow-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">🌾 吐毛球</button>
-              <button @click="editAddSymptom('💩 軟便/拉稀')" class="bg-white text-amber-700 border border-amber-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">💩 軟便/拉稀</button>
-              <button @click="editAddSymptom('💧 喝多尿多')" class="bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">💧 喝多尿多</button>
-              <button @click="editAddSymptom('😿 精神不佳')" class="bg-white text-gray-500 border border-gray-300 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">😿 精神不佳</button>
+              <button @click="editAddSymptom('嘔吐')" class="bg-white text-red-500 border border-red-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">🤮 嘔吐</button>
+              <button @click="editAddSymptom('吐毛球')" class="bg-white text-yellow-600 border border-yellow-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">🌾 吐毛球</button>
+              <button @click="editAddSymptom('軟便/拉稀')" class="bg-white text-amber-700 border border-amber-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">💩 軟便/拉稀</button>
+              <button @click="editAddSymptom('喝多尿多')" class="bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">💧 喝多尿多</button>
+              <button @click="editAddSymptom('精神不佳')" class="bg-white text-gray-500 border border-gray-300 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">😿 精神不佳</button>
             </div>
           </div>
 
@@ -718,7 +744,7 @@
 
         return {
           currentTab: 'home', chartRange: '7', customStartDate: getPastDateString(7), customEndDate: getLocalDateString(), logFilter: 'all', recordFoodTab: 'staple', 
-          records: safeParse('pupu_records', []), profile: safeParse('pupu_profile', { weight: '', targetKcal: 200 }), avatar: localStorage.getItem('pupu_avatar') || '',
+          records: safeParse('pupu_records', []), profile: safeParse('pupu_profile', { weight: '', targetKcal: 200, remissionDate: '' }), avatar: localStorage.getItem('pupu_avatar') || '',
           foods: safeParse('pupu_foods', [
             { id: 1, name: '汪喵罐頭', unit: '罐', weight: 80, kcal: 110, category: 'staple' },
             { id: 2, name: '小怪獸罐頭', unit: '罐', weight: 82, kcal: 115, category: 'staple' },
@@ -738,6 +764,34 @@
       },
       computed: {
         filteredFoodsByTab() { return this.foods.filter(f => f.category === this.recordFoodTab); },
+        
+        // 🌟 計算停針天數
+        remissionDays() {
+          const todayDate = new Date(getLocalDateString());
+          let lastInsulinDateStr = '';
+          const insRecs = this.records.filter(r => r.type === 'insulin').sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+          if (insRecs.length > 0) { lastInsulinDateStr = insRecs[insRecs.length - 1].date; }
+          const settingDateStr = this.profile.remissionDate;
+
+          let effectiveStartDateStr = '';
+          if (settingDateStr && lastInsulinDateStr) {
+             if (settingDateStr >= lastInsulinDateStr) effectiveStartDateStr = settingDateStr;
+             else effectiveStartDateStr = lastInsulinDateStr;
+          } else if (settingDateStr) {
+             effectiveStartDateStr = settingDateStr;
+          } else if (lastInsulinDateStr) {
+             effectiveStartDateStr = lastInsulinDateStr;
+          }
+
+          if (!effectiveStartDateStr) return -1;
+
+          const effectiveDate = new Date(effectiveStartDateStr);
+          const diffTime = todayDate - effectiveDate;
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          
+          return diffDays;
+        },
+
         homeStatus() {
           const today = getLocalDateString();
           const todayRecs = this.records.filter(r => r.date === today);
@@ -829,11 +883,28 @@
           return { greeting: this.greetingObj, bgStatus, insulinStatus, calStatus };
         },
 
+        // 🌟 增強版貓醫生分析 (加入症狀檢查)
         trendAnalysisText() {
-          const past7 = getPastDateString(7); const recs = this.records.filter(r => r.type === 'glucose' && r.date >= past7);
-          if (recs.length === 0) return '過去 7 天還沒有測量紀錄喔！<br>辛苦家長了，趕快幫普普記下第一筆健康手帳，讓我來幫您分析吧！🐈💕';
+          const past7 = getPastDateString(7); 
+          const recentRecs = this.records.filter(r => r.date >= past7);
+          const bgRecs = recentRecs.filter(r => r.type === 'glucose');
+          const otherRecs = recentRecs.filter(r => r.type === 'other');
           
-          let vals = recs.map(r => this.getEvaluatedGlucose(r)).filter(v => !isNaN(v));
+          if (bgRecs.length === 0) return '過去 7 天還沒有測量紀錄喔！<br>辛苦家長了，趕快幫普普記下第一筆健康手帳，讓我來幫您分析吧！🐈💕';
+          
+          // 檢查症狀
+          let symptoms = { '嘔吐':0, '吐毛球':0, '軟便/拉稀':0, '喝多尿多':0, '精神不佳':0 };
+          otherRecs.forEach(r => {
+             if(r.notes) {
+                if(r.notes.includes('嘔吐')) symptoms['嘔吐']++;
+                if(r.notes.includes('吐毛球')) symptoms['吐毛球']++;
+                if(r.notes.includes('軟便') || r.notes.includes('拉稀')) symptoms['軟便/拉稀']++;
+                if(r.notes.includes('喝多尿多')) symptoms['喝多尿多']++;
+                if(r.notes.includes('精神不佳')) symptoms['精神不佳']++;
+             }
+          });
+
+          let vals = bgRecs.map(r => this.getEvaluatedGlucose(r)).filter(v => !isNaN(v));
           if(vals.length === 0) return '資料讀取中...';
           
           let avg = Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length);
@@ -853,6 +924,29 @@
           } else {
             text += `<span class="text-[#5D4037] mt-2 block font-bold leading-relaxed border-l-4 border-[#FFB6C1] pl-2">🍀 目前血糖紀錄看起來平穩，普普表現得很棒！日常照護是一場馬拉松，家長也別忘了照顧好自己，開心地度過每一天喔！🐾</span>`;
           }
+
+          // 加入症狀分析
+          let symptomText = [];
+          if(symptoms['嘔吐'] > 0) symptomText.push(`${symptoms['嘔吐']}次嘔吐`);
+          if(symptoms['吐毛球'] > 0) symptomText.push(`${symptoms['吐毛球']}次吐毛球`);
+          if(symptoms['軟便/拉稀'] > 0) symptomText.push(`${symptoms['軟便/拉稀']}次軟便`);
+          if(symptoms['喝多尿多'] > 0) symptomText.push(`${symptoms['喝多尿多']}天喝多尿多`);
+          if(symptoms['精神不佳'] > 0) symptomText.push(`${symptoms['精神不佳']}天精神不佳`);
+
+          if (symptomText.length > 0) {
+             text += `<br><span class="text-orange-600 mt-3 block font-bold leading-relaxed border-l-4 border-orange-400 pl-2">🩺 <strong>近期症狀追蹤：</strong>這週普普出現了「${symptomText.join('、')}」。<br>`;
+             if(symptoms['喝多尿多'] > 0 || symptoms['精神不佳'] > 0) {
+                 text += `⚠️ 「喝多尿多」或「精神不佳」可能是血糖波動的警訊，請多多留意喔！`;
+             } else if (symptoms['嘔吐'] > 0 || symptoms['軟便/拉稀'] > 0) {
+                 text += `💡 腸胃似乎有點敏感，記得觀察飲食狀況，若持續不舒服要盡快就醫喔！`;
+             } else {
+                 text += `🐱 吐毛球是正常的，幫普普拍拍背、多梳毛喔！`;
+             }
+             text += `</span>`;
+          } else {
+             text += `<br><span class="text-blue-600 mt-3 block font-bold leading-relaxed border-l-4 border-blue-400 pl-2">🩺 <strong>近期症狀追蹤：</strong>這週沒有任何不舒服的紀錄，普普真的很棒呢！🥰</span>`;
+          }
+
           return text;
         },
 
@@ -946,27 +1040,14 @@
         if(this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
       },
       methods: {
-        // 🌟 新增：快捷症狀加入備註 (主填寫區)
         addSymptom(text) {
-          if (this.form.notes) {
-            if (!this.form.notes.includes(text)) {
-              this.form.notes += '，' + text;
-            }
-          } else {
-            this.form.notes = text;
-          }
+          if (this.form.notes) { if (!this.form.notes.includes(text)) this.form.notes += '，' + text; } 
+          else { this.form.notes = text; }
         },
-        // 🌟 新增：快捷症狀加入備註 (編輯 Modal 區)
         editAddSymptom(text) {
-          if (this.editForm.notes) {
-            if (!this.editForm.notes.includes(text)) {
-              this.editForm.notes += '，' + text;
-            }
-          } else {
-            this.editForm.notes = text;
-          }
+          if (this.editForm.notes) { if (!this.editForm.notes.includes(text)) this.editForm.notes += '，' + text; } 
+          else { this.editForm.notes = text; }
         },
-        
         getEvaluatedGlucose(rec) {
           if (!rec || !rec.glucose) return NaN;
           if (rec.glucose === 'HI') return 500;
@@ -994,15 +1075,9 @@
           }
         },
         copyFallback() {
-          const textArea = document.getElementById("fallbackTextArea");
-          textArea.select();
-          try {
-            document.execCommand('copy');
-            alert('✅ 複製成功！\n請將內容貼到「備忘錄」保存，或直接傳給醫師。');
-            this.fallbackData = null;
-          } catch (err) {
-            alert('❌ 複製失敗，請長按文字框手動全選複製。');
-          }
+          const textArea = document.getElementById("fallbackTextArea"); textArea.select();
+          try { document.execCommand('copy'); alert('✅ 複製成功！\n請將內容貼到「備忘錄」保存，或直接傳給醫師。'); this.fallbackData = null; } 
+          catch (err) { alert('❌ 複製失敗，請長按文字框手動全選複製。'); }
         },
         exportBackup() {
           const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, avatar: this.avatar, exportDate: new Date().toISOString() };
@@ -1066,6 +1141,7 @@
         },
         addInsulinRule() { this.insulinRules.push({ id: Date.now(), min: 0, max: 0, dose: '0' }); },
         deleteInsulinRule(id) { this.insulinRules = this.insulinRules.filter(r => r.id !== id); localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules)); },
+        
         saveGlucose() {
           if (!this.form.glucose) return alert('請先輸入血糖喔！');
           this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose, device: this.form.device });
@@ -1087,6 +1163,7 @@
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = '';
         },
+        
         startEdit(rec) { this.editingRecord = rec; this.editForm = JSON.parse(JSON.stringify(rec)); },
         cancelEdit() { this.editingRecord = null; },
         saveEdit() {
