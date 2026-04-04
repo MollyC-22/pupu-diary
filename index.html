@@ -62,11 +62,12 @@
       <p class="text-sm mt-1 text-gray-500">專業血糖與熱量手帳</p>
     </div>
 
-    <div class="flex justify-around mb-8 bg-white rounded-full shadow-md p-1.5 border-2 border-[#FFE4E1] sticky top-2 z-50">
-      <button @click="currentTab = 'home'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-1" :class="currentTab === 'home' ? 'bg-[#FFB6C1] text-white shadow-inner' : 'text-gray-400'">🏠 主頁</button>
-      <button @click="currentTab = 'record'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-1" :class="currentTab === 'record' ? 'bg-[#FFB6C1] text-white shadow-inner' : 'text-gray-400'">📝 紀錄</button>
-      <button @click="currentTab = 'chart'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-1" :class="currentTab === 'chart' ? 'bg-[#FFB6C1] text-white shadow-inner' : 'text-gray-400'">📈 圖表</button>
-      <button @click="currentTab = 'settings'" class="flex-1 py-2 rounded-full text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-1" :class="currentTab === 'settings' ? 'bg-[#FFB6C1] text-white shadow-inner' : 'text-gray-400'">⚙️ 設定</button>
+    <div class="flex justify-between mb-8 bg-white rounded-full shadow-md p-1.5 border-2 border-[#FFE4E1] sticky top-2 z-50">
+      <button @click="currentTab = 'home'" class="flex-1 py-2 rounded-full text-[11px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center gap-0.5" :class="currentTab === 'home' ? 'bg-[#FFB6C1] text-white shadow-inner' : 'text-gray-400'"><span class="text-base">🏠</span>主頁</button>
+      <button @click="currentTab = 'record'" class="flex-1 py-2 rounded-full text-[11px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center gap-0.5" :class="currentTab === 'record' ? 'bg-[#FFB6C1] text-white shadow-inner' : 'text-gray-400'"><span class="text-base">📝</span>紀錄</button>
+      <button @click="currentTab = 'chart'" class="flex-1 py-2 rounded-full text-[11px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center gap-0.5" :class="currentTab === 'chart' ? 'bg-[#FFB6C1] text-white shadow-inner' : 'text-gray-400'"><span class="text-base">📈</span>圖表</button>
+      <button @click="currentTab = 'achievement'" class="flex-1 py-2 rounded-full text-[11px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center gap-0.5" :class="currentTab === 'achievement' ? 'bg-[#FFB6C1] text-white shadow-inner' : 'text-gray-400'"><span class="text-base">🏆</span>成就</button>
+      <button @click="currentTab = 'settings'" class="flex-1 py-2 rounded-full text-[11px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center gap-0.5" :class="currentTab === 'settings' ? 'bg-[#FFB6C1] text-white shadow-inner' : 'text-gray-400'"><span class="text-base">⚙️</span>設定</button>
     </div>
 
     <div v-show="currentTab === 'home'">
@@ -478,6 +479,32 @@
       </div>
     </div>
 
+    <div v-show="currentTab === 'achievement'" class="mb-10">
+      <div class="card bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 !rounded-[2rem] relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 text-8xl opacity-10">🏆</div>
+        <h2 class="font-bold text-xl text-yellow-700 mb-2 relative z-10">🏅 普普的榮耀徽章</h2>
+        <p class="text-sm text-yellow-600 font-bold relative z-10">每一個微小的進步，都是值得紀錄的奇蹟！看看普普解鎖了哪些成就吧！</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div v-for="badge in achievements" :key="badge.id" 
+             class="card !p-4 !m-0 flex flex-col items-center text-center transition-all duration-500 border-2"
+             :class="badge.unlocked ? 'border-yellow-300 bg-white shadow-lg scale-100' : 'border-gray-200 bg-gray-50 opacity-60 grayscale scale-95 shadow-none'">
+          
+          <div class="w-16 h-16 rounded-full flex items-center justify-center text-4xl mb-3 shadow-inner"
+               :class="badge.unlocked ? badge.colorClass : 'bg-gray-200'">
+            {{ badge.icon }}
+          </div>
+          
+          <h4 class="font-bold text-base mb-1" :class="badge.unlocked ? 'text-[#5D4037]' : 'text-gray-500'">{{ badge.title }}</h4>
+          <p class="text-[10px] font-bold" :class="badge.unlocked ? 'text-gray-500' : 'text-gray-400'">{{ badge.desc }}</p>
+          
+          <div v-if="badge.unlocked" class="mt-2 text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-bold">已解鎖 🎉</div>
+          <div v-else class="mt-2 text-[10px] bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full font-bold">未解鎖 🔒</div>
+        </div>
+      </div>
+    </div>
+
     <div v-show="currentTab === 'settings'" class="mb-10">
       <div class="card !bg-[#F0F9FF] border-2 border-blue-200 !rounded-[2rem]">
         <h3 class="font-bold mb-3 text-blue-700 border-b-2 border-blue-200 pb-2 text-lg">💾 手帳備份與還原</h3>
@@ -498,7 +525,7 @@
         
         <div class="mt-4 p-4 bg-yellow-50 rounded-2xl border-2 border-yellow-100 shadow-inner">
           <label class="text-sm text-yellow-600 font-bold block mb-1">🎉 停針紀念日 (選填)</label>
-          <div class="text-[10px] text-yellow-500 mb-3 font-bold">若普普已停針，設定日期後首頁會為您慶祝喔！</div>
+          <div class="text-[10px] text-yellow-500 mb-3 font-bold">設定日期後，首頁會為您慶祝，並解鎖特殊成就喔！</div>
           <input type="date" v-model="profile.remissionDate" @change="saveProfile" class="input-field !bg-white text-yellow-600 font-bold text-center !py-2">
         </div>
       </div>
@@ -765,7 +792,6 @@
       computed: {
         filteredFoodsByTab() { return this.foods.filter(f => f.category === this.recordFoodTab); },
         
-        // 🌟 計算停針天數
         remissionDays() {
           const todayDate = new Date(getLocalDateString());
           let lastInsulinDateStr = '';
@@ -790,6 +816,38 @@
           const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
           
           return diffDays;
+        },
+
+        // 🌟 全新成就系統邏輯
+        achievements() {
+          const unlocks = { perfectBg: false, calorie: false, days7: false, rem14: false, rem30: false };
+          
+          // 1. 穩糖小天才
+          unlocks.perfectBg = this.records.some(r => r.type === 'glucose' && this.getEvaluatedGlucose(r) >= 80 && this.getEvaluatedGlucose(r) <= 150);
+          
+          // 2. 光盤小吃貨
+          const target = parseFloat(this.profile.weight) ? Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2) : 200;
+          const dates = [...new Set(this.records.map(r => r.date))];
+          for(let d of dates) {
+            let dayRecs = this.records.filter(r => r.date === d && r.type === 'food');
+            let k = dayRecs.reduce((sum, r) => sum + (parseFloat(r.kcal) || 0), 0);
+            if (k >= target && target > 0) { unlocks.calorie = true; break; }
+          }
+          
+          // 3. 自律守護者
+          unlocks.days7 = dates.length >= 7;
+          
+          // 4 & 5. 奇蹟與傳奇
+          if (this.remissionDays >= 14) unlocks.rem14 = true;
+          if (this.remissionDays >= 30) unlocks.rem30 = true;
+
+          return [
+            { id: 'bg', icon: '🌟', title: '穩糖小天才', desc: '第一次測出完美血糖', unlocked: unlocks.perfectBg, colorClass: 'bg-green-100 text-green-500' },
+            { id: 'cal', icon: '🍽️', title: '光盤小吃貨', desc: '單日熱量吃滿達標', unlocked: unlocks.calorie, colorClass: 'bg-orange-100 text-orange-500' },
+            { id: 'days', icon: '📝', title: '自律守護者', desc: '累積記錄滿 7 天', unlocked: unlocks.days7, colorClass: 'bg-blue-100 text-blue-500' },
+            { id: 'rem14', icon: '🏆', title: '奇蹟的第一步', desc: '成功停針滿 14 天', unlocked: unlocks.rem14, colorClass: 'bg-yellow-100 text-yellow-600' },
+            { id: 'rem30', icon: '👑', title: '戰糖傳奇貓', desc: '成功停針滿 30 天', unlocked: unlocks.rem30, colorClass: 'bg-yellow-200 text-yellow-700' }
+          ];
         },
 
         homeStatus() {
@@ -883,7 +941,6 @@
           return { greeting: this.greetingObj, bgStatus, insulinStatus, calStatus };
         },
 
-        // 🌟 增強版貓醫生分析 (加入症狀檢查)
         trendAnalysisText() {
           const past7 = getPastDateString(7); 
           const recentRecs = this.records.filter(r => r.date >= past7);
@@ -892,7 +949,6 @@
           
           if (bgRecs.length === 0) return '過去 7 天還沒有測量紀錄喔！<br>辛苦家長了，趕快幫普普記下第一筆健康手帳，讓我來幫您分析吧！🐈💕';
           
-          // 檢查症狀
           let symptoms = { '嘔吐':0, '吐毛球':0, '軟便/拉稀':0, '喝多尿多':0, '精神不佳':0 };
           otherRecs.forEach(r => {
              if(r.notes) {
@@ -925,7 +981,6 @@
             text += `<span class="text-[#5D4037] mt-2 block font-bold leading-relaxed border-l-4 border-[#FFB6C1] pl-2">🍀 目前血糖紀錄看起來平穩，普普表現得很棒！日常照護是一場馬拉松，家長也別忘了照顧好自己，開心地度過每一天喔！🐾</span>`;
           }
 
-          // 加入症狀分析
           let symptomText = [];
           if(symptoms['嘔吐'] > 0) symptomText.push(`${symptoms['嘔吐']}次嘔吐`);
           if(symptoms['吐毛球'] > 0) symptomText.push(`${symptoms['吐毛球']}次吐毛球`);
@@ -1075,9 +1130,15 @@
           }
         },
         copyFallback() {
-          const textArea = document.getElementById("fallbackTextArea"); textArea.select();
-          try { document.execCommand('copy'); alert('✅ 複製成功！\n請將內容貼到「備忘錄」保存，或直接傳給醫師。'); this.fallbackData = null; } 
-          catch (err) { alert('❌ 複製失敗，請長按文字框手動全選複製。'); }
+          const textArea = document.getElementById("fallbackTextArea");
+          textArea.select();
+          try {
+            document.execCommand('copy');
+            alert('✅ 複製成功！\n請將內容貼到「備忘錄」保存，或直接傳給醫師。');
+            this.fallbackData = null;
+          } catch (err) {
+            alert('❌ 複製失敗，請長按文字框手動全選複製。');
+          }
         },
         exportBackup() {
           const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, avatar: this.avatar, exportDate: new Date().toISOString() };
@@ -1141,7 +1202,6 @@
         },
         addInsulinRule() { this.insulinRules.push({ id: Date.now(), min: 0, max: 0, dose: '0' }); },
         deleteInsulinRule(id) { this.insulinRules = this.insulinRules.filter(r => r.id !== id); localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules)); },
-        
         saveGlucose() {
           if (!this.form.glucose) return alert('請先輸入血糖喔！');
           this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose, device: this.form.device });
@@ -1163,7 +1223,6 @@
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = '';
         },
-        
         startEdit(rec) { this.editingRecord = rec; this.editForm = JSON.parse(JSON.stringify(rec)); },
         cancelEdit() { this.editingRecord = null; },
         saveEdit() {
