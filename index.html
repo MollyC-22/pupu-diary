@@ -85,7 +85,7 @@
                已經停針 <span class="text-3xl text-red-500 mx-1">{{ remissionDays }}</span> 天囉！
             </div>
             <div class="text-[11px] text-yellow-700 font-bold mt-1.5 bg-yellow-100/50 p-1.5 rounded-lg inline-block">
-               {{ remissionDays >= 30 ? '奇蹟貓貓！超過一個月了，超級厲害！' : (remissionDays >= 14 ? '滿 14 天里程碑！繼續往一個月邁進！' : '好的開始！普普繼續保持喔！') }}
+               {{ remissionDays >= 30 ? '奇蹟貓貓！超過一個月了，超級厲害！' : (remissionDays >= 14 ? '滿 14 天！繼續往一個月邁進！' : '好的開始！普普繼續保持喔！') }}
             </div>
           </div>
         </div>
@@ -483,24 +483,34 @@
       <div class="card bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 !rounded-[2rem] relative overflow-hidden">
         <div class="absolute -right-4 -top-4 text-8xl opacity-10">🏆</div>
         <h2 class="font-bold text-xl text-yellow-700 mb-2 relative z-10">🏅 普普的榮耀徽章</h2>
-        <p class="text-sm text-yellow-600 font-bold relative z-10">每一個微小的進步，都是值得紀錄的奇蹟！看看普普解鎖了哪些成就吧！</p>
+        <p class="text-sm text-yellow-600 font-bold relative z-10">每一個微小的進步，都是值得紀錄的奇蹟！累積紀錄來升級徽章吧！</p>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div v-for="badge in achievements" :key="badge.id" 
-             class="card !p-4 !m-0 flex flex-col items-center text-center transition-all duration-500 border-2"
-             :class="badge.unlocked ? 'border-yellow-300 bg-white shadow-lg scale-100' : 'border-gray-200 bg-gray-50 opacity-60 grayscale scale-95 shadow-none'">
+             class="card !p-4 !m-0 flex flex-col items-center text-center border-2 border-gray-100 shadow-sm relative overflow-hidden">
           
-          <div class="w-16 h-16 rounded-full flex items-center justify-center text-4xl mb-3 shadow-inner"
-               :class="badge.unlocked ? badge.colorClass : 'bg-gray-200'">
+          <div v-if="badge.data.level > 0" class="absolute top-0 left-0 bg-[#D87093] text-white text-[10px] font-bold px-2 py-1 rounded-br-lg shadow-sm z-10">
+            Lv.{{ badge.data.level }}
+          </div>
+          
+          <div class="w-14 h-14 rounded-full flex items-center justify-center text-3xl mb-2 shadow-inner transition-all duration-500"
+               :class="badge.data.level > 0 ? badge.colorClass : 'bg-gray-100 grayscale opacity-50'">
             {{ badge.icon }}
           </div>
           
-          <h4 class="font-bold text-base mb-1" :class="badge.unlocked ? 'text-[#5D4037]' : 'text-gray-500'">{{ badge.title }}</h4>
-          <p class="text-[10px] font-bold" :class="badge.unlocked ? 'text-gray-500' : 'text-gray-400'">{{ badge.desc }}</p>
+          <h4 class="font-bold text-sm mb-1 transition-all" :class="badge.data.level > 0 ? 'text-[#5D4037]' : 'text-gray-400'">{{ badge.title }}</h4>
+          <p class="text-[10px] font-bold mb-3 line-clamp-1" :class="badge.data.level > 0 ? 'text-gray-500' : 'text-gray-400'">{{ badge.desc }}</p>
           
-          <div v-if="badge.unlocked" class="mt-2 text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-bold">已解鎖 🎉</div>
-          <div v-else class="mt-2 text-[10px] bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full font-bold">未解鎖 🔒</div>
+          <div class="w-full bg-gray-100 rounded-full h-2.5 mb-1.5 shadow-inner overflow-hidden relative">
+             <div class="h-full rounded-full transition-all duration-1000" 
+                  :class="badge.data.level > 0 ? badge.barColor : 'bg-gray-300'" 
+                  :style="{ width: badge.data.percent + '%' }"></div>
+          </div>
+          <div class="w-full flex justify-between items-center text-[10px] font-bold font-mono text-gray-400">
+            <span :class="badge.data.level > 0 ? 'text-gray-600' : ''">{{ badge.data.current }}</span>
+            <span>/ {{ badge.data.next }} 次</span>
+          </div>
         </div>
       </div>
     </div>
@@ -525,7 +535,7 @@
         
         <div class="mt-4 p-4 bg-yellow-50 rounded-2xl border-2 border-yellow-100 shadow-inner">
           <label class="text-sm text-yellow-600 font-bold block mb-1">🎉 停針紀念日 (選填)</label>
-          <div class="text-[10px] text-yellow-500 mb-3 font-bold">設定日期後，首頁會為您慶祝，並解鎖特殊成就喔！</div>
+          <div class="text-[10px] text-yellow-500 mb-3 font-bold">設定日期後，首頁會為您慶祝，並自動升級成就徽章喔！</div>
           <input type="date" v-model="profile.remissionDate" @change="saveProfile" class="input-field !bg-white text-yellow-600 font-bold text-center !py-2">
         </div>
       </div>
@@ -667,7 +677,7 @@
         </div>
 
         <div v-if="editForm.type === 'food'" class="mb-5">
-          <div class="text-center font-bold mb-3 text-[#D87093] text-lg">{{ editForm.foodName }}</div>
+          <div class="text-center font-bold mb-2 text-orange-600">{{ editForm.foodName }}</div>
           
           <div class="flex bg-gray-100 rounded-xl p-1 w-max mb-3 mx-auto shadow-inner">
             <button @click="editForm.foodRecordType = 'amount'" :class="editForm.foodRecordType !== 'grams' ? 'bg-white text-[#D87093] shadow-sm' : 'text-gray-500'" class="text-xs px-4 py-1.5 rounded-lg transition-all font-bold">依份量</button>
@@ -693,7 +703,6 @@
 
         <div v-if="editForm.type === 'other'" class="mb-5">
           <input type="number" inputmode="decimal" step="0.1" v-model="editForm.weight" placeholder="體重 (kg)" class="input-field py-3 text-lg font-bold text-center mb-3">
-          
           <div class="mb-3 bg-pink-50 p-3 rounded-2xl border border-pink-100 shadow-inner">
             <label class="text-xs text-[#D87093] font-bold mb-2 block">快捷症狀：</label>
             <div class="flex flex-wrap gap-2">
@@ -704,14 +713,10 @@
               <button @click="editAddSymptom('精神不佳')" class="bg-white text-gray-500 border border-gray-300 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">😿 精神不佳</button>
             </div>
           </div>
-
           <textarea v-model="editForm.notes" class="input-field p-4 text-sm font-bold text-gray-600 leading-relaxed" rows="3" placeholder="備註"></textarea>
         </div>
 
-        <div class="flex gap-3 mt-6">
-          <button @click="cancelEdit" class="btn-outline flex-1 !py-3">取消</button>
-          <button @click="saveEdit" class="btn-save flex-1 !mt-0 !py-3">儲存修改</button>
-        </div>
+        <div class="flex gap-3 mt-6"><button @click="cancelEdit" class="btn-outline flex-1 !py-3">取消</button><button @click="saveEdit" class="btn-save flex-1 !mt-0 !py-3">儲存修改</button></div>
       </div>
     </div>
 
@@ -783,7 +788,7 @@
             { id: 3, min: 200, max: 300, dose: '0.015' }, { id: 4, min: 301, max: 999, dose: '0.02' }
           ]),
           newFood: { name: '', unit: '', weight: '', kcal: '', category: 'staple' },
-          form: { date: getLocalDateString(), time: getLocalTimeString(), glucose: '', device: 'CGM', actualInsulinDose: '', insulinTime: new Date().getHours() < 15 ? '早' : '晚', selectedFoodId: null, foodRecordType: 'amount', foodAmount: '', foodGrams: '', weight: '', notes: '' },
+          form: { date: getLocalDateString(), time: getLocalTimeString(), glucose: '', device: '寵物專用', actualInsulinDose: '', insulinTime: new Date().getHours() < 15 ? '早' : '晚', selectedFoodId: null, foodRecordType: 'amount', foodAmount: '', foodGrams: '', weight: '', notes: '' },
           exportRange: 'all', exportStartDate: getPastDateString(30), exportEndDate: getLocalDateString(), exportOptions: { glucose: true, insulin: true, food: true, other: true },
           editingRecord: null, editForm: {}, editingSettingFood: null, editSettingFoodForm: {}, editingSettingInsulin: null, editSettingInsulinForm: {}, fallbackData: null, showPasteImport: false, pasteData: '',
           greetingObj: todayGreeting
@@ -818,35 +823,63 @@
           return diffDays;
         },
 
-        // 🌟 全新成就系統邏輯
+        // 🌟 榮耀徽章無限升級系統
         achievements() {
-          const unlocks = { perfectBg: false, calorie: false, days7: false, rem14: false, rem30: false };
-          
-          // 1. 穩糖小天才
-          unlocks.perfectBg = this.records.some(r => r.type === 'glucose' && this.getEvaluatedGlucose(r) >= 80 && this.getEvaluatedGlucose(r) <= 150);
-          
-          // 2. 光盤小吃貨
-          const target = parseFloat(this.profile.weight) ? Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2) : 200;
           const dates = [...new Set(this.records.map(r => r.date))];
-          for(let d of dates) {
+          
+          // 計算穩糖天數
+          let perfectDays = 0;
+          dates.forEach(d => {
+            let bgRecs = this.records.filter(r => r.date === d && r.type === 'glucose');
+            if (bgRecs.length > 0) {
+              let allPerfect = true;
+              bgRecs.forEach(r => {
+                let val = this.getEvaluatedGlucose(r);
+                if (val < 80 || val > 150) allPerfect = false;
+              });
+              if (allPerfect) perfectDays++;
+            }
+          });
+
+          // 計算光盤天數
+          let calDays = 0;
+          const target = parseFloat(this.profile.weight) ? Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2) : 200;
+          dates.forEach(d => {
             let dayRecs = this.records.filter(r => r.date === d && r.type === 'food');
             let k = dayRecs.reduce((sum, r) => sum + (parseFloat(r.kcal) || 0), 0);
-            if (k >= target && target > 0) { unlocks.calorie = true; break; }
-          }
-          
-          // 3. 自律守護者
-          unlocks.days7 = dates.length >= 7;
-          
-          // 4 & 5. 奇蹟與傳奇
-          if (this.remissionDays >= 14) unlocks.rem14 = true;
-          if (this.remissionDays >= 30) unlocks.rem30 = true;
+            if (k >= target && target > 0) calDays++;
+          });
+
+          let loggedDays = dates.length;
+          let remDays = Math.max(0, this.remissionDays);
+
+          // 核心無限晉級邏輯
+          const getTier = (current) => {
+            const tiers = [1, 7, 14, 30, 60, 100, 150, 200, 365, 500, 9999];
+            let level = 0;
+            let next = tiers[0];
+            for (let i = 0; i < tiers.length; i++) {
+              if (current >= tiers[i]) {
+                level = i + 1;
+                next = tiers[i+1] || tiers[tiers.length-1];
+              } else {
+                next = tiers[i];
+                break;
+              }
+            }
+            return { level, current, next, percent: Math.min(100, Math.round((current / next) * 100)) };
+          };
+
+          const bgTier = getTier(perfectDays);
+          const calTier = getTier(calDays);
+          const logTier = getTier(loggedDays);
+          const remTier = getTier(remDays);
 
           return [
-            { id: 'bg', icon: '🌟', title: '穩糖小天才', desc: '第一次測出完美血糖', unlocked: unlocks.perfectBg, colorClass: 'bg-green-100 text-green-500' },
-            { id: 'cal', icon: '🍽️', title: '光盤小吃貨', desc: '單日熱量吃滿達標', unlocked: unlocks.calorie, colorClass: 'bg-orange-100 text-orange-500' },
-            { id: 'days', icon: '📝', title: '自律守護者', desc: '累積記錄滿 7 天', unlocked: unlocks.days7, colorClass: 'bg-blue-100 text-blue-500' },
-            { id: 'rem14', icon: '🏆', title: '奇蹟的第一步', desc: '成功停針滿 14 天', unlocked: unlocks.rem14, colorClass: 'bg-yellow-100 text-yellow-600' },
-            { id: 'rem30', icon: '👑', title: '戰糖傳奇貓', desc: '成功停針滿 30 天', unlocked: unlocks.rem30, colorClass: 'bg-yellow-200 text-yellow-700' }
+            { id: 'bg', icon: '🌟', title: '穩糖小天才', desc: '達成完美血糖區間', data: bgTier, colorClass: 'bg-green-100 text-green-600', barColor: 'bg-green-400' },
+            { id: 'cal', icon: '🍽️', title: '光盤小吃貨', desc: '單日熱量吃滿達標', data: calTier, colorClass: 'bg-orange-100 text-orange-600', barColor: 'bg-orange-400' },
+            { id: 'days', icon: '📝', title: '自律守護者', desc: '持續記錄健康手帳', data: logTier, colorClass: 'bg-blue-100 text-blue-600', barColor: 'bg-blue-400' },
+            { id: 'rem', icon: '🏆', title: '戰糖奇蹟貓', desc: '成功停針維持天數', data: remTier, colorClass: 'bg-yellow-100 text-yellow-600', barColor: 'bg-yellow-400' }
           ];
         },
 
@@ -1074,7 +1107,7 @@
             groups[date].allEvents.forEach(rec => {
               if(rec.type === 'glucose') {
                 hasGlucose = true; 
-                let val = this.getEvaluatedGlucose(rec);
+                let val = this.getEvaluatedGlucose(rec); 
                 if (val >= 250 || val <= 40) hasDanger = true;
                 if (val > 150 || val < 80) allPerfect = false;
               }
@@ -1223,7 +1256,12 @@
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = '';
         },
-        startEdit(rec) { this.editingRecord = rec; this.editForm = JSON.parse(JSON.stringify(rec)); },
+        startEdit(rec) { 
+          this.editingRecord = rec; 
+          this.editForm = JSON.parse(JSON.stringify(rec)); 
+          // 🛡️ 防呆：保留舊紀錄為空白時，自動帶入 CGM，不會強制變成寵物專用
+          if (this.editForm.type === 'glucose' && !this.editForm.device) this.editForm.device = 'CGM';
+        },
         cancelEdit() { this.editingRecord = null; },
         saveEdit() {
           const idx = this.records.findIndex(r => r.id === this.editForm.id);
