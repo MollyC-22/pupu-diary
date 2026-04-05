@@ -588,7 +588,6 @@
 
       <div class="card !bg-[#FFF5EE] border-2 border-[#FFE4E1] mb-8 !rounded-[2rem]">
         <h3 class="font-bold mb-3 text-[#D87093] border-b-2 border-pink-100 pb-2 text-lg highlighter">📤 匯出資料給醫生</h3>
-        
         <div class="mb-4">
           <select v-model="exportRange" class="input-field !p-3 text-base font-bold mb-3 bg-white shadow-sm border-0">
             <option value="all">全部紀錄</option>
@@ -664,7 +663,11 @@
         </div>
 
         <div v-if="editForm.type === 'glucose'" class="mb-5">
-           <select v-model="editForm.device" class="bg-gray-50 border border-gray-200 rounded-lg p-1.5 text-xs outline-none text-gray-600 font-bold shadow-sm w-full mb-2 text-center"><option value="CGM">📱 CGM</option><option value="羅氏(人用)">🩸 羅氏(人用)</option><option value="寵物專用">🐾 寵物專用</option></select>
+           <select v-model="editForm.device" class="bg-gray-50 border border-gray-200 rounded-lg p-1.5 text-xs outline-none text-gray-600 font-bold shadow-sm w-full mb-2 text-center">
+             <option value="CGM">📱 CGM</option>
+             <option value="羅氏(人用)">🩸 羅氏(人用)</option>
+             <option value="寵物專用">🐾 寵物專用</option>
+           </select>
            <input type="text" v-model="editForm.glucose" class="input-field font-bold text-2xl text-center py-4">
         </div>
         
@@ -703,6 +706,7 @@
 
         <div v-if="editForm.type === 'other'" class="mb-5">
           <input type="number" inputmode="decimal" step="0.1" v-model="editForm.weight" placeholder="體重 (kg)" class="input-field py-3 text-lg font-bold text-center mb-3">
+          
           <div class="mb-3 bg-pink-50 p-3 rounded-2xl border border-pink-100 shadow-inner">
             <label class="text-xs text-[#D87093] font-bold mb-2 block">快捷症狀：</label>
             <div class="flex flex-wrap gap-2">
@@ -713,6 +717,7 @@
               <button @click="editAddSymptom('精神不佳')" class="bg-white text-gray-500 border border-gray-300 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">😿 精神不佳</button>
             </div>
           </div>
+
           <textarea v-model="editForm.notes" class="input-field p-4 text-sm font-bold text-gray-600 leading-relaxed" rows="3" placeholder="備註"></textarea>
         </div>
 
@@ -823,11 +828,9 @@
           return diffDays;
         },
 
-        // 🌟 榮耀徽章無限升級系統
         achievements() {
           const dates = [...new Set(this.records.map(r => r.date))];
           
-          // 計算穩糖天數
           let perfectDays = 0;
           dates.forEach(d => {
             let bgRecs = this.records.filter(r => r.date === d && r.type === 'glucose');
@@ -841,7 +844,6 @@
             }
           });
 
-          // 計算光盤天數
           let calDays = 0;
           const target = parseFloat(this.profile.weight) ? Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2) : 200;
           dates.forEach(d => {
@@ -853,7 +855,6 @@
           let loggedDays = dates.length;
           let remDays = Math.max(0, this.remissionDays);
 
-          // 核心無限晉級邏輯
           const getTier = (current) => {
             const tiers = [1, 7, 14, 30, 60, 100, 150, 200, 365, 500, 9999];
             let level = 0;
@@ -1259,7 +1260,7 @@
         startEdit(rec) { 
           this.editingRecord = rec; 
           this.editForm = JSON.parse(JSON.stringify(rec)); 
-          // 🛡️ 防呆：保留舊紀錄為空白時，自動帶入 CGM，不會強制變成寵物專用
+          // 🛡️ 防呆機制：如果是舊紀錄沒有儀器欄位，自動補為 CGM
           if (this.editForm.type === 'glucose' && !this.editForm.device) this.editForm.device = 'CGM';
         },
         cancelEdit() { this.editingRecord = null; },
