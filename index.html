@@ -23,6 +23,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
+    /* 🌟 全域動態主題變數 */
     :root {
       --theme-main: #FFB6C1;
       --theme-dark: #D87093;
@@ -333,7 +334,7 @@
           <input type="number" inputmode="decimal" step="0.1" v-model="form.weight" placeholder="體重 (kg)" class="input-field py-3 text-lg font-bold text-center">
         </div>
         
-        <div class="mb-3 bg-pink-50 p-3 rounded-2xl border border-pink-100 shadow-inner">
+        <div class="mb-3 bg-theme-light p-3 rounded-2xl border border-theme shadow-inner">
           <label class="text-xs text-theme font-bold mb-2 block">快捷症狀紀錄 (點擊自動輸入)：</label>
           <div class="flex flex-wrap gap-2">
             <button @click="addSymptom('嘔吐')" class="bg-white text-red-500 border border-red-200 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">🤮 嘔吐</button>
@@ -415,21 +416,25 @@
               </div>
             </div>
             
-            <div class="flex gap-1 overflow-x-auto scrollbar-hide pb-1" v-if="!expandedDays[day.date]">
+            <div class="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1" v-if="!expandedDays[day.date]">
                <span v-for="rec in getEventsByType(day.events, 'glucose')" :key="'p'+rec.id" 
-                     class="text-[10px] px-2 py-0.5 rounded-md font-bold text-white shadow-sm shrink-0"
+                     class="text-xs px-2.5 py-1 rounded-md font-bold text-white shadow-sm shrink-0"
                      :class="getMiniBgColor(getEvaluatedGlucose(rec))">
                   {{ rec.glucose }}<span v-if="(rec.device==='羅氏(人用)' || rec.device==='一般血糖機') && rec.glucose!=='HI' && rec.glucose!=='LO'">*</span>
                </span>
-               <span v-if="getEventsByType(day.events, 'glucose').length === 0" class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">無血糖紀錄</span>
-               <span v-if="getEventsByType(day.events, 'insulin').length > 0" class="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-md font-bold shrink-0">💉 打針</span>
-               <span v-if="getEventsByType(day.events, 'other').some(r => r.notes)" class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-md font-bold shrink-0">📝 有備註</span>
+               <span v-if="getEventsByType(day.events, 'glucose').length === 0 && logFilter !== 'food'" class="text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded-md shrink-0">無血糖紀錄</span>
+               <span v-if="getEventsByType(day.events, 'insulin').length > 0" class="text-xs bg-blue-100 text-blue-600 px-2.5 py-1 rounded-md font-bold shrink-0">💉 打針</span>
+               <span v-for="rec in getEventsByType(day.events, 'food')" :key="'f'+rec.id" class="text-xs bg-orange-100 text-orange-600 px-2.5 py-1 rounded-md font-bold shadow-sm shrink-0">
+                  🐟 {{ rec.foodName || rec.foodType }}
+               </span>
+               <span v-if="getEventsByType(day.events, 'other').some(r => r.notes)" class="text-xs bg-yellow-100 text-yellow-700 px-2.5 py-1 rounded-md font-bold shrink-0">📝 有備註</span>
             </div>
           </div>
           
           <div v-show="expandedDays[day.date]" class="p-5 flex flex-col gap-4 bg-white">
              <div v-for="rec in day.events" :key="rec.id" class="flex justify-between items-center text-sm border-b border-pink-50 pb-3 last:border-0 last:pb-0">
                 <div class="flex flex-col gap-1.5 w-full pr-2">
+                  
                   <template v-if="rec.type === 'glucose'">
                     <div class="flex items-center gap-2 flex-wrap">
                       <span class="text-[11px] bg-white px-2 py-1 rounded-md text-gray-500 font-bold border border-pink-100 shadow-sm">🕒 {{ rec.time }}</span>
@@ -471,6 +476,7 @@
                     </div>
                     <div v-if="rec.notes" class="text-[12px] text-gray-700 font-bold mt-1.5 bg-pink-50/50 p-2.5 rounded-xl border border-pink-100 shadow-sm">📝 {{ rec.notes }}</div>
                   </template>
+
                 </div>
                 
                 <div class="flex gap-1 shrink-0 bg-white border border-gray-100 rounded-lg p-0.5 shadow-sm">
@@ -522,48 +528,62 @@
 
     <div v-show="currentTab === 'settings'" class="mb-10">
       
-      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm">
+      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm transition-all">
         <div @click="toggleSetting('profile')" class="p-4 bg-theme-light flex justify-between items-center cursor-pointer active:bg-theme transition-colors">
           <h2 class="font-bold text-theme text-lg flex items-center gap-2">🐈 毛孩專屬檔案</h2>
           <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'profile'}">🔽</span>
         </div>
         <div v-show="activeSetting === 'profile'" class="p-5 border-t border-theme-light bg-white">
           <div class="grid grid-cols-2 gap-3 mb-4">
-            <div><label class="text-xs text-gray-500 block mb-1 font-bold">寶貝名字</label><input type="text" v-model="profile.name" @change="saveProfile" placeholder="普普" class="input-field font-bold"></div>
+            <div>
+              <label class="text-xs text-gray-500 block mb-1 font-bold">寶貝名字</label>
+              <input type="text" v-model="profile.name" @change="saveProfile" placeholder="請輸入名字" class="input-field font-bold">
+            </div>
             <div>
               <label class="text-xs text-gray-500 block mb-1 font-bold">性別</label>
-              <select v-model="profile.gender" @change="saveProfile" class="input-field font-bold bg-white outline-none">
+              <select v-model="profile.gender" @change="saveProfile" class="input-field font-bold bg-white outline-none" :class="profile.gender==='' ? 'text-gray-400' : 'text-[#5D4037]'">
+                <option value="" disabled>請選擇性別</option>
                 <option value="boy">小男生 ♂</option><option value="girl">小女生 ♀</option><option value="other">保密 🐾</option>
               </select>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-3 mb-4">
-            <div><label class="text-xs text-gray-500 block mb-1 font-bold">生日</label><input type="date" v-model="profile.birthday" @change="saveProfile" class="input-field font-bold text-xs p-2"></div>
+          <div class="grid grid-cols-2 gap-3 mb-2">
+            <div>
+              <label class="text-xs text-gray-500 block mb-1 font-bold">生日</label>
+              <input type="date" v-model="profile.birthday" @change="saveProfile" class="input-field font-bold text-xs p-2" :class="profile.birthday==='' ? 'text-gray-400' : 'text-[#5D4037]'">
+            </div>
             <div>
               <label class="text-xs text-gray-500 block mb-1 font-bold">品種</label>
-              <select v-model="profile.breed" @change="saveProfile" class="input-field font-bold text-sm bg-white outline-none">
-                <option value="">請選擇品種</option>
+              <select v-model="profile.breed" @change="saveProfile" class="input-field font-bold text-sm bg-white outline-none" :class="profile.breed==='' ? 'text-gray-400' : 'text-[#5D4037]'">
+                <option value="" disabled>請選擇品種</option>
                 <option v-for="b in breedOptions" :key="b" :value="b">{{ b }}</option>
               </select>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-gray-100">
-            <label class="text-xs text-gray-500 block mb-2 font-bold">🎨 手帳主題色</label>
-            <div class="flex gap-2 justify-between">
-              <button v-for="(colors, tName) in themes" :key="tName" @click="changeTheme(tName)" 
-                      class="w-10 h-10 rounded-full border-4 transition-all shadow-sm flex items-center justify-center text-lg"
-                      :class="profile.theme === tName ? 'scale-110 border-white shadow-md' : 'border-transparent opacity-60 scale-90'"
-                      :style="`background-color: ${colors.main}`">
-                 <span v-if="profile.theme === tName">✨</span>
-              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm">
+      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm transition-all">
+        <div @click="toggleSetting('theme')" class="p-4 bg-theme-light flex justify-between items-center cursor-pointer active:bg-theme transition-colors">
+          <h2 class="font-bold text-theme text-lg flex items-center gap-2">🎨 手帳主題色</h2>
+          <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'theme'}">🔽</span>
+        </div>
+        <div v-show="activeSetting === 'theme'" class="p-5 border-t border-theme-light bg-white">
+          <div class="text-[11px] text-gray-400 font-bold mb-4">選擇一個最能代表寶貝的專屬顏色吧！</div>
+          <div class="flex gap-2 justify-between">
+            <button v-for="(colors, tName) in themes" :key="tName" @click="changeTheme(tName)" 
+                    class="w-12 h-12 rounded-full border-4 transition-all shadow-sm flex items-center justify-center text-xl"
+                    :class="profile.theme === tName ? 'scale-110 border-white shadow-md' : 'border-transparent opacity-60 scale-90'"
+                    :style="`background-color: ${colors.main}`">
+               <span v-if="profile.theme === tName">✨</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm transition-all">
         <div @click="toggleSetting('weight')" class="p-4 bg-theme-light flex justify-between items-center cursor-pointer active:bg-theme transition-colors">
-          <h2 class="font-bold text-theme text-lg flex items-center gap-2">⚖️ 體重與熱量</h2>
+          <h2 class="font-bold text-theme text-lg flex items-center gap-2">⚖️ 體重與熱量設定</h2>
           <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'weight'}">🔽</span>
         </div>
         <div v-show="activeSetting === 'weight'" class="p-5 border-t border-theme-light bg-white">
@@ -576,20 +596,20 @@
         </div>
       </div>
 
-      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm">
+      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm transition-all">
         <div @click="toggleSetting('remission')" class="p-4 bg-theme-light flex justify-between items-center cursor-pointer active:bg-theme transition-colors">
           <h2 class="font-bold text-theme text-lg flex items-center gap-2">🎉 停針紀念日</h2>
           <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'remission'}">🔽</span>
         </div>
         <div v-show="activeSetting === 'remission'" class="p-5 border-t border-theme-light bg-white">
           <div class="p-4 bg-yellow-50 rounded-2xl border-2 border-yellow-100 shadow-inner">
-            <div class="text-[11px] text-yellow-600 mb-3 font-bold leading-relaxed">設定日期後，首頁會為您慶祝停針天數，並自動升級成就徽章喔！如果是剛停針的貓貓，可以將今天設為紀念日。</div>
-            <input type="date" v-model="profile.remissionDate" @change="saveProfile" class="input-field !bg-white text-yellow-600 font-bold text-center !py-2">
+            <div class="text-[11px] text-yellow-600 mb-3 font-bold leading-relaxed">設定日期後，首頁會為您慶祝停針天數，並自動升級成就徽章喔！</div>
+            <input type="date" v-model="profile.remissionDate" @change="saveProfile" class="input-field !bg-white text-yellow-600 font-bold text-center !py-2" :class="profile.remissionDate==='' ? 'text-gray-400' : 'text-yellow-600'">
           </div>
         </div>
       </div>
 
-      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm">
+      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm transition-all">
         <div @click="toggleSetting('food')" class="p-4 bg-theme-light flex justify-between items-center cursor-pointer active:bg-theme transition-colors">
           <h2 class="font-bold text-theme text-lg flex items-center gap-2">🥫 自訂食物庫</h2>
           <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'food'}">🔽</span>
@@ -624,7 +644,7 @@
         </div>
       </div>
       
-      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm">
+      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm transition-all">
         <div @click="toggleSetting('insulin')" class="p-4 bg-theme-light flex justify-between items-center cursor-pointer active:bg-theme transition-colors">
           <h2 class="font-bold text-theme text-lg flex items-center gap-2">💉 胰島素對照表</h2>
           <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'insulin'}">🔽</span>
@@ -645,7 +665,7 @@
         </div>
       </div>
 
-      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-8 shadow-sm">
+      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-8 shadow-sm transition-all">
         <div @click="toggleSetting('export')" class="p-4 bg-theme-light flex justify-between items-center cursor-pointer active:bg-theme transition-colors">
           <h2 class="font-bold text-theme text-lg flex items-center gap-2">📤 匯出與備份</h2>
           <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'export'}">🔽</span>
@@ -797,10 +817,7 @@
           <textarea v-model="editForm.notes" class="input-field p-4 text-sm font-bold text-gray-600 leading-relaxed" rows="3" placeholder="備註"></textarea>
         </div>
 
-        <div class="flex gap-3 mt-6">
-          <button @click="cancelEdit" class="btn-outline flex-1 !py-3">取消</button>
-          <button @click="saveEdit" class="btn-save flex-1 !mt-0 !py-3">儲存修改</button>
-        </div>
+        <div class="flex gap-3 mt-6"><button @click="cancelEdit" class="btn-outline flex-1 !py-3">取消</button><button @click="saveEdit" class="btn-save flex-1 !mt-0 !py-3">儲存修改</button></div>
       </div>
     </div>
 
@@ -859,16 +876,16 @@
         }
         const todayGreeting = greetings[new Date().getDate() % greetings.length];
 
+        // 🌟 確保從舊版升級時，預設值結構完整
+        const defaultProfile = { name: '', gender: '', birthday: '', breed: '', weight: '', targetKcal: 200, remissionDate: '', theme: 'pink' };
+        const savedProfile = safeParse('pupu_profile', defaultProfile);
+        const mergedProfile = { ...defaultProfile, ...savedProfile };
+
         return {
           currentTab: 'home', chartRange: '7', customStartDate: getPastDateString(7), customEndDate: getLocalDateString(), logFilter: 'all', recordFoodTab: 'staple', 
           
           records: safeParse('pupu_records', []), 
-          
-          // 🌟 貓咪基本資料擴充
-          profile: safeParse('pupu_profile', { 
-            name: '普普', gender: 'boy', birthday: '', breed: '', weight: '', targetKcal: 200, remissionDate: '', theme: 'pink' 
-          }), 
-          
+          profile: mergedProfile, 
           avatar: localStorage.getItem('pupu_avatar') || '',
           
           // 🎨 5 款手帳主題調色盤
@@ -906,7 +923,7 @@
       computed: {
         // 🎨 將主題轉換成 CSS 變數綁定到最外層
         cssVars() {
-          const t = this.themes[this.profile.theme || 'pink'];
+          const t = this.themes[this.profile.theme] || this.themes['pink'];
           return {
             '--theme-main': t.main,
             '--theme-dark': t.dark,
@@ -1224,7 +1241,7 @@
           return { total: Math.round(total), percent: Math.round((total / target) * 100) };
         },
         
-        // 🌟 鐵壁修復版：確保過濾不歸零熱量
+        // 🌟 鐵壁修復版：確保過濾不歸零熱量，並顯示食物標籤
         filteredGroupedRecords() {
           const groups = {};
           
@@ -1414,7 +1431,6 @@
         },
         addInsulinRule() { this.insulinRules.push({ id: Date.now(), min: 0, max: 0, dose: '0' }); },
         deleteInsulinRule(id) { this.insulinRules = this.insulinRules.filter(r => r.id !== id); localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules)); },
-        
         saveGlucose() {
           if (!this.form.glucose) return alert('請先輸入血糖喔！');
           this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose, device: this.form.device });
@@ -1436,7 +1452,6 @@
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = '';
         },
-        
         startEdit(rec) { 
           this.editingRecord = rec; 
           this.editForm = JSON.parse(JSON.stringify(rec)); 
