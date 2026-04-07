@@ -104,6 +104,7 @@
 
       <div v-if="remissionDays > 0" class="card !border-2 !border-yellow-300 mb-8 !p-0 overflow-hidden shadow-lg relative" style="background: linear-gradient(135deg, #fffbeb, #fef3c7);">
         <div class="absolute -right-4 -bottom-6 text-8xl opacity-20">🎉</div>
+        <div class="absolute -left-4 -top-4 text-6xl opacity-20">✨</div>
         <div class="p-5 flex items-center gap-4 relative z-10">
           <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-3xl shadow-sm border-4 border-yellow-200 shrink-0">
              {{ remissionDays >= 30 ? '👑' : (remissionDays >= 14 ? '🏆' : '🌟') }}
@@ -379,8 +380,43 @@
     </div>
 
     <div v-show="currentTab === 'achievement'" class="mb-10">
-      <div class="card bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 !rounded-[2rem] relative overflow-hidden"><div class="absolute -right-4 -top-4 text-8xl opacity-10">🏆</div><h2 class="font-bold text-xl text-yellow-700 mb-2 relative z-10">🏅 {{ profile.name || '貓貓' }}的榮耀徽章</h2><p class="text-sm text-yellow-600 font-bold relative z-10">每一個微小的進步，都是值得紀錄的奇蹟！累積紀錄來升級徽章吧！</p></div>
-      <div class="grid grid-cols-2 gap-4"><div v-for="badge in achievements" :key="badge.id" class="card !p-4 !m-0 flex flex-col items-center text-center border-2 border-gray-100 shadow-sm relative overflow-hidden transition-all duration-300" :class="badge.data.level > 0 ? '' : 'opacity-60 grayscale'"><div v-if="badge.data.level > 0" class="absolute top-0 left-0 bg-theme text-white text-[10px] font-bold px-2 py-1 rounded-br-lg shadow-sm z-10">Lv.{{ badge.data.level }}</div><div class="w-14 h-14 rounded-full flex items-center justify-center text-3xl mb-2 shadow-inner transition-all duration-500" :class="badge.data.level > 0 ? badge.colorClass : 'bg-gray-100'">{{ badge.icon }}</div><h4 class="font-bold text-sm mb-1 transition-all" :class="badge.data.level > 0 ? 'text-[#5D4037]' : 'text-gray-400'">{{ badge.title }}</h4><p class="text-[10px] font-bold mb-3 line-clamp-1 text-gray-400">{{ badge.desc }}</p><div class="w-full bg-gray-100 rounded-full h-2 mb-1.5 shadow-inner overflow-hidden relative"><div class="h-full rounded-full transition-all duration-1000" :class="badge.data.level > 0 ? badge.barColor : 'bg-gray-300'" :style="{ width: badge.data.percent + '%' }"></div></div><div class="w-full flex justify-between items-center text-[10px] font-bold font-mono text-gray-400"><span :class="badge.data.level > 0 ? 'text-gray-600' : ''">{{ badge.data.current }}</span><span>/ {{ badge.data.next }}</span></div></div></div>
+      <div class="card border-2 border-theme-light !rounded-[2rem] relative overflow-hidden bg-cover bg-center shadow-md" style="background-image: url('achievement_banner.png'); min-height: 120px;">
+        <div class="absolute inset-0 bg-white/60 backdrop-blur-[2px]"></div>
+        <div class="relative z-10">
+          <h2 class="font-bold text-xl text-theme mb-2">🏅 {{ profile.name || '貓貓' }}的榮耀徽章</h2>
+          <p class="text-sm text-gray-600 font-bold">每一個微小的進步，都是值得紀錄的奇蹟！累積紀錄來升級徽章吧！</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div v-for="badge in achievements" :key="badge.id" 
+             class="card !p-4 !m-0 flex flex-col items-center text-center border-2 border-gray-100 shadow-sm relative overflow-hidden transition-all duration-300"
+             :class="badge.data.level > 0 ? 'bg-white' : 'bg-gray-50'">
+          
+          <div v-if="badge.data.level > 0" class="absolute top-0 left-0 bg-theme text-white text-[10px] font-bold px-2 py-1 rounded-br-lg shadow-sm z-10">
+            Lv.{{ badge.data.level }}
+          </div>
+          
+          <div class="w-16 h-16 rounded-full mb-3 shadow-inner overflow-hidden border-2 transition-all duration-500 flex items-center justify-center bg-white"
+               :class="badge.data.level > 0 ? 'border-theme border-opacity-50 shadow-md' : 'border-gray-200'">
+            <img :src="badge.img" class="w-full h-full object-cover transition-all duration-500" 
+                 :class="badge.data.level > 0 ? '' : 'opacity-40 grayscale'" alt="">
+          </div>
+          
+          <h4 class="font-bold text-sm mb-1 transition-all" :class="badge.data.level > 0 ? 'text-[#5D4037]' : 'text-gray-400'">{{ badge.title }}</h4>
+          <p class="text-[10px] font-bold mb-3 line-clamp-1 text-gray-400">{{ badge.desc }}</p>
+          
+          <div class="w-full bg-gray-100 rounded-full h-2 mb-1.5 shadow-inner overflow-hidden relative">
+             <div class="h-full rounded-full transition-all duration-1000" 
+                  :class="badge.data.level > 0 ? badge.barColor : 'bg-gray-300'" 
+                  :style="{ width: badge.data.percent + '%' }"></div>
+          </div>
+          <div class="w-full flex justify-between items-center text-[10px] font-bold font-mono text-gray-400">
+            <span :class="badge.data.level > 0 ? 'text-gray-600' : ''">{{ badge.data.current }}</span>
+            <span>/ {{ badge.data.next }}</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div v-show="currentTab === 'settings'" class="mb-10">
@@ -424,7 +460,7 @@
           <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'theme'}">🔽</span>
         </div>
         <div v-show="activeSetting === 'theme'" class="p-5 border-t border-theme-light bg-white">
-          <div class="text-[11px] text-gray-400 font-bold mb-4">選擇一個最能代表寶貝的專屬顏色吧！</div>
+          <div class="text-[11px] text-gray-400 font-bold mb-4">點擊下方按鈕即可瞬間變更 APP 色系！</div>
           <div class="flex gap-2 justify-between">
             <button v-for="(colors, tName) in themes" :key="tName" @click="changeTheme(tName)" 
                     class="w-12 h-12 rounded-full border-4 transition-all shadow-sm flex items-center justify-center text-xl"
@@ -531,18 +567,6 @@
       </div>
 
       <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-4 shadow-sm transition-all">
-        <div @click="toggleSetting('backup')" class="p-4 bg-theme-light flex justify-between items-center cursor-pointer active:bg-theme transition-colors">
-          <h2 class="font-bold text-theme text-lg flex items-center gap-2">💾 資料備份與還原</h2>
-          <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'backup'}">🔽</span>
-        </div>
-        <div v-show="activeSetting === 'backup'" class="p-5 border-t border-theme-light bg-white">
-          <div class="text-[11px] text-gray-500 mb-3 font-bold leading-relaxed">請定期備份您的紀錄，若更換手機或清除瀏覽器資料，可透過備份碼完整還原。</div>
-          <button @click="exportBackup" class="bg-blue-500 text-white font-bold py-3 px-3 rounded-2xl w-full mb-3 shadow-md active:bg-blue-600 transition-all border-2 border-white">📥 備份資料</button>
-          <button @click="showPasteImport = true" class="bg-white text-blue-500 border-2 border-blue-200 font-bold py-3 px-3 rounded-2xl w-full shadow-md active:bg-blue-50 transition-all">📋 貼上碼還原</button>
-        </div>
-      </div>
-
-      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-8 shadow-sm transition-all">
         <div @click="toggleSetting('export')" class="p-4 bg-theme-light flex justify-between items-center cursor-pointer active:bg-theme transition-colors">
           <h2 class="font-bold text-theme text-lg flex items-center gap-2">📄 匯出報表給醫生</h2>
           <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'export'}">🔽</span>
@@ -561,15 +585,28 @@
           </div>
 
           <div class="grid grid-cols-2 gap-3 mb-5 text-xs font-bold">
-            <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-theme shadow-sm"><input type="checkbox" v-model="exportOptions.glucose" class="w-4 h-4 chk-glucose"> 🩸 血糖</label>
-            <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-blue-100 shadow-sm"><input type="checkbox" v-model="exportOptions.insulin" class="w-4 h-4 chk-insulin"> 💉 胰島素</label>
-            <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-orange-100 shadow-sm"><input type="checkbox" v-model="exportOptions.food" class="w-4 h-4 chk-food"> 🐟 飲食</label>
-            <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-gray-200 shadow-sm"><input type="checkbox" v-model="exportOptions.other" class="w-4 h-4 chk-other"> 🩺 其他</label>
+            <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-theme shadow-sm"><input type="checkbox" v-model="exportOptions.glucose" class="w-4 h-4"> 🩸 血糖</label>
+            <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-blue-100 shadow-sm"><input type="checkbox" v-model="exportOptions.insulin" class="w-4 h-4"> 💉 胰島素</label>
+            <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-orange-100 shadow-sm"><input type="checkbox" v-model="exportOptions.food" class="w-4 h-4"> 🐟 飲食</label>
+            <label class="flex items-center gap-2 bg-white p-3 rounded-2xl border border-gray-200 shadow-sm"><input type="checkbox" v-model="exportOptions.other" class="w-4 h-4"> 🩺 其他</label>
           </div>
 
           <button @click="exportCSV" class="btn-save !mt-0 !py-3 flex justify-center items-center gap-2 shadow-md active:scale-95 transition-all">📤 產生文字報表</button>
         </div>
       </div>
+
+      <div class="card !p-0 overflow-hidden !rounded-[2rem] border-2 border-theme mb-8 shadow-sm transition-all">
+        <div @click="toggleSetting('backup')" class="p-4 bg-theme-light flex justify-between items-center cursor-pointer active:bg-theme transition-colors">
+          <h2 class="font-bold text-theme text-lg flex items-center gap-2">💾 資料備份與還原</h2>
+          <span class="transition-transform duration-300 text-theme" :class="{'rotate-180': activeSetting === 'backup'}">🔽</span>
+        </div>
+        <div v-show="activeSetting === 'backup'" class="p-5 border-t border-theme-light bg-white">
+          <div class="text-[11px] text-gray-500 mb-3 font-bold leading-relaxed">請定期備份您的紀錄，若更換手機或清除瀏覽器資料，可透過備份碼完整還原。</div>
+          <button @click="exportBackup" class="bg-blue-500 text-white font-bold py-3 px-3 rounded-2xl w-full mb-3 shadow-md active:bg-blue-600 transition-all border-2 border-white">📥 備份所有資料</button>
+          <button @click="showPasteImport = true" class="bg-white text-blue-500 border-2 border-blue-200 font-bold py-3 px-3 rounded-2xl w-full shadow-md active:bg-blue-50 transition-all">📋 貼上碼還原</button>
+        </div>
+      </div>
+
     </div>
 
     <div v-if="fallbackData" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
@@ -789,7 +826,7 @@
         }
       },
       computed: {
-        // 🎨 將主題轉換成 CSS 變數綁定到最外層
+        // 🌟 主題引擎：動態綁定至根節點
         cssVars() {
           const t = this.themes[this.profile.theme] || this.themes['pink'];
           return {
@@ -862,16 +899,15 @@
           };
 
           return [
-            { id: 'bg', icon: '🌟', title: '穩糖小天才', desc: '達成完美血糖區間', data: getTier(perfectDays), colorClass: 'bg-green-100 text-green-600', barColor: 'bg-green-400' },
-            { id: 'cal', icon: '🍽️', title: '光盤小吃貨', desc: '單日熱量吃滿達標', data: getTier(calDays), colorClass: 'bg-orange-100 text-orange-600', barColor: 'bg-orange-400' },
-            { id: 'days', icon: '📝', title: '自律守護者', desc: '持續記錄健康手帳', data: getTier(loggedDays), colorClass: 'bg-blue-100 text-blue-600', barColor: 'bg-blue-400' },
-            { id: 'rem', icon: '🏆', title: '戰糖奇蹟貓', desc: '成功停針維持天數', data: getTier(remDays), colorClass: 'bg-yellow-100 text-yellow-600', barColor: 'bg-yellow-400' }
+            { id: 'bg', img: 'badge_1_blood_sugar.png', title: '穩糖小天才', desc: '達成完美血糖區間', data: getTier(perfectDays), barColor: 'bg-green-400' },
+            { id: 'cal', img: 'badge_2_calorie.png', title: '光盤小吃貨', desc: '單日熱量吃滿達標', data: getTier(calDays), barColor: 'bg-orange-400' },
+            { id: 'days', img: 'badge_3_streak.png', title: '自律守護者', desc: '持續記錄健康手帳', data: getTier(loggedDays), barColor: 'bg-blue-400' },
+            { id: 'rem', img: 'badge_4_remission.png', title: '戰糖奇蹟貓', desc: '成功停針維持天數', data: getTier(remDays), barColor: 'bg-yellow-400' }
           ];
         },
 
         homeStatus() {
           const n = this.profile.name || '貓貓';
-          // 替換動態名字
           const greeting = {
             title: this.baseGreetingObj.title,
             sub: this.baseGreetingObj.sub.replace(/普普/g, n).replace(/寶貝/g, n)
@@ -912,7 +948,7 @@
             }
           }
 
-          let insulinStatus = { text: '', emoji: '', bgColor: '', textClass: '' };
+          let insulinStatus = { text: '請測量血糖評估針劑', emoji: '🧐', bgColor: 'bg-gray-50', textClass: 'text-gray-500' };
           const insRecs = todayRecs.filter(r => r.type === 'insulin');
           const hasMorning = insRecs.some(r => r.insulinTime === '早'); 
           const hasEvening = insRecs.some(r => r.insulinTime === '晚');
@@ -935,26 +971,16 @@
           const needEvening = checkNeed(eBgVal);
 
           if (isEveningNow) {
-            if (hasEvening) {
-              insulinStatus = { text: '晚針已打，今天辛苦囉！', emoji: '🌙', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' };
-            } else if (eBgVal !== null && !needEvening) {
-              insulinStatus = { text: '晚間血糖漂亮，免打針！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
-            } else if (eBgVal !== null && needEvening) {
-              insulinStatus = { text: '晚間血糖出爐，該打針囉！💉', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
-            } else {
-              insulinStatus = { text: '請先測量晚上血糖評估晚針喔！', emoji: '🧐', bgColor: 'bg-yellow-50 border-yellow-200', textClass: 'text-yellow-700' };
-            }
+            if (hasEvening) { insulinStatus = { text: '晚針已打，今天辛苦囉！', emoji: '🌙', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' }; } 
+            else if (eBgVal !== null && !needEvening) { insulinStatus = { text: '晚間血糖漂亮，免打針！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' }; } 
+            else if (eBgVal !== null && needEvening) { insulinStatus = { text: '晚間血糖出爐，該打針囉！💉', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' }; } 
+            else { insulinStatus = { text: '請先測量晚上血糖評估晚針喔！', emoji: '🧐', bgColor: 'bg-yellow-50 border-yellow-200', textClass: 'text-yellow-700' }; }
             if (!hasMorning && needMorning && mBgVal !== null) insulinStatus.text += ' (早針未記)';
           } else {
-            if (hasMorning) {
-              insulinStatus = { text: `${n}早針已打！好棒！`, emoji: '☀️', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' };
-            } else if (mBgVal !== null && !needMorning) {
-              insulinStatus = { text: '早上血糖漂亮，免打針！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
-            } else if (mBgVal !== null && needMorning) {
-              insulinStatus = { text: '早晨血糖出爐，該打針囉！💉', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
-            } else {
-              insulinStatus = { text: '早安！量個血糖看要不要打針？', emoji: '🧐', bgColor: 'bg-yellow-50 border-yellow-200', textClass: 'text-yellow-700' };
-            }
+            if (hasMorning) { insulinStatus = { text: `${n}早針已打！好棒！`, emoji: '☀️', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' }; } 
+            else if (mBgVal !== null && !needMorning) { insulinStatus = { text: '早上血糖漂亮，免打針！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' }; } 
+            else if (mBgVal !== null && needMorning) { insulinStatus = { text: '早晨血糖出爐，該打針囉！💉', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' }; } 
+            else { insulinStatus = { text: '早安！量個血糖看要不要打針？', emoji: '🧐', bgColor: 'bg-yellow-50 border-yellow-200', textClass: 'text-yellow-700' }; }
           }
 
           let calStatus = { text: '主子還沒吃 🤔', bgColor: 'bg-gray-50 border-gray-100', textClass: 'text-gray-500' };
@@ -1005,7 +1031,6 @@
           let lowCount = vals.filter(v => v < 80).length; 
           let hiCount = vals.filter(v => v >= 250).length;
           let perfectCount = vals.filter(v => v >= 80 && v <= 150).length;
-          let totalCount = vals.length;
           
           let text = `<span class="block mb-2">親愛的家長您辛苦了！☕<br>近期「${n}」的平均血糖大約落在 <strong class="text-theme text-lg">${avg}</strong> mg/dL。${breedComment}</span>`;
           
@@ -1014,7 +1039,7 @@
           } else if (avg >= 80 && avg <= 150 && perfectCount >= vals.length * 0.5) {
             text += `<span class="text-green-600 mt-2 block font-bold leading-relaxed border-l-4 border-green-400 pl-2">🌟 太棒了！本週有超過一半的紀錄落在完美的綠色區間，您真的照顧得超級用心！${n}一定覺得很幸福～請繼續保持喔！😺✨</span>`;
           } else if (hiCount >= 3) {
-            text += `<span class="text-purple-600 mt-2 block font-bold leading-relaxed border-l-4 border-purple-400 pl-2">📈 觀察 Memo：這週高血糖比較頻繁（大於250有 ${hiCount} 次）。記得多讓${n}喝水。下次帶${n}回診時，別忘了把報表拿給醫生看喔！💪</span>`;
+            text += `<span class="text-purple-600 mt-2 block font-bold leading-relaxed border-l-4 border-purple-400 pl-2">📈 觀察 Memo：這週高血糖比較頻繁（大於250有 ${hiCount} 次）。天氣變化或壓力都有可能影響，記得多讓${n}喝水。下次帶${n}回診時，別忘了把報表拿給醫生看喔！💪</span>`;
           } else {
             text += `<span class="text-[#5D4037] mt-2 block font-bold leading-relaxed border-l-4 border-theme pl-2">🍀 目前血糖紀錄看起來平穩，${n}表現得很棒！日常照護是一場馬拉松，家長也別忘了照顧好自己，開心地度過每一天喔！🐾</span>`;
           }
@@ -1155,7 +1180,7 @@
           if (newVal === 'home') this.$nextTick(() => { this.renderMiniChart(); });
         },
         chartRange() { this.$nextTick(() => { this.renderChart(); }); },
-        // 🌟 確保載入時主題色正確寫入
+        // 🌟 確保載入時與切換時，主題色正確寫入 CSS Variables
         'profile.theme': {
            handler(tName) {
              const t = this.themes[tName] || this.themes['pink'];
@@ -1305,7 +1330,6 @@
         },
         addInsulinRule() { this.insulinRules.push({ id: Date.now(), min: 0, max: 0, dose: '0' }); },
         deleteInsulinRule(id) { this.insulinRules = this.insulinRules.filter(r => r.id !== id); localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules)); },
-        
         saveGlucose() {
           if (!this.form.glucose) return alert('請先輸入血糖喔！');
           this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose, device: this.form.device });
@@ -1327,7 +1351,6 @@
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = '';
         },
-        
         startEdit(rec) { 
           this.editingRecord = rec; 
           this.editForm = JSON.parse(JSON.stringify(rec)); 
@@ -1387,7 +1410,7 @@
                 data: dataVals, 
                 borderColor: themeMain, 
                 pointBackgroundColor: pointColors, 
-                pointRadius: 3,
+                pointRadius: 2,
                 borderWidth: 2,
                 fill: true, 
                 backgroundColor: 'rgba(255, 255, 255, 0.5)',
