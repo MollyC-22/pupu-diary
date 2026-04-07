@@ -654,6 +654,7 @@
         <div class="flex gap-3 mt-4"><button @click="cancelEditInsulin" class="btn-outline flex-1 !py-3">取消</button><button @click="saveEditInsulin" class="btn-save !bg-blue-500 flex-1 !mt-0 !py-3">儲存</button></div>
       </div>
     </div>
+
     <div v-if="editingRecord" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto border-4 border-[#FFE4E1]">
         <h3 class="font-bold text-[#D87093] mb-4 text-lg highlighter">✏️ 編輯紀錄</h3>
@@ -664,7 +665,11 @@
         </div>
 
         <div v-if="editForm.type === 'glucose'" class="mb-5">
-           <select v-model="editForm.device" class="bg-gray-50 border border-gray-200 rounded-lg p-1.5 text-xs outline-none text-gray-600 font-bold shadow-sm w-full mb-2 text-center"><option value="CGM">📱 CGM</option><option value="羅氏(人用)">🩸 羅氏(人用)</option><option value="寵物專用">🐾 寵物專用</option></select>
+           <select v-model="editForm.device" class="bg-gray-50 border border-gray-200 rounded-lg p-1.5 text-xs outline-none text-gray-600 font-bold shadow-sm w-full mb-2 text-center">
+             <option value="CGM">📱 CGM</option>
+             <option value="羅氏(人用)">🩸 羅氏(人用)</option>
+             <option value="寵物專用">🐾 寵物專用</option>
+           </select>
            <input type="text" v-model="editForm.glucose" class="input-field font-bold text-2xl text-center py-4">
         </div>
         
@@ -677,11 +682,13 @@
         </div>
 
         <div v-if="editForm.type === 'food'" class="mb-5">
-          <div class="text-center font-bold mb-3 text-[#D87093] text-lg">{{ editForm.foodName }}</div>
+          <div class="text-center font-bold mb-2 text-orange-600">{{ editForm.foodName }}</div>
+          
           <div class="flex bg-gray-100 rounded-xl p-1 w-max mb-3 mx-auto shadow-inner">
             <button @click="editForm.foodRecordType = 'amount'" :class="editForm.foodRecordType !== 'grams' ? 'bg-white text-[#D87093] shadow-sm' : 'text-gray-500'" class="text-xs px-4 py-1.5 rounded-lg transition-all font-bold">依份量</button>
             <button @click="editForm.foodRecordType = 'grams'" :class="editForm.foodRecordType === 'grams' ? 'bg-white text-[#D87093] shadow-sm' : 'text-gray-500'" class="text-xs px-4 py-1.5 rounded-lg transition-all font-bold">依克數</button>
           </div>
+
           <div v-if="editForm.foodRecordType !== 'grams'" class="grid grid-cols-2 gap-3 mb-3 bg-orange-50 p-4 rounded-2xl border border-orange-100 shadow-inner">
             <div><label class="text-[10px] text-gray-500 block mb-1 font-bold text-center">數量 (份)</label><input type="number" inputmode="decimal" step="0.01" v-model="editForm.foodAmount" @input="recalcEditFoodKcal" class="input-field !border-0 !p-2 text-xl font-bold text-orange-600 text-center bg-white shadow-sm"></div>
             <div><label class="text-[10px] text-gray-500 block mb-1 font-bold text-center">單位</label><input type="text" v-model="editForm.unit" class="input-field !border-0 !p-2 text-base font-bold text-gray-500 text-center bg-gray-100" disabled></div>
@@ -701,6 +708,7 @@
 
         <div v-if="editForm.type === 'other'" class="mb-5">
           <input type="number" inputmode="decimal" step="0.1" v-model="editForm.weight" placeholder="體重 (kg)" class="input-field py-3 text-lg font-bold text-center mb-3">
+          
           <div class="mb-3 bg-pink-50 p-3 rounded-2xl border border-pink-100 shadow-inner">
             <label class="text-xs text-[#D87093] font-bold mb-2 block">快捷症狀：</label>
             <div class="flex flex-wrap gap-2">
@@ -711,6 +719,7 @@
               <button @click="editAddSymptom('精神不佳')" class="bg-white text-gray-500 border border-gray-300 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm">😿 精神不佳</button>
             </div>
           </div>
+
           <textarea v-model="editForm.notes" class="input-field p-4 text-sm font-bold text-gray-600 leading-relaxed" rows="3" placeholder="備註"></textarea>
         </div>
 
@@ -724,6 +733,7 @@
     const { createApp } = Vue;
     let chartInstance = null;
 
+    // 🛡️ 裝甲級讀取引擎
     function safeParse(key, defaultVal) {
       try {
         const data = localStorage.getItem(key);
@@ -821,7 +831,6 @@
           return diffDays;
         },
 
-        // 🌟 無限升級的榮耀進度條成就系統
         achievements() {
           const dates = [...new Set(this.records.map(r => r.date))];
           
@@ -1086,20 +1095,30 @@
           let target = parseFloat(this.profile.weight) ? Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2) : 200;
           return { total: Math.round(total), percent: Math.round((total / target) * 100) };
         },
+        
+        // 🌟 鐵壁修復版：不管怎麼過濾，絕對不會讓熱量歸零！
         filteredGroupedRecords() {
           const groups = {};
+          
+          // 第一層：無條件把所有的紀錄都抓進來分組，先把「每日總熱量」算死！
           this.records.forEach(rec => {
             if (!rec.date) return;
-            if (this.logFilter === 'medical' && rec.type !== 'glucose' && rec.type !== 'insulin') return;
-            if (this.logFilter === 'food' && rec.type !== 'food') return;
             if (!groups[rec.date]) groups[rec.date] = { allEvents: [], totalKcal: 0 };
             groups[rec.date].allEvents.push(rec);
-            if (rec.type === 'food' && rec.kcal) groups[rec.date].totalKcal += parseFloat(rec.kcal);
+            if (rec.type === 'food' && rec.kcal) {
+              groups[rec.date].totalKcal += parseFloat(rec.kcal);
+            }
           });
+
           const finalResult = [];
           Object.keys(groups).sort((a, b) => String(b).localeCompare(String(a))).forEach(date => {
-            let hasDanger = false; let allPerfect = true; let hasGlucose = false;
-            groups[date].allEvents.forEach(rec => {
+            let dayData = groups[date];
+            
+            // 評估全天的血糖狀態 (不受顯示過濾影響)
+            let hasDanger = false; 
+            let allPerfect = true; 
+            let hasGlucose = false;
+            dayData.allEvents.forEach(rec => {
               if(rec.type === 'glucose') {
                 hasGlucose = true; 
                 let val = this.getEvaluatedGlucose(rec); 
@@ -1107,8 +1126,26 @@
                 if (val > 150 || val < 80) allPerfect = false;
               }
             });
-            finalResult.push({ date, events: groups[date].allEvents.sort((a,b) => String(a.time||'').localeCompare(String(b.time||''))), totalKcal: Math.round(groups[date].totalKcal), status: hasDanger ? 'danger' : (hasGlucose && allPerfect ? 'perfect' : 'normal') });
+
+            // 第二層：在這裡才進行畫面的「顯示過濾」
+            let displayEvents = dayData.allEvents;
+            if (this.logFilter === 'medical') {
+              displayEvents = displayEvents.filter(r => r.type === 'glucose' || r.type === 'insulin');
+            } else if (this.logFilter === 'food') {
+              displayEvents = displayEvents.filter(r => r.type === 'food');
+            }
+
+            // 如果過濾後這天完全沒有東西可以顯示，就不渲染這一天
+            if (displayEvents.length === 0) return;
+
+            finalResult.push({ 
+              date: date, 
+              events: displayEvents.sort((a,b) => String(a.time||'').localeCompare(String(b.time||''))), 
+              totalKcal: Math.round(dayData.totalKcal), 
+              status: hasDanger ? 'danger' : (hasGlucose && allPerfect ? 'perfect' : 'normal') 
+            });
           });
+          
           return finalResult;
         }
       },
@@ -1230,7 +1267,6 @@
         },
         addInsulinRule() { this.insulinRules.push({ id: Date.now(), min: 0, max: 0, dose: '0' }); },
         deleteInsulinRule(id) { this.insulinRules = this.insulinRules.filter(r => r.id !== id); localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules)); },
-        
         saveGlucose() {
           if (!this.form.glucose) return alert('請先輸入血糖喔！');
           this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose, device: this.form.device });
@@ -1252,7 +1288,6 @@
           this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
           this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = '';
         },
-        
         startEdit(rec) { 
           this.editingRecord = rec; 
           this.editForm = JSON.parse(JSON.stringify(rec)); 
