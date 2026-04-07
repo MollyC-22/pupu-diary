@@ -379,28 +379,30 @@
       </div>
     </div>
 
-    <div v-show="currentTab === 'achievement'" class="mb-10">
-      <div class="card border-2 border-theme-light !rounded-[2rem] relative overflow-hidden bg-cover bg-center shadow-md" style="background-image: url('achievement_banner.png'); min-height: 120px;">
-        <div class="absolute inset-0 bg-white/60 backdrop-blur-[2px]"></div>
-        <div class="relative z-10">
-          <h2 class="font-bold text-xl text-theme mb-2">🏅 {{ profile.name || '貓貓' }}的榮耀徽章</h2>
-          <p class="text-sm text-gray-600 font-bold">每一個微小的進步，都是值得紀錄的奇蹟！累積紀錄來升級徽章吧！</p>
-        </div>
+<div v-show="currentTab === 'achievement'" class="mb-10">
+      
+      <div class="mb-4 rounded-[2rem] overflow-hidden shadow-lg border-4 border-white relative bg-white">
+        <img src="achievement_banner.png" alt="榮耀橫幅" class="w-full h-auto object-cover block">
+      </div>
+      
+      <div class="text-center mb-6 px-2">
+        <h2 class="font-bold text-xl text-theme mb-1">🏅 {{ profile.name || '貓貓' }}的榮耀徽章</h2>
+        <p class="text-xs text-gray-500 font-bold">每一個微小的進步，都是值得紀錄的奇蹟！</p>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div v-for="badge in achievements" :key="badge.id" 
-             class="card !p-4 !m-0 flex flex-col items-center text-center border-2 border-gray-100 shadow-sm relative overflow-hidden transition-all duration-300"
-             :class="badge.data.level > 0 ? 'bg-white' : 'bg-gray-50'">
+             class="card !p-4 !m-0 flex flex-col items-center text-center border-2 shadow-sm relative overflow-hidden transition-all duration-300"
+             :class="badge.data.level > 0 ? 'bg-white border-theme-light' : 'bg-gray-50 border-gray-100 opacity-70 grayscale'">
           
-          <div v-if="badge.data.level > 0" class="absolute top-0 left-0 bg-theme text-white text-[10px] font-bold px-2 py-1 rounded-br-lg shadow-sm z-10">
+          <div v-if="badge.data.level > 0" class="absolute top-0 left-0 bg-theme text-white text-[11px] font-bold px-3 py-1 rounded-br-xl shadow-sm z-10">
             Lv.{{ badge.data.level }}
           </div>
           
-          <div class="w-16 h-16 rounded-full mb-3 shadow-inner overflow-hidden border-2 transition-all duration-500 flex items-center justify-center bg-white"
-               :class="badge.data.level > 0 ? 'border-theme border-opacity-50 shadow-md' : 'border-gray-200'">
+          <div class="w-24 h-24 rounded-full mb-3 shadow-inner overflow-hidden border-[3px] transition-all duration-500 flex items-center justify-center bg-white mt-2"
+               :class="badge.data.level > 0 ? 'border-theme shadow-md' : 'border-gray-200'">
             <img :src="badge.img" class="w-full h-full object-cover transition-all duration-500" 
-                 :class="badge.data.level > 0 ? '' : 'opacity-40 grayscale'" alt="">
+                 :class="badge.data.level > 0 ? '' : 'opacity-40'" alt="">
           </div>
           
           <h4 class="font-bold text-sm mb-1 transition-all" :class="badge.data.level > 0 ? 'text-[#5D4037]' : 'text-gray-400'">{{ badge.title }}</h4>
