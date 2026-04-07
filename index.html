@@ -23,7 +23,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    /* 🌟 全域動態主題變數（透過 Vue 自動更新） */
+    /* 🌟 全域動態主題變數 */
     :root {
       --theme-main: #FFB6C1;
       --theme-dark: #D87093;
@@ -39,7 +39,6 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--theme-main); border-radius: 10px; }
 
-    /* 🌟 將原本寫死粉紅色的地方，全數換成主題變數綁定 */
     .text-theme { color: var(--theme-dark); }
     .bg-theme { background-color: var(--theme-main); }
     .bg-theme-light { background-color: var(--theme-light); }
@@ -291,7 +290,7 @@
           <div class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1"><label v-for="f in filteredFoodsByTab" :key="f.id"><input type="radio" v-model="form.selectedFoodId" :value="f.id" class="hidden"><span class="radio-pill shadow-sm !text-[13px] !px-3 !py-1.5 border border-gray-100">{{ f.name }}</span></label></div>
         </div>
         <div class="mb-2 mt-4 p-4 bg-orange-50 rounded-2xl border border-orange-100 shadow-inner" v-if="selectedFood">
-          <div class="flex justify-between items-center mb-3"><p class="text-sm text-gray-600 font-bold">吃了多少？</p><div class="flex bg-white rounded-lg p-1 border border-orange-200 shadow-sm"><button @click="form.foodRecordType = 'amount'" :class="form.foodRecordType === 'amount' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all">依份數</button><button @click="form.foodRecordType = 'grams'" :class="form.foodRecordType === 'grams' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all">依克數</button></div></div>
+          <div class="flex justify-between items-center mb-3"><p class="text-sm text-gray-600 font-bold">吃了多少？</p><div class="flex bg-white rounded-lg p-1 border border-orange-200 shadow-sm"><button @click="form.foodRecordType = 'amount'" :class="form.foodRecordType === 'amount' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all active:scale-95">依份數</button><button @click="form.foodRecordType = 'grams'" :class="form.foodRecordType === 'grams' ? 'bg-orange-100 text-orange-700 font-bold shadow-sm' : 'text-gray-400'" class="text-xs px-3 py-1.5 rounded-md transition-all active:scale-95">依克數</button></div></div>
           <div v-if="form.foodRecordType === 'amount'"><div class="flex flex-wrap gap-2 mb-3"><button @click="form.foodAmount = 1" class="text-xs bg-white text-orange-600 border border-orange-200 px-2.5 py-1.5 rounded-lg font-bold">1 {{ selectedFood.unit }}</button><button @click="form.foodAmount = 0.5" class="text-xs bg-white text-orange-600 border border-orange-200 px-2.5 py-1.5 rounded-lg font-bold">0.5</button></div><div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-orange-100"><input type="number" inputmode="decimal" step="0.01" v-model="form.foodAmount" class="input-field !border-0 !bg-transparent text-center font-bold text-orange-600 text-lg w-20 !p-0"><span class="text-sm text-gray-500 font-bold">{{ selectedFood.unit }}</span><div class="ml-auto text-right pr-2"><span class="text-[10px] text-gray-400 block font-bold">KCAL</span><span class="text-xl font-bold text-orange-500">{{ calculatedKcal }}</span></div></div></div>
           <div v-if="form.foodRecordType === 'grams'"><div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-orange-100"><input type="number" inputmode="decimal" step="0.1" v-model="form.foodGrams" class="input-field !border-0 !bg-transparent text-center font-bold text-orange-600 text-lg w-24 !p-0"><span class="text-sm text-gray-500 font-bold">g</span><div class="ml-auto text-right pr-2"><span class="text-[10px] text-gray-400 block font-bold">KCAL</span><span class="text-xl font-bold text-orange-500">{{ calculatedKcal }}</span></div></div></div>
         </div>
@@ -336,11 +335,16 @@
           <input type="date" v-model="customEndDate" @change="renderChart" class="bg-white border border-theme-light rounded-lg p-1.5 text-xs w-full outline-none text-[#5D4037] font-bold">
         </div>
         <p class="text-[11px] text-gray-400 text-center mb-3 font-bold bg-gray-50 rounded-full py-1">💡 綠色區塊為安全範圍 (80~150)</p>
-        <div style="position: relative; height: 260px; width: 100%;"><canvas id="glucoseChart"></canvas></div>
+        <div style="position: relative; height: 260px; width: 100%;">
+          <canvas id="glucoseChart"></canvas>
+        </div>
       </div>
       
       <div class="mb-4">
-        <div class="flex justify-between items-center mb-3 pl-2"><h3 class="font-bold text-gray-600 text-lg highlighter">📅 歷史健康手帳</h3></div>
+        <div class="flex justify-between items-center mb-3 pl-2">
+          <h3 class="font-bold text-gray-600 text-lg highlighter">📅 歷史健康手帳</h3>
+          <span class="text-[10px] text-gray-400 font-bold bg-gray-100 px-2 py-1 rounded-md">點擊卡片展開明細</span>
+        </div>
         <div class="flex gap-2 mb-5 overflow-x-auto pb-2 pl-1"><button @click="logFilter = 'all'" :class="logFilter === 'all' ? 'bg-theme text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">全部</button><button @click="logFilter = 'medical'" :class="logFilter === 'medical' ? 'bg-blue-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">🩸 醫療</button><button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">🐟 飲食</button></div>
 
         <div v-if="filteredGroupedRecords.length === 0" class="text-center text-gray-400 py-10 bg-white rounded-[2rem] border-4 border-dashed border-theme font-bold opacity-70">沒有紀錄喔！</div>
@@ -390,13 +394,12 @@
           <div class="grid grid-cols-2 gap-3 mb-4">
             <div>
               <label class="text-xs text-gray-500 block mb-1 font-bold">寶貝名字</label>
-              <input type="text" v-model="profile.name" @change="saveProfile" placeholder="請輸入名字" class="input-field font-bold">
+              <input type="text" v-model="profile.name" @change="saveProfile" placeholder="請輸入名字" class="input-field font-bold text-[#5D4037]">
             </div>
             <div>
               <label class="text-xs text-gray-500 block mb-1 font-bold">性別</label>
               <select v-model="profile.gender" @change="saveProfile" class="input-field font-bold bg-white outline-none" :class="profile.gender==='' ? 'text-gray-400' : 'text-[#5D4037]'">
-                <option value="" disabled>請選擇性別</option>
-                <option value="boy">小男生 ♂</option><option value="girl">小女生 ♀</option><option value="other">保密 🐾</option>
+                <option value="" disabled>請選擇性別</option><option value="boy">小男生 ♂</option><option value="girl">小女生 ♀</option><option value="other">保密 🐾</option>
               </select>
             </div>
           </div>
@@ -408,8 +411,7 @@
             <div>
               <label class="text-xs text-gray-500 block mb-1 font-bold">品種</label>
               <select v-model="profile.breed" @change="saveProfile" class="input-field font-bold text-sm bg-white outline-none" :class="profile.breed==='' ? 'text-gray-400' : 'text-[#5D4037]'">
-                <option value="" disabled>請選擇品種</option>
-                <option v-for="b in breedOptions" :key="b" :value="b">{{ b }}</option>
+                <option value="" disabled>請選擇品種</option><option v-for="b in breedOptions" :key="b" :value="b">{{ b }}</option>
               </select>
             </div>
           </div>
@@ -426,7 +428,7 @@
           <div class="flex gap-2 justify-between">
             <button v-for="(colors, tName) in themes" :key="tName" @click="changeTheme(tName)" 
                     class="w-12 h-12 rounded-full border-4 transition-all shadow-sm flex items-center justify-center text-xl"
-                    :class="profile.theme === tName ? 'scale-110 border-white shadow-md' : 'border-transparent opacity-60 scale-90'"
+                    :class="profile.theme === tName ? 'scale-110 border-gray-400 shadow-md' : 'border-transparent opacity-60 scale-90'"
                     :style="`background-color: ${colors.main}`">
                <span v-if="profile.theme === tName">✨</span>
             </button>
@@ -452,8 +454,8 @@
             <label class="text-sm text-blue-600 font-bold block mb-1 text-center">⚙️ 一般血糖機校正倍率</label>
             <div class="text-[10px] text-blue-400 mb-2 text-center font-bold">當選擇「一般血糖機」時會自動乘以倍率</div>
             <div class="flex items-center gap-2">
-               <span class="text-xs text-blue-400 font-bold">目前倍率：</span>
-               <input type="number" inputmode="decimal" step="0.1" v-model="profile.glucoseCorrection" @change="saveProfile" class="input-field !bg-white text-blue-600 font-bold text-xl text-center flex-1">
+               <span class="text-xs text-blue-400 font-bold shrink-0">目前倍率：</span>
+               <input type="number" inputmode="decimal" step="0.1" v-model="profile.glucoseCorrection" @change="saveProfile" class="input-field !bg-white text-blue-600 font-bold text-xl text-center flex-1 !py-2">
             </div>
           </div>
         </div>
@@ -694,6 +696,7 @@
     const { createApp } = Vue;
     let chartInstance = null;
 
+    // 🛡️ 裝甲級讀取引擎
     function safeParse(key, defaultVal) {
       try {
         const data = localStorage.getItem(key);
@@ -753,6 +756,7 @@
           profile: mergedProfile, 
           avatar: localStorage.getItem('pupu_avatar') || '',
           
+          // 🎨 5 款手帳主題調色盤
           themes: {
             pink: { main: '#FFB6C1', dark: '#D87093', light: '#FFF0F5', shadow: 'rgba(255, 182, 193, 0.3)' },
             blue: { main: '#7DD3FC', dark: '#0284C7', light: '#F0F9FF', shadow: 'rgba(125, 211, 252, 0.3)' },
@@ -774,17 +778,18 @@
           ]),
           
           newFood: { name: '', unit: '', weight: '', kcal: '', category: 'staple' },
+          // 🌟 預設寵物血糖機
           form: { date: getLocalDateString(), time: getLocalTimeString(), glucose: '', device: '寵物血糖機', actualInsulinDose: '', insulinTime: new Date().getHours() < 15 ? '早' : '晚', selectedFoodId: null, foodRecordType: 'amount', foodAmount: '', foodGrams: '', weight: '', notes: '' },
           exportRange: 'all', exportStartDate: getPastDateString(30), exportEndDate: getLocalDateString(), exportOptions: { glucose: true, insulin: true, food: true, other: true },
           editingRecord: null, editForm: {}, editingSettingFood: null, editSettingFoodForm: {}, editingSettingInsulin: null, editSettingInsulinForm: {}, fallbackData: null, showPasteImport: false, pasteData: '',
           
-          expandedDays: {}, 
-          activeSetting: 'profile', 
+          expandedDays: {}, // 控制歷史手帳展開狀態
+          activeSetting: 'profile', // 🌟 手風琴選單控制
           baseGreetingObj: todayGreeting
         }
       },
       computed: {
-        // 🌟 主題引擎：動態綁定至根節點
+        // 🎨 將主題轉換成 CSS 變數綁定到最外層
         cssVars() {
           const t = this.themes[this.profile.theme] || this.themes['pink'];
           return {
@@ -866,6 +871,7 @@
 
         homeStatus() {
           const n = this.profile.name || '貓貓';
+          // 替換動態名字
           const greeting = {
             title: this.baseGreetingObj.title,
             sub: this.baseGreetingObj.sub.replace(/普普/g, n).replace(/寶貝/g, n)
@@ -906,7 +912,7 @@
             }
           }
 
-          let insulinStatus = { text: '請測血糖評估針劑', emoji: '🧐', bgColor: 'bg-gray-50', textClass: 'text-gray-500' };
+          let insulinStatus = { text: '', emoji: '', bgColor: '', textClass: '' };
           const insRecs = todayRecs.filter(r => r.type === 'insulin');
           const hasMorning = insRecs.some(r => r.insulinTime === '早'); 
           const hasEvening = insRecs.some(r => r.insulinTime === '晚');
@@ -929,16 +935,26 @@
           const needEvening = checkNeed(eBgVal);
 
           if (isEveningNow) {
-            if (hasEvening) { insulinStatus = { text: '晚針已打，今天辛苦囉！', emoji: '🌙', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' }; } 
-            else if (eBgVal !== null && !needEvening) { insulinStatus = { text: '晚間血糖漂亮，免打針！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' }; } 
-            else if (eBgVal !== null && needEvening) { insulinStatus = { text: '晚間血糖出爐，該打針囉！💉', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' }; } 
-            else { insulinStatus = { text: '請先測量晚上血糖評估晚針喔！', emoji: '🧐', bgColor: 'bg-yellow-50 border-yellow-200', textClass: 'text-yellow-700' }; }
+            if (hasEvening) {
+              insulinStatus = { text: '晚針已打，今天辛苦囉！', emoji: '🌙', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' };
+            } else if (eBgVal !== null && !needEvening) {
+              insulinStatus = { text: '晚間血糖漂亮，免打針！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
+            } else if (eBgVal !== null && needEvening) {
+              insulinStatus = { text: '晚間血糖出爐，該打針囉！💉', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
+            } else {
+              insulinStatus = { text: '請先測量晚上血糖評估晚針喔！', emoji: '🧐', bgColor: 'bg-yellow-50 border-yellow-200', textClass: 'text-yellow-700' };
+            }
             if (!hasMorning && needMorning && mBgVal !== null) insulinStatus.text += ' (早針未記)';
           } else {
-            if (hasMorning) { insulinStatus = { text: `${n}早針已打！好棒！`, emoji: '☀️', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' }; } 
-            else if (mBgVal !== null && !needMorning) { insulinStatus = { text: '早上血糖漂亮，免打針！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' }; } 
-            else if (mBgVal !== null && needMorning) { insulinStatus = { text: '早晨血糖出爐，該打針囉！💉', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' }; } 
-            else { insulinStatus = { text: '早安！量個血糖看要不要打針？', emoji: '🧐', bgColor: 'bg-yellow-50 border-yellow-200', textClass: 'text-yellow-700' }; }
+            if (hasMorning) {
+              insulinStatus = { text: `${n}早針已打！好棒！`, emoji: '☀️', bgColor: 'bg-blue-50 border-blue-100', textClass: 'text-blue-700' };
+            } else if (mBgVal !== null && !needMorning) {
+              insulinStatus = { text: '早上血糖漂亮，免打針！🌟', emoji: '😻', bgColor: 'bg-green-50 border-green-100', textClass: 'text-green-700' };
+            } else if (mBgVal !== null && needMorning) {
+              insulinStatus = { text: '早晨血糖出爐，該打針囉！💉', emoji: '😼', bgColor: 'bg-sky-50 border-sky-100', textClass: 'text-sky-700' };
+            } else {
+              insulinStatus = { text: '早安！量個血糖看要不要打針？', emoji: '🧐', bgColor: 'bg-yellow-50 border-yellow-200', textClass: 'text-yellow-700' };
+            }
           }
 
           let calStatus = { text: '主子還沒吃 🤔', bgColor: 'bg-gray-50 border-gray-100', textClass: 'text-gray-500' };
@@ -957,14 +973,19 @@
           const otherRecs = recentRecs.filter(r => r.type === 'other');
           
           let n = this.profile.name || '貓貓';
-          let ageText = '';
-          if (this.profile.birthday) {
-             const ageYears = new Date().getFullYear() - new Date(this.profile.birthday).getFullYear();
-             if (ageYears > 0) ageText = `${ageYears}歲的`;
-          }
-          let catDesc = `${ageText}${this.profile.breed || ''}${this.profile.gender==='boy'?'小帥哥':(this.profile.gender==='girl'?'小美女':'')}`;
           
-          if (bgRecs.length === 0) return `過去 7 天還沒有測量紀錄喔！<br>辛苦家長了，趕快幫${n}記下第一筆健康手帳，讓我來幫您分析吧！🐈💕`;
+          let breedComment = '';
+          if (this.profile.breed) {
+            const b = this.profile.breed;
+            if (['波斯貓', '布偶貓', '緬因貓'].includes(b)) breedComment = `（${b}長毛容易吐毛球，記得多幫梳毛喔！）`;
+            else if (['英國短毛貓', '美國短毛貓'].includes(b)) breedComment = `（${b}比較容易發胖，要把關好熱量喔！）`;
+            else if (b === '曼赤肯') breedComment = `（曼赤肯底盤低，要注意脊椎負擔不能過胖喔！）`;
+            else if (b === '摺耳貓') breedComment = `（摺耳寶貝要特別留意關節保養喔！）`;
+            else if (['豹貓', '暹羅貓'].includes(b)) breedComment = `（${b}活動量大，記得補充優質蛋白質！）`;
+            else breedComment = `（${b}是獨一無二的寶貝，要一直健康喔！）`;
+          }
+
+          if (bgRecs.length === 0) return `過去 7 天還沒有測量紀錄喔！<br>辛苦家長了，趕快幫${n}記下第一筆健康手帳，讓我來幫您分析吧！🐈💕<br><span class="text-xs text-gray-500 mt-1 block">${breedComment}</span>`;
           
           let symptoms = { '嘔吐':0, '吐毛球':0, '軟便/拉稀':0, '喝多尿多':0, '精神不佳':0 };
           otherRecs.forEach(r => {
@@ -984,8 +1005,9 @@
           let lowCount = vals.filter(v => v < 80).length; 
           let hiCount = vals.filter(v => v >= 250).length;
           let perfectCount = vals.filter(v => v >= 80 && v <= 150).length;
+          let totalCount = vals.length;
           
-          let text = `<span class="block mb-2">親愛的家長您辛苦了！☕<br>近期${catDesc}「${n}」的平均血糖大約落在 <strong class="text-theme text-lg">${avg}</strong> mg/dL。</span>`;
+          let text = `<span class="block mb-2">親愛的家長您辛苦了！☕<br>近期「${n}」的平均血糖大約落在 <strong class="text-theme text-lg">${avg}</strong> mg/dL。${breedComment}</span>`;
           
           if (lowCount > 0) {
             text += `<span class="text-red-500 mt-2 block font-bold leading-relaxed border-l-4 border-red-400 pl-2">⚠️ 溫馨急訊：這週出現了 ${lowCount} 次低血糖 (<80)！低血糖非常危險，請密切留意${n}的精神食慾，並建議盡快與醫生討論是否需調降劑量喔！</span>`;
@@ -997,17 +1019,6 @@
             text += `<span class="text-[#5D4037] mt-2 block font-bold leading-relaxed border-l-4 border-theme pl-2">🍀 目前血糖紀錄看起來平穩，${n}表現得很棒！日常照護是一場馬拉松，家長也別忘了照顧好自己，開心地度過每一天喔！🐾</span>`;
           }
 
-          let breedComment = '';
-          if (this.profile.breed) {
-            const b = this.profile.breed;
-            if (['波斯貓', '布偶貓', '緬因貓'].includes(b)) breedComment = `${b}長毛容易吐毛球，記得多幫梳毛喔！`;
-            else if (['英短', '美短'].includes(b)) breedComment = `${b}比較容易發胖，要把關好熱量喔！`;
-            else if (b === '曼赤肯') breedComment = `曼赤肯底盤低，要注意脊椎負擔不能過胖喔！`;
-            else if (b === '摺耳貓') breedComment = `摺耳寶貝要特別留意關節保養喔！`;
-            else if (['豹貓', '暹羅貓'].includes(b)) breedComment = `${b}活動量大，記得補充優質蛋白質！`;
-            else breedComment = `${b}寶貝很特別，要一直健康喔！`;
-          }
-
           let symptomText = [];
           if(symptoms['嘔吐'] > 0) symptomText.push(`${symptoms['嘔吐']}次嘔吐`);
           if(symptoms['吐毛球'] > 0) symptomText.push(`${symptoms['吐毛球']}次吐毛球`);
@@ -1017,12 +1028,16 @@
 
           if (symptomText.length > 0) {
              text += `<br><span class="text-orange-600 mt-3 block font-bold leading-relaxed border-l-4 border-orange-400 pl-2">🩺 <strong>近期症狀追蹤：</strong>這週${n}出現了「${symptomText.join('、')}」。<br>`;
-             if(symptoms['喝多尿多'] > 0 || symptoms['精神不佳'] > 0) { text += `⚠️ 「喝多尿多」或「精神不佳」可能是血糖波動的警訊，請多多留意喔！`; } 
-             else if (symptoms['嘔吐'] > 0 || symptoms['軟便/拉稀'] > 0) { text += `💡 腸胃似乎有點敏感，記得觀察飲食狀況，若持續不舒服要盡快就醫喔！`; } 
-             else { text += `🐱 吐毛球是正常的，幫${n}拍拍背、多梳毛喔！`; }
+             if(symptoms['喝多尿多'] > 0 || symptoms['精神不佳'] > 0) {
+                 text += `⚠️ 「喝多尿多」或「精神不佳」可能是血糖波動的警訊，請多多留意喔！`;
+             } else if (symptoms['嘔吐'] > 0 || symptoms['軟便/拉稀'] > 0) {
+                 text += `💡 腸胃似乎有點敏感，記得觀察飲食狀況，若持續不舒服要盡快就醫喔！`;
+             } else {
+                 text += `🐱 吐毛球是正常的，幫${n}拍拍背、多梳毛喔！`;
+             }
              text += `</span>`;
           } else {
-             text += `<br><span class="text-blue-600 mt-3 block font-bold leading-relaxed border-l-4 border-blue-400 pl-2">🩺 <strong>近期症狀追蹤：</strong>這週沒有任何不舒服的紀錄，${n}真的很棒呢！🥰<br>${breedComment}</span>`;
+             text += `<br><span class="text-blue-600 mt-3 block font-bold leading-relaxed border-l-4 border-blue-400 pl-2">🩺 <strong>近期症狀追蹤：</strong>這週沒有任何不舒服的紀錄，${n}真的很棒呢！🥰</span>`;
           }
 
           return text;
@@ -1031,56 +1046,80 @@
         selectedFood() { return this.foods.find(f => f.id === this.form.selectedFoodId); },
         calculatedKcal() {
           if (!this.selectedFood) return 0;
-          let amt = this.form.foodRecordType === 'grams' ? (parseFloat(this.form.foodGrams) / (this.selectedFood.weight || 1)) : parseFloat(this.form.foodAmount);
-          return isNaN(amt) ? 0 : Math.round(amt * this.selectedFood.kcal);
+          if (this.form.foodRecordType === 'grams') {
+            let g = parseFloat(this.form.foodGrams);
+            if (isNaN(g) || !this.selectedFood.weight) return 0;
+            return Math.round((g / this.selectedFood.weight) * this.selectedFood.kcal);
+          } else {
+            let amt = parseFloat(this.form.foodAmount);
+            return isNaN(amt) ? 0 : Math.round(amt * this.selectedFood.kcal);
+          }
         },
-        convertedGlucose() {
-          if (this.form.device !== '一般血糖機' && this.form.device !== '羅氏(人用)') return null;
-          let factor = parseFloat(this.profile.glucoseCorrection) || 1.3;
-          return isNaN(parseFloat(this.form.glucose)) ? null : Math.round(parseFloat(this.form.glucose) * factor);
+        convertedGlucose() { 
+          if (this.form.device !== '一般血糖機' && this.form.device !== '羅氏(人用)') return null; 
+          let v = parseFloat(this.form.glucose); 
+          return isNaN(v) ? null : Math.round(v * (parseFloat(this.profile.glucoseCorrection) || 1.3)); 
         },
         referenceGlucose() {
-           let todayRecs = this.records.filter(r => r.type === 'glucose' && r.date === this.form.date).sort((a,b) => String(b.time).localeCompare(a.time));
-           return todayRecs.length > 0 ? todayRecs[0].glucose : null;
+          let todayGlucoseRecs = this.records.filter(r => r.type === 'glucose' && r.date === this.form.date);
+          if (todayGlucoseRecs.length > 0) { todayGlucoseRecs.sort((a, b) => String(b.time || '').localeCompare(String(a.time || ''))); return todayGlucoseRecs[0].glucose; }
+          return null;
         },
-        suggestedInsulin() { return '請參考醫師指示'; },
+        suggestedInsulin() {
+          const ref = this.referenceGlucose;
+          if (!this.insulinRules || this.insulinRules.length === 0) return '請先設定對照表';
+          let maxRule = this.insulinRules.reduce((prev, current) => (prev.max > current.max) ? prev : current, this.insulinRules[0]);
+          if (ref === 'HI') return maxRule.dose; 
+          if (ref === 'LO') return '免打';
+          const g = parseFloat(ref);
+          if (isNaN(g)) return '請先輸入血糖';
+          let matchedRule = this.insulinRules.find(r => g >= r.min && g <= r.max);
+          return matchedRule ? matchedRule.dose : '無對應';
+        },
         filteredChartRecords() {
-          let filtered = [...this.records].sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+          let filtered = [...this.records].sort((a,b) => (String(a.date||'')+' '+String(a.time||'')).localeCompare(String(b.date||'')+' '+String(b.time||'')));
           if (this.chartRange !== 'all') {
-            const cutoff = getPastDateString(parseInt(this.chartRange) || 7);
-            filtered = filtered.filter(r => r.date >= cutoff);
+            const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(this.chartRange));
+            const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}`;
+            filtered = filtered.filter(r => r.date >= cutoffStr);
           }
           return filtered;
         },
-        sortedRecords() { return [...this.records].sort((a, b) => (b.date+b.time).localeCompare(a.date+a.time)); },
+        sortedRecords() { return [...this.records].sort((a, b) => (String(b.date||'') + ' ' + String(b.time||'')).localeCompare(String(a.date||'') + ' ' + String(a.time||''))); },
         chartStats() {
           const recs = this.filteredChartRecords.filter(r => r.type === 'glucose');
+          if (recs.length === 0) return { avg: '-', max: '-', min: '-' };
           let vals = recs.map(r => this.getEvaluatedGlucose(r)).filter(v => !isNaN(v));
           if (vals.length === 0) return { avg: '-', max: '-', min: '-' };
-          return { avg: Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length), max: Math.max(...vals), min: Math.min(...vals) };
+          let max = Math.max(...vals); let min = Math.min(...vals); let avg = Math.round(vals.reduce((a,b)=>a+b, 0) / vals.length);
+          return { avg, max: max === 500 ? 'HI' : max, min: min === 20 ? 'LO' : min };
         },
         todayStats() {
-          const today = getLocalDateString();
-          let total = this.records.filter(r => r.date === today && r.type === 'food').reduce((sum, r) => sum + (parseFloat(r.kcal) || 0), 0);
+          const today = getLocalDateString(); let total = 0;
+          this.records.forEach(r => { if (r.date === today && r.type === 'food' && r.kcal) total += parseFloat(r.kcal); });
           let target = parseFloat(this.profile.weight) ? Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2) : 200;
           return { total: Math.round(total), percent: Math.round((total / target) * 100) };
         },
+        
         filteredGroupedRecords() {
           const groups = {};
+          
           this.records.forEach(rec => {
             if (!rec.date) return;
             if (!groups[rec.date]) groups[rec.date] = { allEvents: [], totalKcal: 0 };
             groups[rec.date].allEvents.push(rec);
-            if (rec.type === 'food' && rec.kcal) groups[rec.date].totalKcal += parseFloat(rec.kcal);
+            if (rec.type === 'food' && rec.kcal) {
+              groups[rec.date].totalKcal += parseFloat(rec.kcal);
+            }
           });
-          return Object.keys(groups).sort((a,b) => b.localeCompare(a)).map(date => {
+
+          const finalResult = [];
+          Object.keys(groups).sort((a, b) => String(b).localeCompare(String(a))).forEach(date => {
             let dayData = groups[date];
-            let displayEvents = dayData.allEvents;
-            if (this.logFilter === 'medical') displayEvents = displayEvents.filter(r => r.type === 'glucose' || r.type === 'insulin');
-            else if (this.logFilter === 'food') displayEvents = displayEvents.filter(r => r.type === 'food');
-            if (displayEvents.length === 0) return null;
             
-            let hasDanger = false; let allPerfect = true; let hasGlucose = false;
+            let hasDanger = false; 
+            let allPerfect = true; 
+            let hasGlucose = false;
             dayData.allEvents.forEach(rec => {
               if(rec.type === 'glucose') {
                 hasGlucose = true; 
@@ -1089,14 +1128,34 @@
                 if (val > 150 || val < 80) allPerfect = false;
               }
             });
-            return { date, events: displayEvents.sort((a,b) => a.time.localeCompare(b.time)), totalKcal: Math.round(dayData.totalKcal), status: hasDanger ? 'danger' : (hasGlucose && allPerfect ? 'perfect' : 'normal') };
-          }).filter(d => d !== null);
+
+            let displayEvents = dayData.allEvents;
+            if (this.logFilter === 'medical') {
+              displayEvents = displayEvents.filter(r => r.type === 'glucose' || r.type === 'insulin');
+            } else if (this.logFilter === 'food') {
+              displayEvents = displayEvents.filter(r => r.type === 'food');
+            }
+
+            if (displayEvents.length === 0) return;
+
+            finalResult.push({ 
+              date: date, 
+              events: displayEvents.sort((a,b) => String(a.time||'').localeCompare(String(b.time||''))), 
+              totalKcal: Math.round(dayData.totalKcal), 
+              status: hasDanger ? 'danger' : (hasGlucose && allPerfect ? 'perfect' : 'normal') 
+            });
+          });
+          
+          return finalResult;
         }
       },
       watch: {
-        currentTab(nv) { if (nv === 'chart') this.$nextTick(() => this.renderChart()); if (nv === 'home') this.$nextTick(() => this.renderMiniChart()); },
-        chartRange() { this.$nextTick(() => this.renderChart()); },
-        // 🌟 強制更新全站主題色
+        currentTab(newVal) { 
+          if (newVal === 'chart') this.$nextTick(() => { this.renderChart(); }); 
+          if (newVal === 'home') this.$nextTick(() => { this.renderMiniChart(); });
+        },
+        chartRange() { this.$nextTick(() => { this.renderChart(); }); },
+        // 🌟 確保載入時主題色正確寫入
         'profile.theme': {
            handler(tName) {
              const t = this.themes[tName] || this.themes['pink'];
@@ -1112,55 +1171,321 @@
            immediate: true
         }
       },
-      mounted() { this.$nextTick(() => this.renderMiniChart()); },
+      mounted() {
+        if(this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
+      },
       methods: {
-        toggleSetting(s) { this.activeSetting = this.activeSetting === s ? null : s; },
-        toggleDay(d) { this.expandedDays[d] = !this.expandedDays[d]; },
-        changeTheme(t) { this.profile.theme = t; this.saveProfile(); },
-        getMiniBgColor(v) { if(isNaN(v)) return 'bg-gray-400'; if(v >= 250) return 'bg-gray-500'; if(v < 80) return 'bg-red-500'; if(v <= 150) return 'bg-green-500'; return 'bg-yellow-500'; },
+        toggleSetting(section) {
+          this.activeSetting = this.activeSetting === section ? null : section;
+        },
+        toggleDay(date) {
+          this.expandedDays[date] = !this.expandedDays[date];
+        },
+        getMiniBgColor(val) {
+          if(isNaN(val)) return 'bg-gray-400';
+          if(val >= 250) return 'bg-gray-500';
+          if(val < 80) return 'bg-red-500';
+          if(val <= 150) return 'bg-green-500';
+          return 'bg-yellow-500';
+        },
+        changeTheme(themeName) {
+          this.profile.theme = themeName;
+          this.saveProfile();
+        },
+
+        addSymptom(text) {
+          if (this.form.notes) { if (!this.form.notes.includes(text)) this.form.notes += '，' + text; } 
+          else { this.form.notes = text; }
+        },
+        editAddSymptom(text) {
+          if (this.editForm.notes) { if (!this.editForm.notes.includes(text)) this.editForm.notes += '，' + text; } 
+          else { this.editForm.notes = text; }
+        },
+        
         getEvaluatedGlucose(rec) {
           if (!rec || !rec.glucose) return NaN;
           if (rec.glucose === 'HI') return 500;
           if (rec.glucose === 'LO') return 20;
           let v = parseFloat(rec.glucose);
-          let factor = parseFloat(this.profile.glucoseCorrection) || 1.3;
-          if ((rec.device === '一般血糖機' || rec.device === '羅氏(人用)') && !isNaN(v)) return Math.round(v * factor);
+          if ((rec.device === '一般血糖機' || rec.device === '羅氏(人用)') && !isNaN(v)) {
+            let factor = parseFloat(this.profile.glucoseCorrection) || 1.3;
+            return Math.round(v * factor);
+          }
           return v;
         },
-        addSymptom(t) { this.form.notes = this.form.notes ? `${this.form.notes}，${t}` : t; },
-        editAddSymptom(t) { this.editForm.notes = this.editForm.notes ? `${this.editForm.notes}，${t}` : t; },
-        saveProfile() { localStorage.setItem('pupu_profile', JSON.stringify(this.profile)); },
-        saveToLocal() { localStorage.setItem('pupu_records', JSON.stringify(this.records)); },
-        uploadAvatar(e) { const f = e.target.files[0]; if (!f) return; const reader = new FileReader(); reader.onload = (ev) => { this.avatar = ev.target.result; localStorage.setItem('pupu_avatar', this.avatar); }; reader.readAsDataURL(f); },
-        setNow() { this.form.date = getLocalDateString(); this.form.time = getLocalTimeString(); },
-        addFood() { if (!this.newFood.name) return; this.foods.push({ id: Date.now(), ...this.newFood }); localStorage.setItem('pupu_foods', JSON.stringify(this.foods)); this.newFood = { name: '', unit: '', weight: '', kcal: '', category: 'staple' }; alert('已加入食物庫！'); },
-        saveGlucose() { if (!this.form.glucose) return; this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose, device: this.form.device }); this.saveToLocal(); this.form.glucose = ''; alert('血糖已紀錄！'); this.renderMiniChart(); },
-        saveInsulin() { this.records.push({ id: Date.now(), type: 'insulin', date: this.form.date, time: this.form.time, insulinTime: this.form.insulinTime, insulinDose: this.form.actualInsulinDose }); this.saveToLocal(); alert('胰島素已紀錄！'); },
-        saveFood() { if (!this.selectedFood) return; this.records.push({ id: Date.now(), type: 'food', date: this.form.date, time: this.form.time, foodName: this.selectedFood.name, foodRecordType: this.form.foodRecordType, foodAmount: this.form.foodAmount, foodGrams: this.form.foodGrams, kcal: this.calculatedKcal, unit: this.selectedFood.unit }); this.saveToLocal(); alert('飲食已紀錄！'); },
-        saveOther() { this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes }); this.saveToLocal(); alert('紀錄已儲存！'); },
-        deleteRecord(id) { if(confirm('確定刪除？')) { this.records = this.records.filter(r => r.id !== id); this.saveToLocal(); } },
-        startEdit(rec) { this.editingRecord = rec; this.editForm = JSON.parse(JSON.stringify(rec)); if (this.editForm.type === 'glucose' && !this.editForm.device) this.editForm.device = 'CGM'; },
-        saveEdit() { const idx = this.records.findIndex(r => r.id === this.editForm.id); this.records[idx] = this.editForm; this.saveToLocal(); this.editingRecord = null; this.renderChart(); },
-        recalcEditFoodKcal() { const f = this.foods.find(food => food.name === this.editForm.foodName); if (f) { this.editForm.kcal = this.editForm.foodRecordType === 'grams' ? Math.round((parseFloat(this.editForm.foodGrams) / f.weight) * f.kcal) : Math.round(parseFloat(this.editForm.foodAmount) * f.kcal); } },
-        getEventsByType(evs, t) { return evs.filter(e => e.type === t); },
-        calculateTargetKcal() { this.profile.targetKcal = Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2); this.saveProfile(); },
-        exportBackup() { this.fallbackData = JSON.stringify({ records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, avatar: this.avatar, exportDate: new Date().toISOString() }); },
-        importFromPaste() { try { const d = JSON.parse(this.pasteData); if (d.records) { this.records = d.records; this.profile = d.profile; this.foods = d.foods; this.insulinRules = d.insulinRules || []; this.avatar = d.avatar || ''; this.saveToLocal(); this.saveProfile(); localStorage.setItem('pupu_foods', JSON.stringify(this.foods)); localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules)); localStorage.setItem('pupu_avatar', this.avatar); alert('還原成功！'); this.showPasteImport = false; } } catch(e) { alert('失敗！'); } },
-        exportCSV() { let csv = "\uFEFF日期,時間,類別,數值,儀器,備註,熱量\n"; this.records.forEach(r => { csv += `${r.date},${r.time},${r.type},${r.glucose||r.foodName||r.insulinDose||''},${r.device||''},${r.notes||''},${r.kcal||''}\n`; }); this.fallbackData = csv; },
-        copyFallback() { const t = document.getElementById("fallbackTextArea"); t.select(); document.execCommand('copy'); alert('已複製！'); },
-        renderMiniChart() {
-          const ctx = document.getElementById('miniGlucoseChart'); if(!ctx) return;
-          if(window.miniChartInstance) window.miniChartInstance.destroy();
-          const bgRecs = this.records.filter(r => r.date === getLocalDateString() && r.type === 'glucose').sort((a,b) => a.time.localeCompare(b.time));
-          if(bgRecs.length === 0) return;
-          window.miniChartInstance = new Chart(ctx, { type: 'line', data: { labels: bgRecs.map(r => r.time), datasets: [{ data: bgRecs.map(g => this.getEvaluatedGlucose(g)), borderColor: this.cssVars['--theme-main'], borderWidth: 2, fill: true, backgroundColor: 'rgba(255,255,255,0.3)', tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false, min: 0 } } } });
+
+        uploadAvatar(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (event) => { this.avatar = event.target.result; localStorage.setItem('pupu_avatar', this.avatar); };
+          reader.readAsDataURL(file);
         },
+        async handleExport(content, fileName, mimeType) {
+          const file = new File([content], fileName, { type: mimeType });
+          try {
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({ files: [file], title: fileName });
+            } else { throw new Error('Share API not supported'); }
+          } catch (err) {
+            if (err.name === 'AbortError') return;
+            this.fallbackData = content;
+          }
+        },
+        copyFallback() {
+          const textArea = document.getElementById("fallbackTextArea");
+          textArea.select();
+          try {
+            document.execCommand('copy');
+            alert('✅ 複製成功！\n請將內容貼到「備忘錄」保存，或直接傳給醫師。');
+            this.fallbackData = null;
+          } catch (err) {
+            alert('❌ 複製失敗，請長按文字框手動全選複製。');
+          }
+        },
+        exportBackup() {
+          const backupData = { records: this.records, profile: this.profile, foods: this.foods, insulinRules: this.insulinRules, avatar: this.avatar, exportDate: new Date().toISOString() };
+          const jsonString = JSON.stringify(backupData);
+          this.handleExport(jsonString, `糖貓健康日記_備份_${getLocalDateString()}.json`, 'application/json');
+        },
+        importFromPaste() {
+          try {
+            const data = JSON.parse(this.pasteData);
+            if (data.records) {
+              if (confirm('確定要還原覆蓋嗎？')) {
+                this.records = Array.isArray(data.records) ? data.records : []; 
+                if (data.profile) this.profile = data.profile; 
+                if (data.foods && Array.isArray(data.foods)) this.foods = data.foods; 
+                if (data.insulinRules && Array.isArray(data.insulinRules)) this.insulinRules = data.insulinRules;
+                this.saveToLocal(); this.saveProfile();
+                localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
+                localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules));
+                if (data.avatar) { this.avatar = data.avatar; localStorage.setItem('pupu_avatar', this.avatar); }
+                alert('🎉 還原成功！'); this.showPasteImport = false; this.pasteData = '';
+                if (this.currentTab === 'chart') this.$nextTick(() => { this.renderChart(); });
+                if (this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
+              }
+            } else { alert('❌ 內容缺少紀錄資料，請確定複製完整！'); }
+          } catch (err) { alert('❌ 解析失敗，請確定貼上的是備份碼！'); }
+        },
+        exportCSV() {
+          const selectedTypes = [];
+          if (this.exportOptions.glucose) selectedTypes.push('glucose');
+          if (this.exportOptions.insulin) selectedTypes.push('insulin');
+          if (this.exportOptions.food) selectedTypes.push('food');
+          if (this.exportOptions.other) selectedTypes.push('other');
+
+          let recordsToExport = this.sortedRecords.filter(r => selectedTypes.includes(r.type));
+          if (this.exportRange === 'custom') recordsToExport = recordsToExport.filter(r => r.date >= this.exportStartDate && r.date <= this.exportEndDate);
+          if (recordsToExport.length === 0) return alert('這個區間與項目沒有紀錄可匯出喔！');
+
+          let csv = "\uFEFF日期,時間,類別,數值,儀器,劑量,食物,熱量\n";
+          recordsToExport.forEach(r => { csv += `${r.date||''},${r.time||''},${r.type||''},${r.glucose||''},${r.device||''},${r.insulinDose||''},${r.foodName||''},${r.kcal||''}\n`; });
+          this.handleExport(csv, `糖貓健康日記_${getLocalDateString()}.csv`, 'text/csv;charset=utf-8;');
+        },
+        saveToLocal() { localStorage.setItem('pupu_records', JSON.stringify(this.records)); },
+        saveProfile() { localStorage.setItem('pupu_profile', JSON.stringify(this.profile)); },
+        setNow() { this.form.date = getLocalDateString(); this.form.time = getLocalTimeString(); },
+        addFood() {
+          if (!this.newFood.name) return alert('請填寫食物名稱喔！');
+          this.foods.push({ id: Date.now(), ...this.newFood });
+          localStorage.setItem('pupu_foods', JSON.stringify(this.foods));
+          this.newFood = { name: '', unit: '', weight: '', kcal: '', category: 'staple' };
+        },
+        deleteFood(id) { if(confirm('確定刪除這個食物嗎？')) { this.foods = this.foods.filter(f => f.id !== id); localStorage.setItem('pupu_foods', JSON.stringify(this.foods)); } },
+        startEditFood(f) { this.editingSettingFood = f; this.editSettingFoodForm = JSON.parse(JSON.stringify(f)); },
+        saveEditFood() {
+          const idx = this.foods.findIndex(f => f.id === this.editSettingFoodForm.id);
+          this.foods[idx] = this.editSettingFoodForm; localStorage.setItem('pupu_foods', JSON.stringify(this.foods)); this.editingSettingFood = null;
+        },
+        startEditInsulin(r) { this.editingSettingInsulin = r; this.editSettingInsulinForm = JSON.parse(JSON.stringify(r)); },
+        saveEditInsulin() {
+          const idx = this.insulinRules.findIndex(r => r.id === this.editSettingInsulinForm.id);
+          this.insulinRules[idx] = this.editSettingInsulinForm; localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules)); this.editingSettingInsulin = null;
+        },
+        addInsulinRule() { this.insulinRules.push({ id: Date.now(), min: 0, max: 0, dose: '0' }); },
+        deleteInsulinRule(id) { this.insulinRules = this.insulinRules.filter(r => r.id !== id); localStorage.setItem('pupu_insulin_rules', JSON.stringify(this.insulinRules)); },
+        
+        saveGlucose() {
+          if (!this.form.glucose) return alert('請先輸入血糖喔！');
+          this.records.push({ id: Date.now(), type: 'glucose', date: this.form.date, time: this.form.time, glucose: this.form.glucose, device: this.form.device });
+          this.saveToLocal(); alert('🩸 血糖已紀錄！'); this.form.glucose = '';
+          if(this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
+        },
+        saveInsulin() {
+          if (!this.form.actualInsulinDose) return alert('請先輸入施打劑量喔！');
+          this.records.push({ id: Date.now(), type: 'insulin', date: this.form.date, time: this.form.time, insulinTime: this.form.insulinTime, insulinDose: this.form.actualInsulinDose });
+          this.saveToLocal(); alert('💉 胰島素已紀錄！'); this.form.actualInsulinDose = '';
+        },
+        saveFood() {
+          if (!this.selectedFood) return alert('請先選擇食物喔！');
+          this.records.push({ id: Date.now(), type: 'food', date: this.form.date, time: this.form.time, foodName: this.selectedFood.name, foodRecordType: this.form.foodRecordType, foodAmount: this.form.foodAmount, foodGrams: this.form.foodGrams, kcal: this.calculatedKcal, unit: this.selectedFood.unit });
+          this.saveToLocal(); alert('🐟 飲食已紀錄！'); this.form.foodAmount = ''; this.form.foodGrams = '';
+        },
+        saveOther() {
+          if (!this.form.weight && !this.form.notes) return alert('請輸入體重或備註喔！');
+          this.records.push({ id: Date.now(), type: 'other', date: this.form.date, time: this.form.time, weight: this.form.weight, notes: this.form.notes });
+          this.saveToLocal(); alert('🩺 其他數據已儲存！'); this.form.weight = ''; this.form.notes = '';
+        },
+        
+        startEdit(rec) { 
+          this.editingRecord = rec; 
+          this.editForm = JSON.parse(JSON.stringify(rec)); 
+          // 🛡️ 防呆機制：如果是舊紀錄沒有儀器欄位，自動補為 CGM
+          if (this.editForm.type === 'glucose' && !this.editForm.device) this.editForm.device = 'CGM';
+        },
+        cancelEdit() { this.editingRecord = null; },
+        saveEdit() {
+          const idx = this.records.findIndex(r => r.id === this.editForm.id);
+          this.records[idx] = this.editForm; this.saveToLocal(); this.editingRecord = null;
+          if (this.currentTab === 'chart') this.$nextTick(() => { this.renderChart(); });
+          if (this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
+        },
+        recalcEditFoodKcal() {
+          const f = this.foods.find(food => food.name === this.editForm.foodName);
+          if (f) {
+            if (this.editForm.foodRecordType === 'grams') this.editForm.kcal = Math.round((parseFloat(this.editForm.foodGrams) / f.weight) * f.kcal);
+            else this.editForm.kcal = Math.round(parseFloat(this.editForm.foodAmount) * f.kcal);
+          }
+        },
+        deleteRecord(id) { 
+          if(confirm('確定要刪除這筆紀錄嗎？')) { 
+            this.records = this.records.filter(r => r.id !== id); this.saveToLocal(); 
+            if(this.currentTab === 'chart') this.$nextTick(() => { this.renderChart(); });
+            if(this.currentTab === 'home') this.$nextTick(() => { this.renderMiniChart(); });
+          } 
+        },
+        getEventsByType(evs, type) { return (evs || []).filter(e => e.type === type); },
+        calculateTargetKcal() { this.profile.targetKcal = Math.round(((30 * parseFloat(this.profile.weight)) + 70) * 1.2); this.saveProfile(); },
+        
+        renderMiniChart() {
+          if (typeof Chart === 'undefined') return;
+          const ctx = document.getElementById('miniGlucoseChart'); if(!ctx) return;
+          
+          if(window.miniChartInstance) window.miniChartInstance.destroy();
+          
+          const today = getLocalDateString();
+          const bgRecs = this.records.filter(r => r.date === today && r.type === 'glucose').sort((a,b) => String(a.time||'').localeCompare(String(b.time||'')));
+          if(bgRecs.length === 0) return;
+
+          const dataVals = bgRecs.map(g => this.getEvaluatedGlucose(g));
+          const pointColors = dataVals.map(val => {
+             if (val === 500) return '#9333EA'; 
+             if (val <= 40) return '#991B1B'; 
+             if (val < 80) return '#EF4444'; 
+             if (val <= 150) return '#10B981';
+             return '#F59E0B'; 
+          });
+
+          const themeMain = this.cssVars['--theme-main'];
+
+          window.miniChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: bgRecs.map(r => r.time),
+              datasets: [{ 
+                data: dataVals, 
+                borderColor: themeMain, 
+                pointBackgroundColor: pointColors, 
+                pointRadius: 3,
+                borderWidth: 2,
+                fill: true, 
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                tension: 0.4 
+              }]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false,
+              plugins: { legend: { display: false }, tooltip: { enabled: false } },
+              scales: { 
+                x: { display: false }, 
+                y: { display: false, min: 0 } 
+              },
+              layout: { padding: {top: 5, bottom: 5, left: 5, right: 5} }
+            }
+          });
+        },
+
         renderChart() {
+          if (typeof Chart === 'undefined') return;
           const ctx = document.getElementById('glucoseChart'); if(!ctx) return;
           if(chartInstance) chartInstance.destroy();
-          const recs = this.filteredChartRecords.filter(r => r.type === 'glucose');
-          if(recs.length === 0) return;
-          chartInstance = new Chart(ctx, { type: 'line', data: { labels: recs.map(r => r.date.slice(5) + ' ' + r.time), datasets: [{ label: '血糖', data: recs.map(g => this.getEvaluatedGlucose(g)), borderColor: this.cssVars['--theme-main'], tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, suggestedMax: 300 } } } });
+
+          const glucoseRecords = this.filteredChartRecords.filter(r => r.type === 'glucose');
+          if(glucoseRecords.length === 0) return;
+
+          const dataVals = glucoseRecords.map(g => this.getEvaluatedGlucose(g));
+
+          const pointColors = dataVals.map(val => {
+             if (val === 500) return '#9333EA'; 
+             if (val <= 40) return '#991B1B'; 
+             if (val < 80) return '#EF4444'; 
+             if (val <= 150) return '#10B981';
+             return '#F59E0B'; 
+          });
+
+          const safeZonePlugin = {
+            id: 'safeZone',
+            beforeDraw: (chart) => {
+              const {ctx, chartArea, scales: {y}} = chart;
+              if (!chartArea) return;
+              ctx.save();
+              const yTop = y.getPixelForValue(150);
+              const yBottom = y.getPixelForValue(80);
+              const top = Math.max(yTop, chartArea.top);
+              const bottom = Math.min(yBottom, chartArea.bottom);
+              if (bottom > top) {
+                ctx.fillStyle = 'rgba(167, 243, 208, 0.4)';
+                ctx.fillRect(chartArea.left, top, chartArea.right - chartArea.left, bottom - top);
+              }
+              ctx.restore();
+            }
+          };
+
+          const themeMain = this.cssVars['--theme-main'];
+
+          chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: glucoseRecords.map(r => (r.date||'').slice(5) + ' ' + (r.time||'')),
+              datasets: [{ 
+                label: '血糖', 
+                data: dataVals, 
+                borderColor: themeMain, 
+                pointBackgroundColor: pointColors, 
+                pointRadius: 4,
+                fill: false, 
+                tension: 0.3 
+              }]
+            },
+            options: {
+              responsive: true, 
+              maintainAspectRatio: false,
+              plugins: { 
+                legend: { display: false },
+                tooltip: { callbacks: { label: (context) => {
+                  let val = context.raw;
+                  if (val === null) return null;
+                  
+                  let gRec = glucoseRecords[context.dataIndex];
+                  let deviceStr = gRec && gRec.device ? ` (${gRec.device})` : '';
+                  let convStr = '';
+                  
+                  if ((gRec.device === '一般血糖機' || gRec.device === '羅氏(人用)') && val !== 500 && val !== 20) {
+                     convStr = ` (換算)`;
+                  }
+                  
+                  if (val === 20) return '血糖: LO (<40)' + deviceStr;
+                  return '血糖: ' + val + (val === 500 ? ' (HI)' : '') + deviceStr + convStr;
+                } } }
+              },
+              scales: { 
+                y: { min: 0, suggestedMax: 300 },
+                x: { ticks: { font: { size: 10 } } }
+              }
+            },
+            plugins: [safeZonePlugin]
+          });
         }
       }
     }).mount('#app');
