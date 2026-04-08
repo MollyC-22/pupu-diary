@@ -213,11 +213,20 @@
         <h3 class="font-bold text-gray-600 text-lg flex items-center gap-2"><span class="highlighter">👩‍⚕️ 貓醫生分析 Memo</span></h3>
       </div>
       
-      <div class="card !bg-[#FFFDFE] border border-theme-light relative shadow-lg !p-6 !pt-8 !rounded-[2rem] mb-10 mt-6">
+<div class="card !bg-[#FFFDFE] border-2 border-theme-light relative shadow-lg !p-6 !pt-16 !rounded-[2rem] mb-10 mt-16">
         
-        <img src="home_doctor_cat.png" class="absolute -top-8 left-4 w-16 h-16 rounded-full shadow-md border-4 border-white object-cover bg-white" alt="貓醫生">
+        <div class="absolute -top-14 left-1/2 transform -translate-x-1/2 z-20">
+          <div class="relative">
+            <img src="home_doctor_cat.png" class="w-28 h-28 rounded-full shadow-lg border-[6px] border-white object-cover bg-white" alt="貓醫生">
+            <div class="absolute bottom-0 -right-2 text-2xl bg-white rounded-full p-1 shadow-md border-2 border-theme-light flex items-center justify-center">🩺</div>
+          </div>
+        </div>
         
-        <div class="memo-lines text-sm text-gray-700 font-bold leading-relaxed mt-2" v-html="trendAnalysisText"></div>
+        <div class="text-center mb-4">
+          <span class="bg-theme-light text-theme font-bold px-5 py-2 rounded-full text-sm tracking-widest shadow-sm">貓醫生專屬診斷 Memo</span>
+        </div>
+
+        <div class="memo-lines text-sm text-gray-700 font-bold leading-relaxed" v-html="trendAnalysisText"></div>
         <div class="absolute bottom-3 right-4 text-xl text-theme rotate-[-15deg] font-mono opacity-80">Paw🐾</div>
       </div>
 
