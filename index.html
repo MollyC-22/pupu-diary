@@ -87,7 +87,7 @@
       <button @click="currentTab = 'settings'" class="flex-1 py-2 rounded-full text-[11px] font-bold transition-all active:scale-95 flex flex-col items-center justify-center gap-0.5" :class="currentTab === 'settings' ? 'bg-theme text-white shadow-inner' : 'text-gray-400'"><span class="text-base">⚙️</span>設定</button>
     </div>
 
-    <div v-show="currentTab === 'home'">
+<div v-show="currentTab === 'home'">
       
       <div v-if="isBirthdayToday" class="card !border-2 !border-pink-300 mb-6 !p-0 overflow-hidden shadow-lg relative" style="background: linear-gradient(135deg, #fff1f2, #ffe4e6);">
         <div class="absolute -right-4 -bottom-6 text-7xl opacity-20">🎂</div>
@@ -124,7 +124,7 @@
         <div class="flex items-center gap-5">
           <label class="w-24 h-24 border-4 rounded-[2rem] flex items-center justify-center text-5xl shrink-0 cursor-pointer relative overflow-hidden bg-cover bg-center shadow-md rotate-[-3deg] bg-theme-light border-theme" :style="avatar ? `background-image: url(${avatar})` : ''">
             <span v-if="!avatar">🐈</span>
-            <div class="absolute bottom-0 w-full bg-black/50 text-white text-[10px] text-center py-1 font-bold leading-none opacity-90 backdrop-blur-sm">換照片</div>
+            <div class="absolute bottom-0 w-full bg-black/50 text-white text-[10px] text-center py-1 font-bold leading-none transition-all opacity-90 backdrop-blur-sm">換照片</div>
             <input type="file" accept="image/*" class="hidden" @change="uploadAvatar">
           </label>
           <div class="flex-1">
@@ -145,9 +145,11 @@
       </div>
 
       <div class="grid grid-cols-1 gap-4 mb-10">
+        
         <div class="card !bg-white !border-2 !border-solid !rounded-3xl !p-5 overflow-hidden transition-all relative border-theme shadow-theme">
           <div class="absolute inset-[5px] border-[1.5px] border-dashed rounded-[22px] pointer-events-none opacity-50 border-theme"></div>
-          <div class="absolute -right-4 -bottom-4 text-8xl opacity-5">🩸</div>
+          
+          <img src="home_bg_glucose.png" class="absolute -right-4 -bottom-4 w-32 h-32 opacity-15 object-contain pointer-events-none" alt="">
           
           <div class="flex justify-between items-center relative z-10">
             <div class="flex items-center gap-3">
@@ -165,11 +167,11 @@
           <div v-show="homeStatus.bgStatus.hasData" class="relative z-10">
             <div v-show="homeStatus.bgStatus.isCgm" class="mt-4 h-16 w-full relative"><canvas id="miniGlucoseChart"></canvas></div>
             <div v-show="!homeStatus.bgStatus.isCgm" class="mt-4 flex gap-3">
-              <div class="flex-1 bg-gray-50 rounded-xl p-2.5 flex justify-between items-center border border-gray-100 shadow-sm">
+              <div class="flex-1 bg-gray-50/80 backdrop-blur-sm rounded-xl p-2.5 flex justify-between items-center border border-gray-100 shadow-sm">
                 <span class="text-xs font-bold text-gray-400">☀️ 早</span>
                 <span class="font-bold text-lg font-mono tracking-tighter" :class="homeStatus.bgStatus.morning.color">{{ homeStatus.bgStatus.morning.val }}</span>
               </div>
-              <div class="flex-1 bg-gray-50 rounded-xl p-2.5 flex justify-between items-center border border-gray-100 shadow-sm">
+              <div class="flex-1 bg-gray-50/80 backdrop-blur-sm rounded-xl p-2.5 flex justify-between items-center border border-gray-100 shadow-sm">
                 <span class="text-xs font-bold text-gray-400">🌙 晚</span>
                 <span class="font-bold text-lg font-mono tracking-tighter" :class="homeStatus.bgStatus.evening.color">{{ homeStatus.bgStatus.evening.val }}</span>
               </div>
@@ -179,7 +181,10 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div class="card !rounded-3xl overflow-hidden rotate-[-2deg] hover:rotate-0 transition-all !p-4" :class="homeStatus.insulinStatus.bgColor">
-            <div class="absolute -right-2 -bottom-2 text-6xl opacity-10 transform -scale-x-100">💉</div>
+            <div class="washi-tape blue !w-12 !h-4 !top-[-4px]"></div>
+            
+            <img src="home_bg_insulin.png" class="absolute -right-2 -bottom-2 w-20 h-20 opacity-20 object-contain pointer-events-none transform -scale-x-100" alt="">
+            
             <div class="relative z-10 flex flex-col items-center text-center mt-2">
               <div class="w-10 h-10 bg-white/80 rounded-full flex items-center justify-center text-2xl mb-2 shadow-sm">{{ homeStatus.insulinStatus.emoji }}</div>
               <div class="text-[11px] text-gray-500 font-bold mb-1">胰島素施打</div>
@@ -188,13 +193,16 @@
           </div>
           
           <div class="card !rounded-3xl overflow-hidden rotate-[2deg] hover:rotate-0 transition-all !p-4" :class="homeStatus.calStatus.bgColor">
-             <div class="absolute -right-2 -bottom-2 text-6xl opacity-10">🐟</div>
+             <div class="washi-tape yellow !w-12 !h-4 !top-[-4px]"></div>
+             
+             <img src="home_bg_food.png" class="absolute -right-2 -bottom-2 w-20 h-20 opacity-20 object-contain pointer-events-none" alt="">
+             
              <div class="relative z-10 flex flex-col items-center text-center mt-2">
-               <div class="font-bold text-orange-500 text-sm mb-2 bg-white/60 px-2 py-0.5 rounded-md shadow-sm">{{ todayStats.total }} <span class="text-[10px] text-orange-400">/ {{ profile.targetKcal }}</span></div>
+               <div class="font-bold text-orange-500 text-sm mb-2 bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-md shadow-sm">{{ todayStats.total }} <span class="text-[10px] text-orange-400">/ {{ profile.targetKcal }}</span></div>
                <div class="text-[11px] text-gray-500 font-bold mb-1">熱量進度</div>
                <div class="font-bold text-sm leading-snug" :class="homeStatus.calStatus.textClass">{{ homeStatus.calStatus.text }}</div>
                <div class="w-full bg-white/60 rounded-full h-2.5 overflow-hidden mt-2 border border-white shadow-inner">
-                 <div class="bg-gradient-to-r from-orange-300 to-orange-500 h-full rounded-full transition-all" :style="{ width: Math.min(todayStats.percent, 100) + '%' }"></div>
+                 <div class="bg-gradient-to-r from-orange-300 to-orange-500 h-full rounded-full transition-all duration-1000" :style="{ width: Math.min(todayStats.percent, 100) + '%' }"></div>
                </div>
              </div>
           </div>
@@ -204,9 +212,12 @@
       <div class="flex justify-between items-center mb-2 pl-2 pr-1">
         <h3 class="font-bold text-gray-600 text-lg flex items-center gap-2"><span class="highlighter">👩‍⚕️ 貓醫生分析 Memo</span></h3>
       </div>
-      <div class="card !bg-[#FFFDFE] border border-theme-light relative shadow-lg !p-6 !rounded-[2rem] mb-10">
-        <div class="absolute -top-4 left-6 text-4xl drop-shadow-md">📌</div>
-        <div class="memo-lines text-sm text-gray-700 font-bold leading-relaxed" v-html="trendAnalysisText"></div>
+      
+      <div class="card !bg-[#FFFDFE] border border-theme-light relative shadow-lg !p-6 !pt-8 !rounded-[2rem] mb-10 mt-6">
+        
+        <img src="home_doctor_cat.png" class="absolute -top-8 left-4 w-16 h-16 rounded-full shadow-md border-4 border-white object-cover bg-white" alt="貓醫生">
+        
+        <div class="memo-lines text-sm text-gray-700 font-bold leading-relaxed mt-2" v-html="trendAnalysisText"></div>
         <div class="absolute bottom-3 right-4 text-xl text-theme rotate-[-15deg] font-mono opacity-80">Paw🐾</div>
       </div>
 
