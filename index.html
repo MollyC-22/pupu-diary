@@ -359,7 +359,18 @@
         </div>
         <div class="flex gap-2 mb-5 overflow-x-auto pb-2 pl-1"><button @click="logFilter = 'all'" :class="logFilter === 'all' ? 'bg-theme text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">全部</button><button @click="logFilter = 'medical'" :class="logFilter === 'medical' ? 'bg-blue-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">🩸 醫療</button><button @click="logFilter = 'food'" :class="logFilter === 'food' ? 'bg-orange-500 text-white shadow-md border-transparent' : 'bg-white text-gray-500 border border-gray-200'" class="px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 active:scale-95 border-2">🐟 飲食</button></div>
 
-        <div v-if="filteredGroupedRecords.length === 0" class="text-center text-gray-400 py-10 bg-white rounded-[2rem] border-4 border-dashed border-theme font-bold opacity-70">沒有紀錄喔！</div>
+<div v-if="filteredGroupedRecords.length === 0" class="flex flex-col items-center justify-center py-12 px-6 bg-white rounded-[2rem] border-4 border-dashed border-theme-light opacity-80">
+          <img src="empty_state_cat.png" class="w-48 h-auto mb-4 object-contain" alt="找不到紀錄">
+          
+          <div class="text-center">
+            <p class="text-theme font-bold text-lg mb-1">找不到紀錄耶...</p>
+            <p class="text-gray-400 text-xs font-bold">這段期間好像還沒有幫 {{ profile.name || '寶貝' }} 寫日記喔！</p>
+          </div>
+          
+          <button @click="currentTab = 'record'; setNow();" class="mt-6 px-6 py-2 bg-theme-light text-theme border-2 border-theme rounded-full text-xs font-bold active:scale-95 transition-all shadow-sm">
+            ✨ 現在就去補一筆吧！
+          </button>
+        </div>
         
         <div v-for="day in filteredGroupedRecords" :key="day.date" class="card !p-0 overflow-hidden border-2 border-theme-light !rounded-[2rem] shadow-sm mb-4 transition-all">
           <div @click="toggleDay(day.date)" class="px-5 py-4 cursor-pointer active:bg-gray-50 transition-colors" :class="expandedDays[day.date] ? 'bg-theme-light border-b border-theme-light' : 'bg-white'">
