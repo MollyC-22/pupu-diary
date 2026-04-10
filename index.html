@@ -1048,10 +1048,12 @@
           return { greeting, bgStatus, insulinStatus, calStatus };
         },
 
-        trendAnalysisText() {
+trendAnalysisText() {
           const past7 = getPastDateString(7); 
           const recentRecs = this.records.filter(r => r.date >= past7);
           const bgRecs = recentRecs.filter(r => r.type === 'glucose');
+          // 🌟 新增：讀取最近7天的打針紀錄，準備給醫生判斷用
+          const insRecs = recentRecs.filter(r => r.type === 'insulin'); 
           const otherRecs = recentRecs.filter(r => r.type === 'other');
           
           let n = this.profile.name || '貓貓';
@@ -1088,14 +1090,37 @@
           let hiCount = vals.filter(v => v >= 250).length;
           let perfectCount = vals.filter(v => v >= 80 && v <= 150).length;
           
+          // 🌟 核心邏輯升級：判斷是否為「停針狀態」
+          const isRemission = this.remissionDays > 0;
+          const hasRecentInsulin = insRecs.length > 0;
+          
           let text = `<span class="block mb-2">親愛的家長您辛苦了！☕<br>近期「${n}」的平均血糖大約落在 <strong class="text-theme text-lg">${avg}</strong> mg/dL。${breedComment}</span>`;
           
+          // 🌟 根據停針與打針狀態，給出全面且合邏輯的診斷
           if (lowCount > 0) {
-            text += `<span class="text-red-500 mt-2 block font-bold leading-relaxed border-l-4 border-red-400 pl-2">⚠️ 溫馨急訊：這週出現了 ${lowCount} 次低血糖 (<80)！低血糖非常危險，請密切留意${n}的精神食慾，並建議盡快與醫生討論是否需調降劑量喔！</span>`;
+            if (isRemission && !hasRecentInsulin) {
+                // 停針狀態下出現低血糖的提醒
+                text += `<span class="text-red-500 mt-2 block font-bold leading-relaxed border-l-4 border-red-400 pl-2">⚠️ 溫馨急訊：這週出現了 ${lowCount} 次低血糖 (<80)！既然「${n}」目前已經停針，請務必確認寶貝是否有確實吃飯！若不吃東西或持續低血糖，請盡快就醫檢查原因喔！</span>`;
+            } else {
+                // 還有在打針狀態下出現低血糖的提醒
+                text += `<span class="text-red-500 mt-2 block font-bold leading-relaxed border-l-4 border-red-400 pl-2">⚠️ 溫馨急訊：這週出現了 ${lowCount} 次低血糖 (<80)！低血糖非常危險，請密切留意${n}的精神食慾，並建議盡快與醫生討論是否需「調降劑量」喔！</span>`;
+            }
           } else if (avg >= 80 && avg <= 150 && perfectCount >= vals.length * 0.5) {
-            text += `<span class="text-green-600 mt-2 block font-bold leading-relaxed border-l-4 border-green-400 pl-2">🌟 太棒了！本週有超過一半的紀錄落在完美的綠色區間，您真的照顧得超級用心！${n}一定覺得很幸福～請繼續保持喔！😺✨</span>`;
+            if (isRemission) {
+                // 停針狀態下的完美稱讚
+                text += `<span class="text-green-600 mt-2 block font-bold leading-relaxed border-l-4 border-green-400 pl-2">🌟 太棒了！停針後依然有超過一半的紀錄落在完美的綠色區間，${n}的胰臟正在自己努力運作！您真的照顧得超級用心，請繼續維持喔！😺✨</span>`;
+            } else {
+                // 還有在打針狀態下的完美稱讚
+                text += `<span class="text-green-600 mt-2 block font-bold leading-relaxed border-l-4 border-green-400 pl-2">🌟 太棒了！本週有超過一半的紀錄落在完美的綠色區間，您真的照顧得超級用心！照這個進度，說不定有機會慢慢減少劑量喔！😺✨</span>`;
+            }
           } else if (hiCount >= 3) {
-            text += `<span class="text-purple-600 mt-2 block font-bold leading-relaxed border-l-4 border-purple-400 pl-2">📈 觀察 Memo：這週高血糖比較頻繁（大於250有 ${hiCount} 次）。天氣變化或壓力都有可能影響，記得多讓${n}喝水。下次帶${n}回診時，別忘了把報表拿給醫生看喔！💪</span>`;
+            if (isRemission && !hasRecentInsulin) {
+                // 停針狀態下頻繁高血糖的復發警訊
+                text += `<span class="text-purple-600 mt-2 block font-bold leading-relaxed border-l-4 border-purple-400 pl-2">📈 觀察 Memo：這週高血糖比較頻繁（大於250有 ${hiCount} 次）。這可能是復發的警訊！請密切觀察是否有喝多尿多等症狀，並盡快聯繫醫師評估是否需要「恢復打針」喔！💪</span>`;
+            } else {
+                // 還有在打針狀態下頻繁高血糖的提醒
+                text += `<span class="text-purple-600 mt-2 block font-bold leading-relaxed border-l-4 border-purple-400 pl-2">📈 觀察 Memo：這週高血糖比較頻繁（大於250有 ${hiCount} 次）。天氣變化或壓力都有可能影響，記得多讓${n}喝水。下次帶${n}回診時，別忘了把報表拿給醫生看喔！💪</span>`;
+            }
           } else {
             text += `<span class="text-[#5D4037] mt-2 block font-bold leading-relaxed border-l-4 border-theme pl-2">🍀 目前血糖紀錄看起來平穩，${n}表現得很棒！日常照護是一場馬拉松，家長也別忘了照顧好自己，開心地度過每一天喔！🐾</span>`;
           }
