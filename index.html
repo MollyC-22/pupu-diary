@@ -123,13 +123,15 @@
         </div>
       </div>
 
-      <div v-if="remissionDays > 0" class="card !border-2 !border-yellow-300 mb-8 !p-0 overflow-hidden shadow-lg relative" style="background: linear-gradient(135deg, #fffbeb, #fef3c7);">
+<div v-if="remissionDays > 0" class="card !border-2 !border-yellow-300 mb-8 !p-0 overflow-hidden shadow-lg relative" style="background: linear-gradient(135deg, #fffbeb, #fef3c7);">
         <div class="absolute -right-4 -bottom-6 text-8xl opacity-20">🎉</div>
         <div class="absolute -left-4 -top-4 text-6xl opacity-20">✨</div>
         <div class="p-5 flex items-center gap-4 relative z-10">
-          <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-3xl shadow-sm border-4 border-yellow-200 shrink-0">
-             {{ remissionDays >= 30 ? '👑' : (remissionDays >= 14 ? '🏆' : '🌟') }}
+          
+          <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm border-4 border-yellow-200 shrink-0 overflow-hidden">
+            <img src="icon_remission.png" alt="停針勝利" class="w-full h-full object-cover">
           </div>
+          
           <div>
             <div class="text-xs text-yellow-600 font-bold mb-1 tracking-wide">超棒的健康里程碑！</div>
             <div class="text-lg font-bold text-yellow-800">已經停針 <span class="text-3xl text-red-500 mx-1">{{ remissionDays }}</span> 天囉！</div>
